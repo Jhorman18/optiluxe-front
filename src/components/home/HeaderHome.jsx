@@ -1,4 +1,5 @@
 import { FaEye, FaShoppingCart } from "react-icons/fa";
+import { Router } from "react-router-dom";
 
 export default function HeaderHome() {
   return (
@@ -43,9 +44,9 @@ export default function HeaderHome() {
         <div className="flex items-center gap-6">
           <FaShoppingCart className="text-gray-600 hover:text-blue-600 cursor-pointer transition" />
 
-          <button className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded-lg transition">
-            Ingresar
-          </button>
+              <button className="cursor-pointer bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded-lg transition" onClick={() => window.location.href = "/login"}>
+                Ingresar
+              </button>
         </div>
       </div>
     </header>
