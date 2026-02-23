@@ -5,6 +5,7 @@ import ProtectedRoute from "./ProtectedRoute";
 import TestPage from "../pages/TestPage";
 import Services from "../pages/Services";
 import Conocenos from "../pages/Conocenos";
+import Productos from "../pages/Productos";
 
 export default function AppRouter() {
   return (
@@ -14,7 +15,7 @@ export default function AppRouter() {
         <Route path="/login" element={<AuthPage />} />
         <Route path="/servicios" element={<Services />} />
         <Route path="/conocenos" element={<Conocenos/>} />
-
+        <Route path="/productos" element={<Productos />} />
         
         <Route element={<ProtectedRoute allowedRoles={["ADMINISTRADOR"]} />}>
           <Route path="/test" element={<TestPage />} />
