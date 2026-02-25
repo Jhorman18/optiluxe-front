@@ -8,7 +8,7 @@ import { useAuth } from "../../context/auth/AuthContext.jsx";
 
 export default function RegisterForm() {
   const navigate = useNavigate();
-  const { register: registerUser } = useAuth(); 
+  const { register: registerUser } = useAuth();
   // IMPORTANTE: renombramos para no chocar con react-hook-form
 
   const [error, setError] = useState("");
@@ -48,7 +48,7 @@ export default function RegisterForm() {
           "No fue posible registrarse",
       });
 
-      navigate("/login", { replace: true });
+      navigate("/login?mode=login", { replace: true });
     } catch (err) {
       setError(
         err?.response?.data?.message ??
