@@ -1,5 +1,9 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
-import { loginService, meService } from "../../services/auth.service";
+import {
+  loginService,
+  meService,
+  registerService,
+} from "../../services/auth.service";
 
 const AuthContext = createContext(null);
 
@@ -7,7 +11,7 @@ export function AuthProvider({ children }) {
   const [usuario, setUsuario] = useState(null);
   const [cargando, setCargando] = useState(true);
 
-  // Al arrancar la app: intenta recuperar sesión por cookie (/auth/me)
+  // 🔹 Recuperar sesión al iniciar app
   useEffect(() => {
     let cancelado = false;
 
@@ -23,19 +27,54 @@ export function AuthProvider({ children }) {
     }
 
     init();
+
     return () => {
       cancelado = true;
     };
   }, []);
 
+  // 🔹 LOGIN
   const login = async ({ correo, password }) => {
     const res = await loginService({ correo, password });
     setUsuario(res.data.usuario);
     return res.data.usuario;
   };
 
+  // 🔹 REGISTER
+  const register = async (formData) => {
+    // 🔥 Mapeamos datos del formulario al modelo real del backend
+    const payload = {
+      usuNombre: formData.nombre,
+      usuApellido: formData.apellido,
+      usuDocumento: formData.documento,
+      usuTelefono: formData.telefono,
+      usuCorreo: formData.correo,
+      usuPassword: formData.password,
+      usuDireccion: formData.direccion,
+      usuEstado: "ACTIVO",
+
+      // 👇 Siempre será CLIENTE si no viene definido
+      rol: formData.rol ?? "CLIENTE",
+    };
+
+    const res = await registerService(payload);
+
+    //  Si tu backend devuelve usuario autenticado automáticamente:
+    // setUsuario(res.data.usuario);
+
+    return res.data;
+  };
+
   const value = useMemo(
-    () => ({ usuario, cargando, login, setUsuario }),
+    () => ({
+      usuario,
+      cargando,
+      login,
+      register,
+      setUsuario,
+      isAuthenticated: !!usuario,
+      rol: usuario?.rol?.rolNombre ?? null, // útil para proteger rutas
+    }),
     [usuario, cargando]
   );
 
