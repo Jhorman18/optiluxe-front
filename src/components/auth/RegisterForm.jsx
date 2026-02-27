@@ -9,8 +9,6 @@ import { useAuth } from "../../context/auth/AuthContext.jsx";
 export default function RegisterForm() {
   const navigate = useNavigate();
   const { register: registerUser } = useAuth();
-  // IMPORTANTE: renombramos para no chocar con react-hook-form
-
   const [error, setError] = useState("");
 
   const {
@@ -18,6 +16,7 @@ export default function RegisterForm() {
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm({
+    mode: "onChange",
     defaultValues: {
       nombre: "",
       apellido: "",
@@ -33,7 +32,6 @@ export default function RegisterForm() {
     setError("");
 
     try {
-      // Enviamos el rol fijo como CLIENTE
       const registerPromise = registerUser({
         ...values,
         rol: "CLIENTE",
@@ -48,7 +46,7 @@ export default function RegisterForm() {
           "No fue posible registrarse",
       });
 
-      navigate("/login?mode=login", { replace: true });
+      navigate("/login", { replace: true });
     } catch (err) {
       setError(
         err?.response?.data?.message ??
@@ -60,10 +58,12 @@ export default function RegisterForm() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
+
       <InputField
         label="Nombre"
         type="text"
         placeholder="Juan"
+        required
         error={errors.nombre?.message}
         {...register("nombre", {
           required: "El nombre es obligatorio",
@@ -74,6 +74,7 @@ export default function RegisterForm() {
         label="Apellido"
         type="text"
         placeholder="Pérez"
+        required
         error={errors.apellido?.message}
         {...register("apellido", {
           required: "El apellido es obligatorio",
@@ -84,29 +85,63 @@ export default function RegisterForm() {
         label="Documento"
         type="text"
         placeholder="123456789"
+        required
         error={errors.documento?.message}
         {...register("documento", {
           required: "El documento es obligatorio",
+          pattern: {
+            value: /^[0-9]+$/,
+            message: "El documento solo debe contener números",
+          },
+          minLength: {
+            value: 6,
+            message: "Debe tener mínimo 6 dígitos",
+          },
         })}
+        onInput={(e) => {
+          e.target.value = e.target.value.replace(/[^0-9]/g, "");
+        }}
       />
 
       <InputField
         label="Teléfono"
         type="text"
         placeholder="3001234567"
+        required
         error={errors.telefono?.message}
         {...register("telefono", {
           required: "El teléfono es obligatorio",
+          pattern: {
+            value: /^[0-9]+$/,
+            message: "El teléfono solo debe contener números",
+          },
+          minLength: {
+            value: 10,
+            message: "Debe tener 10 dígitos",
+          },
+          maxLength: {
+            value: 10,
+            message: "Debe tener 10 dígitos",
+          },
         })}
+        onInput={(e) => {
+          e.target.value = e.target.value.replace(/[^0-9]/g, "");
+        }}
       />
 
       <InputField
         label="Correo Electrónico"
         type="email"
-        placeholder="email@email.com"
+        placeholder="usuario@dominio.com"
+        required
         error={errors.correo?.message}
         {...register("correo", {
           required: "El correo es obligatorio",
+          pattern: {
+            value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+            message:
+              "Debe ingresar un correo válido (ej: usuario@dominio.com)",
+          },
         })}
       />
 
@@ -114,6 +149,7 @@ export default function RegisterForm() {
         label="Dirección"
         type="text"
         placeholder="Calle 123 #45-67"
+        required
         error={errors.direccion?.message}
         {...register("direccion", {
           required: "La dirección es obligatoria",
@@ -123,13 +159,19 @@ export default function RegisterForm() {
       <InputField
         label="Contraseña"
         type="password"
-        placeholder="************"
+        placeholder="********"
+        required
         error={errors.password?.message}
         {...register("password", {
           required: "La contraseña es obligatoria",
           minLength: {
-            value: 6,
-            message: "Debe tener mínimo 6 caracteres",
+            value: 8,
+            message: "Debe tener mínimo 8 caracteres",
+          },
+          pattern: {
+            value: /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*?&]{8,}$/,
+            message:
+              "Debe contener al menos una letra y un número",
           },
         })}
       />
