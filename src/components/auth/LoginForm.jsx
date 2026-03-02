@@ -24,8 +24,7 @@ export default function LoginForm() {
     setError("");
 
     try {
-      const loginPromise = login(values); // hace request al backend y guarda usuario en contexto
-
+      const loginPromise = login(values); 
       await toast.promise(loginPromise, {
         loading: "Iniciando sesión...",
         success: "¡Sesión iniciada!",
@@ -37,7 +36,7 @@ export default function LoginForm() {
 
       navigate("/test", { replace: true });
     } catch (err) {
-      // opcional: también mostrar el error debajo del formulario
+      
       setError(
         err?.response?.data?.message ??
           err?.message ??

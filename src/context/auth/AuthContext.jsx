@@ -11,7 +11,7 @@ export function AuthProvider({ children }) {
   const [usuario, setUsuario] = useState(null);
   const [cargando, setCargando] = useState(true);
 
-  // 🔹 Recuperar sesión al iniciar app
+
   useEffect(() => {
     let cancelado = false;
 
@@ -33,16 +33,15 @@ export function AuthProvider({ children }) {
     };
   }, []);
 
-  // 🔹 LOGIN
+
   const login = async ({ correo, password }) => {
     const res = await loginService({ correo, password });
     setUsuario(res.data.usuario);
     return res.data.usuario;
   };
 
-  // 🔹 REGISTER
   const register = async (formData) => {
-    // 🔥 Mapeamos datos del formulario al modelo real del backend
+
     const payload = {
       usuNombre: formData.nombre,
       usuApellido: formData.apellido,
@@ -53,14 +52,13 @@ export function AuthProvider({ children }) {
       usuDireccion: formData.direccion,
       usuEstado: "ACTIVO",
 
-      // 👇 Siempre será CLIENTE si no viene definido
+
       rol: formData.rol ?? "CLIENTE",
     };
 
     const res = await registerService(payload);
 
-    //  Si tu backend devuelve usuario autenticado automáticamente:
-    // setUsuario(res.data.usuario);
+
 
     return res.data;
   };
@@ -73,7 +71,7 @@ export function AuthProvider({ children }) {
       register,
       setUsuario,
       isAuthenticated: !!usuario,
-      rol: usuario?.rol?.rolNombre ?? null, // útil para proteger rutas
+      rol: usuario?.rol?.rolNombre ?? null, 
     }),
     [usuario, cargando]
   );
