@@ -34,7 +34,7 @@ export default function LoginForm() {
           "No fue posible iniciar sesión",
       });
 
-      navigate("/test", { replace: true });
+      navigate("/", { replace: true });
     } catch (err) {
       
       setError(

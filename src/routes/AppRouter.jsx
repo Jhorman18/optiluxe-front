@@ -6,7 +6,7 @@ import TestPage from "../pages/TestPage";
 import Services from "../pages/Services";
 import Conocenos from "../pages/Conocenos";
 import Productos from "../pages/Productos";
-
+import Contacto from "../pages/Contacto";
 
 import FacturaListPage from "../pages/factura/FacturaListPage";
 import FacturaCreatePage from "../pages/factura/FacturaCreatePage";
@@ -22,6 +22,7 @@ export default function AppRouter() {
         <Route path="/servicios" element={<Services />} />
         <Route path="/conocenos" element={<Conocenos />} />
         <Route path="/productos" element={<Productos />} />
+        <Route path="/contacto" element={<Contacto />} />
 
         
         <Route element={<ProtectedRoute allowedRoles={["ADMINISTRADOR"]} />}>

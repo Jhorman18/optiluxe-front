@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import {
   loginService,
+  logoutService,
   meService,
   registerService,
 } from "../../services/auth.service";
@@ -63,15 +64,24 @@ export function AuthProvider({ children }) {
     return res.data;
   };
 
+  const logout = async () => {
+    try {
+      await logoutService();
+    } finally {
+      setUsuario(null);
+    }
+  };
+
   const value = useMemo(
     () => ({
       usuario,
       cargando,
       login,
+      logout,
       register,
       setUsuario,
       isAuthenticated: !!usuario,
-      rol: usuario?.rol?.rolNombre ?? null, 
+      rol: usuario?.rol?.rolNombre ?? null,
     }),
     [usuario, cargando]
   );
