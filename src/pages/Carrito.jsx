@@ -1,13 +1,15 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaTrash, FaMinus, FaPlus, FaShoppingBag, FaArrowLeft } from "react-icons/fa";
 import HeaderHome from "../components/home/HeaderHome.jsx";
 import Footer from "../components/layout/Footer.jsx";
 import { useCart } from "../context/cart/CartContext.jsx";
-import toast from "react-hot-toast";
+import PagoModal from "../components/cart/PagoModal.jsx";
 
 export default function Carrito() {
   const { carrito, cargando, updateItem, removeItem } = useCart();
   const navigate = useNavigate();
+  const [pagoOpen, setPagoOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -196,7 +198,7 @@ export default function Carrito() {
                 </div>
 
                 <button
-                  onClick={() => toast.success("Función de pago próximamente")}
+                  onClick={() => setPagoOpen(true)}
                   className="mt-5 w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition cursor-pointer"
                 >
                   Proceder al pago
@@ -212,6 +214,10 @@ export default function Carrito() {
       </main>
 
       <Footer />
+
+      {pagoOpen && (
+        <PagoModal onClose={() => setPagoOpen(false)} />
+      )}
     </div>
   );
 }

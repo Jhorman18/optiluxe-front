@@ -72,12 +72,23 @@ export function CartProvider({ children }) {
     }
   };
 
+  const pagarCarrito = async (metodoPago) => {
+    setCargando(true);
+    try {
+      const resultado = await carritoService.pagar(metodoPago);
+      setCarrito(EMPTY_CART);
+      return resultado;
+    } finally {
+      setCargando(false);
+    }
+  };
+
   const openPanel = () => setPanelOpen(true);
   const closePanel = () => setPanelOpen(false);
 
   return (
     <CartContext.Provider
-      value={{ carrito, cargando, panelOpen, openPanel, closePanel, addToCart, updateItem, removeItem }}
+      value={{ carrito, cargando, panelOpen, openPanel, closePanel, addToCart, updateItem, removeItem, pagarCarrito }}
     >
       {children}
     </CartContext.Provider>

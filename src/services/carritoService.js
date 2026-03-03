@@ -10,3 +10,6 @@ export const actualizarCantidad = (idCarritoProducto, cantidad) =>
 
 export const eliminarItem = (idCarritoProducto) =>
   api.delete(`/carrito/item/${idCarritoProducto}`).then((r) => r.data);
+
+export const pagar = (metodoPago) =>
+  api.post("/carrito/pagar", { metodoPago }).then((r) => r.data);
