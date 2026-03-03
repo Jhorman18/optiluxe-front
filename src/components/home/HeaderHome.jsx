@@ -12,6 +12,7 @@ import {
 } from "react-icons/fa";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/auth/AuthContext.jsx";
+import { useCart } from "../../context/cart/CartContext.jsx";
 
 const ROL_LABELS = {
   ADMINISTRADOR: "Administrador",
@@ -31,6 +32,7 @@ const MENU_ADMIN = { label: "Panel de administración", icon: FaUserShield, to: 
 export default function HeaderHome() {
   const navigate = useNavigate();
   const { isAuthenticated, cargando, usuario, rol, logout } = useAuth();
+  const { carrito, openPanel } = useCart();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef(null);
 
@@ -101,7 +103,18 @@ export default function HeaderHome() {
 
         {/* Acciones */}
         <div className="flex items-center gap-4">
-          <FaShoppingCart className="text-gray-600 hover:text-blue-600 cursor-pointer transition text-lg" />
+          <button
+            onClick={openPanel}
+            className="relative text-gray-600 hover:text-blue-600 cursor-pointer transition"
+            aria-label="Abrir carrito"
+          >
+            <FaShoppingCart className="text-lg" />
+            {carrito.totalItems > 0 && (
+              <span className="absolute -top-2 -right-2 bg-blue-600 text-white text-xs font-bold w-4 h-4 rounded-full flex items-center justify-center leading-none">
+                {carrito.totalItems > 9 ? "9+" : carrito.totalItems}
+              </span>
+            )}
+          </button>
 
           {cargando ? (
             <div className="flex items-center gap-2 animate-pulse">

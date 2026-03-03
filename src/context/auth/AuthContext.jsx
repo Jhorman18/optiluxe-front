@@ -81,7 +81,8 @@ export function AuthProvider({ children }) {
       register,
       setUsuario,
       isAuthenticated: !!usuario,
-      rol: usuario?.rol?.rolNombre ?? null,
+      // El backend devuelve rol como string ("CLIENTE") o como objeto {rolNombre}
+      rol: usuario?.rol?.rolNombre ?? usuario?.rol ?? null,
     }),
     [usuario, cargando]
   );

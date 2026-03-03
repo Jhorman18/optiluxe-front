@@ -10,10 +10,13 @@ import Contacto from "../pages/Contacto";
 
 import FacturaListPage from "../pages/factura/FacturaListPage";
 import FacturaCreatePage from "../pages/factura/FacturaCreatePage";
+import Carrito from "../pages/Carrito";
+import CartPanel from "../components/cart/CartPanel.jsx";
 
 export default function AppRouter() {
   return (
     <BrowserRouter>
+      <CartPanel />
       <Routes>
 
         
@@ -27,6 +30,14 @@ export default function AppRouter() {
         
         <Route element={<ProtectedRoute allowedRoles={["ADMINISTRADOR"]} />}>
           <Route path="/test" element={<TestPage />} />
+        </Route>
+
+        <Route
+          element={
+            <ProtectedRoute allowedRoles={["ADMINISTRADOR", "EMPLEADO", "CLIENTE"]} />
+          }
+        >
+          <Route path="/carrito" element={<Carrito />} />
         </Route>
 
         

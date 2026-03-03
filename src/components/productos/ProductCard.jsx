@@ -1,6 +1,9 @@
 import { FaStar, FaShoppingCart } from "react-icons/fa";
+import { useCart } from "../../context/cart/CartContext.jsx";
 
 export default function ProductCard({ product }) {
+  const { addToCart, cargando } = useCart();
+
   return (
     <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm hover:shadow-md transition">
       {/* Imagen */}
@@ -37,9 +40,13 @@ export default function ProductCard({ product }) {
       </p>
 
       {/* Botón */}
-      <button className="cursor-pointer mt-3 w-full bg-blue-700 hover:bg-blue-800 text-white text-sm py-2 rounded-lg flex items-center justify-center gap-2">
+      <button
+        onClick={() => addToCart(product.id, 1)}
+        disabled={cargando || product.stock === 0}
+        className="cursor-pointer mt-3 w-full bg-blue-700 hover:bg-blue-800 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm py-2 rounded-lg flex items-center justify-center gap-2 transition"
+      >
         <FaShoppingCart />
-        Agregar al Carrito
+        {product.stock === 0 ? "Sin stock" : "Agregar al Carrito"}
       </button>
     </div>
   );

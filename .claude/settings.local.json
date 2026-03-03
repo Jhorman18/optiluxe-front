@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl -s http://localhost:3000/api/producto)",
+      "Bash(curl -s -H \"Origin: http://localhost:5173\" -v http://localhost:3000/api/producto)",
+      "Bash(node -e \":*)",
+      "Bash(curl -s http://localhost:5173)",
+      "Bash(ls \"c:\\\\Users\\\\APRENDIZ\\\\Music\\\\optiluxe-front\\\\src\\\\components\"\" 2>/dev/null || echo \"no components dir \")"
+    ]
+  }
+}
