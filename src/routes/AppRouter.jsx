@@ -6,6 +6,7 @@ import TestPage from "../pages/TestPage";
 import Services from "../pages/Services";
 import Conocenos from "../pages/Conocenos";
 import Productos from "../pages/Productos";
+import ProductDetailPage from "../pages/ProductDetailPage";
 import Contacto from "../pages/Contacto";
 
 import FacturaListPage from "../pages/factura/FacturaListPage";
@@ -19,15 +20,16 @@ export default function AppRouter() {
       <CartPanel />
       <Routes>
 
-        
+
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<AuthPage />} />
         <Route path="/servicios" element={<Services />} />
         <Route path="/conocenos" element={<Conocenos />} />
         <Route path="/productos" element={<Productos />} />
+        <Route path="/productos/:id" element={<ProductDetailPage />} />
         <Route path="/contacto" element={<Contacto />} />
 
-        
+
         <Route element={<ProtectedRoute allowedRoles={["ADMINISTRADOR"]} />}>
           <Route path="/test" element={<TestPage />} />
         </Route>
@@ -40,7 +42,7 @@ export default function AppRouter() {
           <Route path="/carrito" element={<Carrito />} />
         </Route>
 
-        
+
         <Route
           element={
             <ProtectedRoute allowedRoles={["ADMINISTRADOR", "EMPLEADO"]} />
