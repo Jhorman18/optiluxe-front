@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   FaTimes,
   FaUniversity,
@@ -48,6 +48,15 @@ export default function PagoModal({ onClose }) {
   const [tipoCuenta, setTipoCuenta] = useState("ahorros");
   const [numeroCuenta, setNumeroCuenta] = useState("");
 
+  // 🔥 Detectar si es Nequi y ajustar tipoCuenta automáticamente
+  useEffect(() => {
+    if (banco === "Nequi") {
+      setTipoCuenta("nequi");
+    } else if (tipoCuenta === "nequi") {
+      setTipoCuenta("ahorros");
+    }
+  }, [banco]);
+
   const seleccionarMetodo = (id) => {
     setMetodo(id);
     setStep("form");
@@ -60,15 +69,30 @@ export default function PagoModal({ onClose }) {
         setError("Completa todos los campos para continuar.");
         return;
       }
+
+      if (banco === "Nequi" && numeroCuenta.length !== 10) {
+        setError("Nequi debe tener 10 dígitos (número celular).");
+        return;
+      }
+
+      if (banco !== "Nequi" && numeroCuenta.length !== 11) {
+        setError("La cuenta bancaria debe tener 11 dígitos.");
+        return;
+      }
     }
+
     setError("");
     setProcesando(true);
+
     try {
       const resultado = await pagarCarrito(metodo);
       setFactura(resultado);
       setStep("success");
     } catch (err) {
-      setError(err?.response?.data?.message ?? "Error al procesar el pago. Inténtalo de nuevo.");
+      setError(
+        err?.response?.data?.message ??
+          "Error al procesar el pago. Inténtalo de nuevo."
+      );
     } finally {
       setProcesando(false);
     }
@@ -158,35 +182,55 @@ export default function PagoModal({ onClose }) {
                     </select>
                   </div>
 
-                  <div>
-                    <label className="text-xs font-semibold text-gray-600 mb-1 block">Tipo de cuenta</label>
-                    <div className="flex gap-3">
-                      {["ahorros", "corriente"].map((tipo) => (
-                        <label key={tipo} className="flex items-center gap-2 cursor-pointer">
-                          <input
-                            type="radio"
-                            name="tipoCuenta"
-                            value={tipo}
-                            checked={tipoCuenta === tipo}
-                            onChange={() => setTipoCuenta(tipo)}
-                            className="accent-blue-600"
-                          />
-                          <span className="text-sm text-gray-700 capitalize">{tipo}</span>
-                        </label>
-                      ))}
+                  {/* Tipo de cuenta solo si NO es Nequi */}
+                  {banco && banco !== "Nequi" && (
+                    <div>
+                      <label className="text-xs font-semibold text-gray-600 mb-1 block">
+                        Tipo de cuenta
+                      </label>
+                      <div className="flex gap-3">
+                        {["ahorros", "corriente"].map((tipo) => (
+                          <label key={tipo} className="flex items-center gap-2 cursor-pointer">
+                            <input
+                              type="radio"
+                              name="tipoCuenta"
+                              value={tipo}
+                              checked={tipoCuenta === tipo}
+                              onChange={() => setTipoCuenta(tipo)}
+                              className="accent-blue-600"
+                            />
+                            <span className="text-sm text-gray-700 capitalize">
+                              {tipo}
+                            </span>
+                          </label>
+                        ))}
+                      </div>
                     </div>
-                  </div>
+                  )}
 
                   <div>
-                    <label className="text-xs font-semibold text-gray-600 mb-1 block">Número de cuenta</label>
+                    <label className="text-xs font-semibold text-gray-600 mb-1 block">
+                      {banco === "Nequi" ? "Número celular" : "Número de cuenta"}
+                    </label>
                     <input
                       type="text"
                       value={numeroCuenta}
-                      onChange={(e) => setNumeroCuenta(e.target.value.replace(/\D/g, ""))}
-                      placeholder="Ej: 1234567890"
-                      maxLength={16}
+                      onChange={(e) =>
+                        setNumeroCuenta(e.target.value.replace(/\D/g, ""))
+                      }
+                      placeholder={
+                        banco === "Nequi"
+                          ? "Ej: 3001234567"
+                          : "Ej: 12345678901"
+                      }
+                      maxLength={banco === "Nequi" ? 10 : 11}
                       className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
                     />
+                    <p className="text-xs text-gray-500 mt-1">
+                      {banco === "Nequi"
+                        ? "Ingresa tu número celular registrado en Nequi (10 dígitos)."
+                        : "Ingresa tu número de cuenta bancaria (11 dígitos)."}
+                    </p>
                   </div>
                 </>
               ) : (
@@ -200,22 +244,6 @@ export default function PagoModal({ onClose }) {
                   </p>
                 </div>
               )}
-
-              {/* Resumen */}
-              <div className="bg-gray-50 rounded-xl p-3 text-sm space-y-1.5 text-gray-600">
-                <div className="flex justify-between">
-                  <span>Subtotal</span>
-                  <span>${carrito.subtotal.toLocaleString()}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>IVA (19%)</span>
-                  <span>${Math.round(carrito.iva).toLocaleString()}</span>
-                </div>
-                <div className="flex justify-between font-bold text-gray-900 pt-1.5 border-t border-gray-200">
-                  <span>Total</span>
-                  <span className="text-blue-700">${Math.round(carrito.total).toLocaleString()}</span>
-                </div>
-              </div>
 
               {error && (
                 <p className="text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
@@ -259,14 +287,6 @@ export default function PagoModal({ onClose }) {
                   <span className="font-medium text-gray-900">
                     {factura.metodoPago === "PSE" ? "PSE" : "Efectivo"}
                   </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-500">Subtotal</span>
-                  <span className="font-medium text-gray-900">${factura.subtotal.toLocaleString()}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-500">IVA (19%)</span>
-                  <span className="font-medium text-gray-900">${Math.round(factura.iva).toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between font-bold text-gray-900 pt-2 border-t border-gray-200">
                   <span>Total pagado</span>
