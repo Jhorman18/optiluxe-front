@@ -27,7 +27,7 @@ const MENU_BASE = [
 ];
 
 const MENU_STAFF = { label: "Facturas", icon: FaFileInvoice, to: "/facturas" };
-const MENU_ADMIN = { label: "Panel de administración", icon: FaUserShield, to: "/test" };
+const MENU_ADMIN = { label: "Panel de administración", icon: FaUserShield, to: "/panel-admin" };
 
 export default function HeaderHome() {
   const navigate = useNavigate();
@@ -70,8 +70,7 @@ export default function HeaderHome() {
   };
 
   const linkClass = ({ isActive }) =>
-    `px-3 py-1 rounded-lg transition ${
-      isActive ? "text-blue-600 bg-blue-100" : "text-gray-600 hover:text-blue-600"
+    `px-3 py-1 rounded-lg transition ${isActive ? "text-blue-600 bg-blue-100" : "text-gray-600 hover:text-blue-600"
     }`;
 
   return (

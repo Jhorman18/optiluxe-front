@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import {
   loginService,
@@ -20,7 +21,7 @@ export function AuthProvider({ children }) {
       try {
         const res = await meService();
         if (!cancelado) setUsuario(res.data.usuario);
-      } catch (e) {
+      } catch {
         if (!cancelado) setUsuario(null);
       } finally {
         if (!cancelado) setCargando(false);
@@ -81,7 +82,6 @@ export function AuthProvider({ children }) {
       register,
       setUsuario,
       isAuthenticated: !!usuario,
-      // El backend devuelve rol como string ("CLIENTE") o como objeto {rolNombre}
       rol: usuario?.rol?.rolNombre ?? usuario?.rol ?? null,
     }),
     [usuario, cargando]

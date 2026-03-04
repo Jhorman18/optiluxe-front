@@ -27,7 +27,7 @@ export default function ProductDetailPage() {
                 let data;
                 try {
                     data = await getProductoById(id);
-                } catch (e) {
+                } catch {
                     const all = await getProductos();
                     data = all.find(p => String(p.id) === String(id));
                     if (!data) throw new Error("Producto no encontrado");
@@ -106,7 +106,6 @@ export default function ProductDetailPage() {
             <HeaderHome />
 
             <main className="flex-1 max-w-7xl mx-auto px-6 py-8 w-full">
-                {/* Breadcrumb */}
                 <nav className="flex items-center text-xs font-bold text-slate-400 uppercase tracking-wider mb-12">
                     <Link to="/" className="hover:text-blue-600 transition">Inicio</Link>
                     <FaChevronRight className="mx-2 text-[10px]" />
@@ -115,7 +114,6 @@ export default function ProductDetailPage() {
                     <span className="text-blue-600 line-clamp-1">{product.nombre}</span>
                 </nav>
 
-                {/* Headline Superior (Big Slogan) */}
                 <div className="text-center md:max-w-4xl mx-auto mb-16">
                     <h1 className="text-3xl md:text-5xl font-extrabold text-blue-700 mb-4 leading-tight">
                         Descubre la Claridad y el Estilo Ideal
@@ -125,10 +123,8 @@ export default function ProductDetailPage() {
                     </p>
                 </div>
 
-                {/* Layout de dos columnas: Detalle */}
                 <div className="flex flex-col lg:flex-row gap-12 lg:gap-20 items-stretch">
 
-                    {/* Columna Izquierda: Imagen */}
                     <div className="lg:w-1/2 flex items-center justify-center">
                         <div className="relative w-full aspect-square md:aspect-[4/3] lg:aspect-square bg-slate-50 rounded-3xl p-8 border border-slate-100 flex items-center justify-center shadow-inner group">
                             <img
@@ -142,7 +138,6 @@ export default function ProductDetailPage() {
                         </div>
                     </div>
 
-                    {/* Columna Derecha: Información */}
                     <div className="lg:w-1/2 flex flex-col justify-center">
 
                         <h2 className="text-2xl md:text-4xl font-bold text-slate-900 mb-4 leading-tight">
@@ -164,14 +159,12 @@ export default function ProductDetailPage() {
                             ))}
                         </ul>
 
-                        {/* Precio */}
                         <div className="mb-8">
                             <span className="text-4xl font-extrabold text-slate-900">
                                 ${product.precio?.toLocaleString()} <span className="text-lg text-slate-400 font-medium">COP</span>
                             </span>
                         </div>
 
-                        {/* Acción de Compra */}
                         <button
                             onClick={handleAddToCart}
                             disabled={product.stock === 0 || cartLoading || adding}

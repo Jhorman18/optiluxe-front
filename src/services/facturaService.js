@@ -1,11 +1,9 @@
-import axios from "axios";
+import { api } from "./api";
 
 export const crearFactura = async (data) => {
-  const response = await axios.post(
-    "http://localhost:3000/api/factura",
-    data,
-    { withCredentials: true }
-  );
-
+  const response = await api.post("/factura", data);
   return response.data;
 };
+
+export const getEstadisticasVentas = () =>
+  api.get("/factura/estadisticas").then(res => res.data);

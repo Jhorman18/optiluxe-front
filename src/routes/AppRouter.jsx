@@ -3,11 +3,14 @@ import HomePage from "../pages/HomePage";
 import AuthPage from "../pages/auth/AuthPage";
 import ProtectedRoute from "./ProtectedRoute";
 import TestPage from "../pages/TestPage";
+import AdminLayout from "../layouts/AdminLayout";
+import AdminDashboardPage from "../pages/admin/AdminDashboardPage";
 import Services from "../pages/Services";
 import Conocenos from "../pages/Conocenos";
 import Productos from "../pages/Productos";
 import ProductDetailPage from "../pages/ProductDetailPage";
 import Contacto from "../pages/Contacto";
+import InventarioPage from "../pages/admin/InventarioPage";
 
 import FacturaListPage from "../pages/factura/FacturaListPage";
 import FacturaCreatePage from "../pages/factura/FacturaCreatePage";
@@ -32,6 +35,10 @@ export default function AppRouter() {
 
         <Route element={<ProtectedRoute allowedRoles={["ADMINISTRADOR"]} />}>
           <Route path="/test" element={<TestPage />} />
+          <Route path="/panel-admin" element={<AdminLayout />}>
+            <Route index element={<AdminDashboardPage />} />
+            <Route path="inventario" element={<InventarioPage />} />
+          </Route>
         </Route>
 
         <Route
