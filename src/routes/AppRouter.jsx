@@ -11,6 +11,7 @@ import Productos from "../pages/Productos";
 import ProductDetailPage from "../pages/ProductDetailPage";
 import Contacto from "../pages/Contacto";
 import InventarioPage from "../pages/admin/InventarioPage";
+import NotificacionesPage from "../pages/admin/NotificacionesPage";
 import CitasPage from "../pages/CitasPage";
 
 import FacturaListPage from "../pages/factura/FacturaListPage";
@@ -40,6 +41,7 @@ export default function AppRouter() {
           <Route path="/panel-admin" element={<AdminLayout />}>
             <Route index element={<AdminDashboardPage />} />
             <Route path="inventario" element={<InventarioPage />} />
+            <Route path="notificaciones" element={<NotificacionesPage />} />
           </Route>
         </Route>
 

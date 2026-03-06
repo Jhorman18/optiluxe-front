@@ -18,6 +18,8 @@ const MENU_SIDEBAR = [
     { label: "Configuración", icon: FaCog, to: "/panel-admin/configuracion" },
 ];
 
+import NotificacionBell from "../components/layout/NotificacionBell";
+
 export default function AdminLayout() {
     const { usuario, logout } = useAuth();
     const navigate = useNavigate();
@@ -91,6 +93,11 @@ export default function AdminLayout() {
 
             {/* Contenido Principal */}
             <main className="flex-1 flex flex-col h-screen overflow-hidden">
+                {/* Mini Header superior para la campana */}
+                <header className="h-16 bg-white border-b border-slate-100 flex items-center justify-end px-8 shrink-0">
+                    <NotificacionBell />
+                </header>
+
                 {/* La sub-ruta (DashboardPage, PacientesPage, etc) se renderiza aquí */}
                 <div className="flex-1 overflow-y-auto">
                     <Outlet />

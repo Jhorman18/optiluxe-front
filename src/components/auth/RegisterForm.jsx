@@ -97,9 +97,13 @@ export default function RegisterForm() {
             value: 6,
             message: "Debe tener mínimo 6 dígitos",
           },
+          maxLength: {
+            value: 10,
+            message: "Máximo 10 dígitos (Formato Colombia)",
+          },
         })}
         onInput={(e) => {
-          e.target.value = e.target.value.replace(/[^0-9]/g, "");
+          e.target.value = e.target.value.replace(/[^0-9]/g, "").slice(0, 10);
         }}
       />
 
@@ -117,15 +121,15 @@ export default function RegisterForm() {
           },
           minLength: {
             value: 10,
-            message: "Debe tener 10 dígitos",
+            message: "Debe tener exactamente 10 dígitos",
           },
           maxLength: {
             value: 10,
-            message: "Debe tener 10 dígitos",
+            message: "Debe tener exactamente 10 dígitos",
           },
         })}
         onInput={(e) => {
-          e.target.value = e.target.value.replace(/[^0-9]/g, "");
+          e.target.value = e.target.value.replace(/[^0-9]/g, "").slice(0, 10);
         }}
       />
 
@@ -166,12 +170,12 @@ export default function RegisterForm() {
           required: "La contraseña es obligatoria",
           minLength: {
             value: 8,
-            message: "Debe tener mínimo 8 caracteres",
+            message: "Mínimo 8 caracteres",
           },
           pattern: {
-            value: /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*?&]{8,}$/,
+            value: /^(?=.*[A-Z])(?=.*\d).+$/,
             message:
-              "Debe contener al menos una letra y un número",
+              "Debe contener al menos una MAYÚSCULA y un número",
           },
         })}
       />

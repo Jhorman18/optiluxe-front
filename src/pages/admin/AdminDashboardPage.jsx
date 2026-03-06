@@ -65,10 +65,13 @@ export default function AdminDashboardPage() {
                     <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Dashboard</h1>
                     <p className="text-sm font-medium text-slate-500 mt-1">Bienvenido de nuevo, {nombre}</p>
                 </div>
-                <button className="flex items-center gap-2 bg-white border border-slate-200 text-slate-700 px-4 py-2.5 rounded-xl font-bold text-sm shadow-sm hover:bg-slate-50 transition cursor-pointer self-start sm:self-auto">
+                <Link 
+                    to="/panel-admin/notificaciones"
+                    className="flex items-center gap-2 bg-white border border-slate-200 text-slate-700 px-4 py-2.5 rounded-xl font-bold text-sm shadow-sm hover:bg-slate-50 transition cursor-pointer self-start sm:self-auto"
+                >
                     <FaBell className="text-slate-400" />
                     Notificaciones
-                </button>
+                </Link>
             </div>
 
             {/* Grid de KPIs */}

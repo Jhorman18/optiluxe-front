@@ -29,6 +29,8 @@ const MENU_BASE = [
 const MENU_STAFF = { label: "Facturas", icon: FaFileInvoice, to: "/facturas" };
 const MENU_ADMIN = { label: "Panel de administración", icon: FaUserShield, to: "/panel-admin" };
 
+import NotificacionBell from "../layout/NotificacionBell";
+
 export default function HeaderHome() {
   const navigate = useNavigate();
   const { isAuthenticated, cargando, usuario, rol, logout } = useAuth();
@@ -102,6 +104,7 @@ export default function HeaderHome() {
 
         {/* Acciones */}
         <div className="flex items-center gap-4">
+          <NotificacionBell />
           <button
             onClick={openPanel}
             className="relative text-gray-600 hover:text-blue-600 cursor-pointer transition"
