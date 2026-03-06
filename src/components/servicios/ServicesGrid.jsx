@@ -6,7 +6,7 @@ const ServicesGrid = () => {
   const navigate = useNavigate();
 
   const handleBook = () => {
-    navigate("/login");
+    navigate("/citas");
   };
 
   return (

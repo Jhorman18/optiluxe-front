@@ -11,6 +11,7 @@ import Productos from "../pages/Productos";
 import ProductDetailPage from "../pages/ProductDetailPage";
 import Contacto from "../pages/Contacto";
 import InventarioPage from "../pages/admin/InventarioPage";
+import CitasPage from "../pages/CitasPage";
 
 import FacturaListPage from "../pages/factura/FacturaListPage";
 import FacturaCreatePage from "../pages/factura/FacturaCreatePage";
@@ -27,6 +28,7 @@ export default function AppRouter() {
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<AuthPage />} />
         <Route path="/servicios" element={<Services />} />
+        <Route path="/citas" element={<CitasPage />} />
         <Route path="/conocenos" element={<Conocenos />} />
         <Route path="/productos" element={<Productos />} />
         <Route path="/productos/:id" element={<ProductDetailPage />} />
