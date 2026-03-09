@@ -10,6 +10,7 @@ export const services = [
     description:
       "Evaluación exhaustiva de tu salud visual con tecnología de punta",
     duration: "45 min",
+    durationMinutes: 45,
     price: "Desde $80.000 COP",
     features: [
       "Evaluación de agudeza visual",
@@ -24,6 +25,7 @@ export const services = [
     title: "Renovación de Fórmula",
     description: "Actualización de tu prescripción óptica actual",
     duration: "30 min",
+    durationMinutes: 30,
     price: "Desde $60.000 COP",
     features: [
       "Revisión de fórmula actual",
@@ -39,6 +41,7 @@ export const services = [
     description:
       "Encuentra los lentes de contacto perfectos para tu estilo de vida",
     duration: "60 min",
+    durationMinutes: 60,
     price: "Desde $100.000 COP",
     features: [
       "Evaluación de córnea",
@@ -53,6 +56,7 @@ export const services = [
     title: "Selección y Ajuste de Monturas",
     description: "Asesoría personalizada para encontrar el estilo perfecto",
     duration: "30 min",
+    durationMinutes: 30,
     price: "Servicio gratuito",
     features: [
       "Análisis de rostro y estilo",
