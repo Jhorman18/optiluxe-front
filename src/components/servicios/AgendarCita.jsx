@@ -27,6 +27,12 @@ const toMin = (hhmm) => {
 const getSlotsForDuration = (durationMinutes) =>
   ALL_SLOTS.filter((slot) => toMin(slot) + durationMinutes <= 17 * 60);
 
+/** Verifica si un slot ya pasó (para el día de hoy en UTC) */
+const isSlotPast = (slot, fecha) => {
+  if (!fecha) return false;
+  return new Date(`${fecha}T${slot}:00.000Z`) <= new Date();
+};
+
 /** Verifica si un slot se superpone con alguna cita existente.
  *  Regla: inicio_existente < nuevo_fin  AND  fin_existente > nuevo_inicio
  */
@@ -38,18 +44,8 @@ const isSlotOccupied = (slot, durationMinutes, occupiedRanges) => {
   );
 };
 
-// helpers de fecha UTC (mismo criterio que MisCitas)
-const formatFechaUTC = (iso) => {
-  const d = new Date(iso);
-  return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()))
-    .toLocaleDateString("es-CO", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
-};
-const formatHoraUTC = (iso) => {
-  const d = new Date(iso);
-  return `${String(d.getUTCHours()).padStart(2, "0")}:${String(d.getUTCMinutes()).padStart(2, "0")}`;
-};
 
-const AgendarCita = ({ onCitaAgendada }) => {
+const AgendarCita = ({ onCitaAgendada, refreshKey = 0 }) => {
   const navigate = useNavigate();
   const { usuario, isAuthenticated } = useAuth();
   const [step, setStep] = useState(1);
@@ -81,7 +77,7 @@ const AgendarCita = ({ onCitaAgendada }) => {
       .then(({ cita }) => setCitaActiva(cita ?? null))
       .catch(() => setCitaActiva(null))
       .finally(() => setLoadingCitaActiva(false));
-  }, [isAuthenticated]);
+  }, [isAuthenticated, refreshKey]);
 
   // Carga los horarios ocupados del backend cada vez que cambia la fecha
   // y estamos en el paso 2
@@ -132,10 +128,19 @@ const AgendarCita = ({ onCitaAgendada }) => {
         fkIdUsuario: usuario?.id,
       };
 
+      if (metodoPago && metodoPago !== "Gratuito") {
+        const valorNumerico = parseFloat(formData.totalAPagar.replace(/[^\d.-]/g, ''));
+        payload.pago = {
+          metodo: metodoPago,
+          estado: "Aprobado",
+          totalAPagar: valorNumerico
+        };
+      }
+
       await registrarCita(payload);
       toast.success("¡Cita agendada con éxito!");
       // Actualiza el estado de cita activa y notifica al panel MisCitas
-      getTieneCitaActiva().then(({ cita }) => setCitaActiva(cita ?? null)).catch(() => {});
+      getTieneCitaActiva().then(({ cita }) => setCitaActiva(cita ?? null)).catch(() => { });
       onCitaAgendada?.();
       setStep(4);
     } catch (error) {
@@ -168,11 +173,10 @@ const AgendarCita = ({ onCitaAgendada }) => {
               });
               handleNext();
             }}
-            className={`flex flex-col items-start rounded-xl border p-5 text-left transition-all ${
-              formData.citMotivo === service.title
+            className={`flex flex-col items-start rounded-xl border p-5 text-left transition-all ${formData.citMotivo === service.title
                 ? "border-blue-600 bg-blue-50/50 shadow-sm ring-1 ring-blue-600"
                 : "border-slate-200 bg-white hover:border-slate-300 hover:shadow-sm"
-            }`}
+              }`}
           >
             <div className="flex w-full items-center justify-between">
               <span className="font-medium text-slate-900">{service.title}</span>
@@ -188,11 +192,10 @@ const AgendarCita = ({ onCitaAgendada }) => {
                 <FaClock className="mr-1.5 inline h-3 w-3" /> {service.duration}
               </span>
               <span
-                className={`text-sm font-semibold ${
-                  service.price === "Servicio gratuito"
+                className={`text-sm font-semibold ${service.price === "Servicio gratuito"
                     ? "text-green-600"
                     : "text-blue-700"
-                }`}
+                  }`}
               >
                 {service.price}
               </span>
@@ -225,6 +228,7 @@ const AgendarCita = ({ onCitaAgendada }) => {
 
     const handleSlotClick = (slot) => {
       if (isSlotOccupied(slot, durationMinutes, occupiedRanges)) return;
+      if (isSlotPast(slot, formData.citFecha)) return;
       setFormData({ ...formData, citHora: slot });
     };
 
@@ -282,11 +286,9 @@ const AgendarCita = ({ onCitaAgendada }) => {
               <>
                 <div className="grid grid-cols-3 gap-3 sm:grid-cols-4">
                   {validSlots.map((slot) => {
-                    const occupied = isSlotOccupied(
-                      slot,
-                      durationMinutes,
-                      occupiedRanges
-                    );
+                    const occupied =
+                      isSlotOccupied(slot, durationMinutes, occupiedRanges) ||
+                      isSlotPast(slot, formData.citFecha);
                     const selected = formData.citHora === slot;
 
                     return (
@@ -297,10 +299,9 @@ const AgendarCita = ({ onCitaAgendada }) => {
                         onClick={() => handleSlotClick(slot)}
                         title={occupied ? "Horario no disponible" : undefined}
                         className={`relative rounded-lg border px-3 py-2 text-sm font-medium transition-all
-                          ${
-                            occupied
-                              ? "cursor-not-allowed border-slate-200 bg-slate-100 text-slate-400 line-through"
-                              : selected
+                          ${occupied
+                            ? "cursor-not-allowed border-slate-200 bg-slate-100 text-slate-400 line-through"
+                            : selected
                               ? "border-blue-600 bg-blue-600 text-white shadow-sm"
                               : "border-slate-300 bg-white text-slate-700 hover:border-slate-400 hover:bg-slate-50"
                           }`}
@@ -377,11 +378,10 @@ const AgendarCita = ({ onCitaAgendada }) => {
           <li className="flex justify-between pt-1">
             <span className="text-slate-600 font-semibold">Valor del Servicio</span>
             <span
-              className={`font-bold ${
-                formData.totalAPagar === "Servicio gratuito"
+              className={`font-bold ${formData.totalAPagar === "Servicio gratuito"
                   ? "text-green-600"
                   : "text-blue-700"
-              }`}
+                }`}
             >
               {formData.totalAPagar}
             </span>
@@ -431,8 +431,8 @@ const AgendarCita = ({ onCitaAgendada }) => {
           {loading
             ? "Procesando..."
             : formData.totalAPagar === "Servicio gratuito"
-            ? "Confirmar Cita"
-            : "Pagar y Confirmar"}
+              ? "Confirmar Cita"
+              : "Pagar y Confirmar"}
         </button>
       </div>
     </div>
@@ -484,7 +484,7 @@ const AgendarCita = ({ onCitaAgendada }) => {
   if (isAuthenticated && citaActiva) {
     return (
       <div className="rounded-2xl bg-white border border-amber-200 shadow-sm overflow-hidden">
-        <div className="bg-amber-50 px-6 py-5 flex items-center gap-3 border-b border-amber-200">
+        <div className="bg-amber-50 px-6 py-5 flex items-center gap-3">
           <div className="rounded-full bg-amber-100 p-2.5 shrink-0">
             <FaLock className="text-amber-600 text-lg" />
           </div>
@@ -492,24 +492,9 @@ const AgendarCita = ({ onCitaAgendada }) => {
             <h3 className="font-bold text-amber-900">Ya tienes una cita activa</h3>
             <p className="text-sm text-amber-700 mt-0.5">
               No puedes agendar una nueva cita hasta que la actual sea completada o cancelada.
+              Puedes cancelarla o reprogramarla desde el panel <strong>Mis Citas</strong>.
             </p>
           </div>
-        </div>
-        <div className="p-6 space-y-4">
-          <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-2.5 text-sm text-slate-700">
-            <p className="font-semibold text-slate-900">{citaActiva.citMotivo}</p>
-            <p className="flex items-center gap-2 text-slate-600">
-              <FaCalendarAlt className="text-blue-400 shrink-0" />
-              <span className="capitalize">{formatFechaUTC(citaActiva.citFecha)}</span>
-            </p>
-            <p className="flex items-center gap-2 text-slate-600">
-              <FaClock className="text-blue-400 shrink-0" />
-              {formatHoraUTC(citaActiva.citFecha)} &middot; {citaActiva.citDuracion} min
-            </p>
-          </div>
-          <p className="text-xs text-slate-400 text-center">
-            Consulta el panel &ldquo;Mis Citas&rdquo; para ver el detalle o cancelar tu cita.
-          </p>
         </div>
       </div>
     );
@@ -531,17 +516,15 @@ const AgendarCita = ({ onCitaAgendada }) => {
           {[1, 2, 3].map((num) => (
             <div key={num} className="flex items-center">
               <div
-                className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-medium transition-colors ${
-                  step >= num ? "bg-blue-600 text-white" : "bg-slate-200 text-slate-500"
-                }`}
+                className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-medium transition-colors ${step >= num ? "bg-blue-600 text-white" : "bg-slate-200 text-slate-500"
+                  }`}
               >
                 {num}
               </div>
               {num !== 3 && (
                 <div
-                  className={`h-1 w-12 sm:w-16 transition-colors ${
-                    step > num ? "bg-blue-600" : "bg-slate-200"
-                  }`}
+                  className={`h-1 w-12 sm:w-16 transition-colors ${step > num ? "bg-blue-600" : "bg-slate-200"
+                    }`}
                 />
               )}
             </div>

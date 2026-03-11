@@ -6,6 +6,7 @@ import {
   meService,
   registerService,
 } from "../../services/auth.service";
+import { registrarServiceWorker, suscribirPush, desuscribirPush } from "../../services/webpushService";
 
 const AuthContext = createContext(null);
 
@@ -20,7 +21,11 @@ export function AuthProvider({ children }) {
     async function init() {
       try {
         const res = await meService();
-        if (!cancelado) setUsuario(res.data.usuario);
+        if (!cancelado) {
+          setUsuario(res.data.usuario);
+          // Registrar SW y suscribir push si hay sesión activa
+          registrarServiceWorker().then(() => suscribirPush()).catch(() => {});
+        }
       } catch {
         if (!cancelado) setUsuario(null);
       } finally {
@@ -39,6 +44,8 @@ export function AuthProvider({ children }) {
   const login = async ({ correo, password }) => {
     const res = await loginService({ correo, password });
     setUsuario(res.data.usuario);
+    // Suscribir a push tras login exitoso
+    registrarServiceWorker().then(() => suscribirPush()).catch(() => {});
     return res.data.usuario;
   };
 
@@ -66,6 +73,7 @@ export function AuthProvider({ children }) {
   };
 
   const logout = async () => {
+    desuscribirPush().catch(() => {});
     try {
       await logoutService();
     } finally {

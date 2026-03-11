@@ -8,7 +8,7 @@ import {
 
 const MENU_SIDEBAR = [
     { label: "Dashboard", icon: FaUserShield, to: "/panel-admin", end: true },
-    { label: "Pacientes", icon: FaUsers, to: "/panel-admin/pacientes" },
+    { label: "Usuarios", icon: FaUsers, to: "/panel-admin/usuarios" },
     { label: "Citas", icon: FaCalendarAlt, to: "/panel-admin/citas" },
     { label: "Historial Clínico", icon: FaFileMedical, to: "/panel-admin/historial" },
     { label: "Ventas", icon: FaShoppingBag, to: "/panel-admin/ventas" },

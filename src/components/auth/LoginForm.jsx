@@ -68,9 +68,13 @@ export default function LoginForm() {
       />
 
       <div className="text-right mb-4">
-        <span className="text-sm text-blue-600 cursor-pointer">
+        <button
+          type="button"
+          onClick={() => navigate("/forgot-password")}
+          className="text-sm text-blue-600 hover:text-blue-500 font-medium bg-transparent border-none cursor-pointer"
+        >
           ¿Olvidaste tu contraseña?
-        </span>
+        </button>
       </div>
 
       {error && <p className="text-center text-sm text-red-600 mb-3">{error}</p>}

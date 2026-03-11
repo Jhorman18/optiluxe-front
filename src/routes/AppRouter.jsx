@@ -1,6 +1,8 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import HomePage from "../pages/HomePage";
 import AuthPage from "../pages/auth/AuthPage";
+import ForgotPasswordPage from "../pages/auth/ForgotPasswordPage";
+import ResetPasswordPage from "../pages/auth/ResetPasswordPage";
 import ProtectedRoute from "./ProtectedRoute";
 import TestPage from "../pages/TestPage";
 import AdminLayout from "../layouts/AdminLayout";
@@ -12,6 +14,8 @@ import ProductDetailPage from "../pages/ProductDetailPage";
 import Contacto from "../pages/Contacto";
 import InventarioPage from "../pages/admin/InventarioPage";
 import NotificacionesPage from "../pages/admin/NotificacionesPage";
+import UsuariosPage from "../pages/admin/UsuariosPage";
+import AdminCitasPage from "../pages/admin/AdminCitasPage";
 import CitasPage from "../pages/CitasPage";
 
 import FacturaListPage from "../pages/factura/FacturaListPage";
@@ -25,9 +29,10 @@ export default function AppRouter() {
       <CartPanel />
       <Routes>
 
-
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<AuthPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="/servicios" element={<Services />} />
         <Route path="/citas" element={<CitasPage />} />
         <Route path="/conocenos" element={<Conocenos />} />
@@ -41,7 +46,9 @@ export default function AppRouter() {
           <Route path="/panel-admin" element={<AdminLayout />}>
             <Route index element={<AdminDashboardPage />} />
             <Route path="inventario" element={<InventarioPage />} />
+            <Route path="citas" element={<AdminCitasPage />} />
             <Route path="notificaciones" element={<NotificacionesPage />} />
+            <Route path="usuarios" element={<UsuariosPage />} />
           </Route>
         </Route>
 
