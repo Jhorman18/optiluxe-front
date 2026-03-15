@@ -5,9 +5,12 @@ import {
     FaCheckCircle, FaTimesCircle, FaHourglassHalf, FaUserSlash,
     FaStethoscope, FaStar, FaTimes, FaPhone, FaEnvelope, FaIdCard,
     FaFileInvoiceDollar, FaMoneyBillWave, FaCreditCard, FaExchangeAlt,
-    FaSyncAlt, FaEllipsisV, FaCalendarCheck, FaRedo
+    FaSyncAlt, FaEllipsisV, FaCalendarCheck, FaRedo, FaPlus, FaSpinner, FaBan
 } from "react-icons/fa";
 import * as citaService from "../../services/citaService";
+import { crearHistoriaClinica } from "../../services/historiaClinicaService";
+import { getUsuarios } from "../../services/usuarioService";
+import { services as SERVICIOS } from "../../config/servicesData";
 import toast from "react-hot-toast";
 import DataTable from "../ui/DataTable";
 
@@ -34,6 +37,21 @@ const TRANSICIONES = {
 const ESTADOS_REPROGRAMABLES = ["PENDIENTE", "CONFIRMADA", "EN_ATENCION"];
 
 const columnHelper = createColumnHelper();
+
+// ─── Slot helpers ─────────────────────────────────────────────────────────────
+
+const ALL_SLOTS = [];
+for (let min = 8 * 60; min <= 16 * 60 + 30; min += 30) {
+    const h = Math.floor(min / 60);
+    const m = min % 60;
+    ALL_SLOTS.push(`${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`);
+}
+const toMin = (hhmm) => { const [h, m] = hhmm.split(":").map(Number); return h * 60 + m; };
+const getSlotsForDuration = (dur) => ALL_SLOTS.filter(s => toMin(s) + dur <= 17 * 60);
+const isSlotOccupied = (slot, dur, ranges) => {
+    const s = toMin(slot), e = s + dur;
+    return ranges.some(({ inicio, fin }) => toMin(inicio) < e && toMin(fin) > s);
+};
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -99,9 +117,11 @@ function KpiCard({ icon: Icon, label, value, color, loading }) {
     );
 }
 
-function AccionesDropdown({ cita, onCambiarEstado, onReprogramar, isUpdating }) {
+function AccionesDropdown({ cita, onCambiarEstado, onReprogramar, onCompletarCita, isUpdating }) {
     const [open, setOpen] = useState(false);
-    const ref = useRef(null);
+    const [dropPos, setDropPos] = useState({ top: 0, right: 0 });
+    const btnRef = useRef(null);
+    const dropRef = useRef(null);
 
     const estadoUpper = cita.citEstado?.toUpperCase();
     const transiciones = (TRANSICIONES[estadoUpper] || []).map(v => getEstadoCfg(v));
@@ -110,20 +130,32 @@ function AccionesDropdown({ cita, onCambiarEstado, onReprogramar, isUpdating }) 
 
     useEffect(() => {
         const handleClickOutside = (e) => {
-            if (ref.current && !ref.current.contains(e.target)) setOpen(false);
+            if (
+                btnRef.current && !btnRef.current.contains(e.target) &&
+                dropRef.current && !dropRef.current.contains(e.target)
+            ) setOpen(false);
         };
         if (open) document.addEventListener("mousedown", handleClickOutside);
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, [open]);
+
+    const handleToggle = () => {
+        if (!open && btnRef.current) {
+            const rect = btnRef.current.getBoundingClientRect();
+            setDropPos({ top: rect.bottom + 4, right: window.innerWidth - rect.right });
+        }
+        setOpen(v => !v);
+    };
 
     if (!tieneOpciones) {
         return <span className="text-[10px] text-slate-400 font-medium">Final</span>;
     }
 
     return (
-        <div className="relative" ref={ref}>
+        <div>
             <button
-                onClick={() => setOpen(!open)}
+                ref={btnRef}
+                onClick={handleToggle}
                 className="p-2 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition cursor-pointer active:scale-95"
                 title="Acciones"
             >
@@ -131,14 +163,25 @@ function AccionesDropdown({ cita, onCambiarEstado, onReprogramar, isUpdating }) 
             </button>
 
             {open && (
-                <div className="absolute right-0 top-full mt-1 w-52 bg-white rounded-xl border border-slate-200 shadow-xl z-50 py-1 animate-in fade-in zoom-in-95 duration-150">
+                <div
+                    ref={dropRef}
+                    style={{ top: dropPos.top, right: dropPos.right }}
+                    className="fixed w-52 bg-white rounded-xl border border-slate-200 shadow-xl z-9999 py-1 animate-in fade-in zoom-in-95 duration-150"
+                >
                     {transiciones.length > 0 && (
                         <>
                             <p className="px-3 pt-2 pb-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Cambiar estado</p>
                             {transiciones.map(t => (
                                 <button
                                     key={t.value}
-                                    onClick={() => { onCambiarEstado(cita.idCita, t.value); setOpen(false); }}
+                                    onClick={() => {
+                                        if (t.value === "COMPLETADA") {
+                                            onCompletarCita(cita);
+                                        } else {
+                                            onCambiarEstado(cita.idCita, t.value);
+                                        }
+                                        setOpen(false);
+                                    }}
                                     disabled={isUpdating}
                                     className="w-full flex items-center gap-2.5 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 transition disabled:opacity-40 text-left"
                                 >
@@ -184,6 +227,31 @@ export default function GestionCitas() {
     const [nuevaHora, setNuevaHora] = useState("");
     const [reprogramando, setReprogramando] = useState(false);
 
+    const [citaParaCompletar, setCitaParaCompletar] = useState(null);
+    const [historiaForm, setHistoriaForm] = useState({ hisDiagnostico: "", hisFormulaOptica: "", hisObservaciones: "" });
+    const [guardandoHistoria, setGuardandoHistoria] = useState(false);
+
+    // Modal Registrar Pago (al pasar a EN_ATENCION)
+    const [citaPago, setCitaPago] = useState(null);
+    const [pagoMonto, setPagoMonto] = useState("");
+    const [pagoMetodo, setPagoMetodo] = useState("EFECTIVO");
+    const [registrandoPago, setRegistrandoPago] = useState(false);
+
+    // Modal Nueva Cita (admin)
+    const [modalNuevaCita, setModalNuevaCita] = useState(false);
+    const [ncBusqueda, setNcBusqueda] = useState("");
+    const [ncPaciente, setNcPaciente] = useState(null);
+    const [ncResultados, setNcResultados] = useState([]);
+    const [ncBuscando, setNcBuscando] = useState(false);
+    const [ncServicio, setNcServicio] = useState("");
+    const [ncFecha, setNcFecha] = useState("");
+    const [ncHora, setNcHora] = useState("");
+    const [ncEstado, setNcEstado] = useState("PENDIENTE");
+    const [ncObs, setNcObs] = useState("");
+    const [ncHorariosOcupados, setNcHorariosOcupados] = useState([]);
+    const [ncCargandoSlots, setNcCargandoSlots] = useState(false);
+    const [creandoCita, setCreandoCita] = useState(false);
+
     const fetchCitas = async () => {
         try {
             setLoading(true);
@@ -218,6 +286,13 @@ export default function GestionCitas() {
     }, [citas]);
 
     const handleCambiarEstado = async (idCita, nuevoEstado) => {
+        if (nuevoEstado === "CONFIRMADA") {
+            const cita = citas.find(c => c.idCita === idCita);
+            setCitaPago(cita || { idCita });
+            setPagoMonto("");
+            setPagoMetodo("EFECTIVO");
+            return;
+        }
         try {
             setUpdatingId(idCita);
             await citaService.actualizarEstadoCita(idCita, nuevoEstado);
@@ -230,6 +305,28 @@ export default function GestionCitas() {
             toast.error(error.response?.data?.message || "Error al actualizar estado");
         } finally {
             setUpdatingId(null);
+        }
+    };
+
+    const handleRegistrarPago = async () => {
+        const monto = parseFloat(pagoMonto);
+        if (!pagoMonto || isNaN(monto) || monto <= 0) {
+            toast.error("Ingresa un monto válido.");
+            return;
+        }
+        try {
+            setRegistrandoPago(true);
+            await citaService.registrarPagoCita(citaPago.idCita, { monto, metodoPago: pagoMetodo });
+            toast.success("Pago registrado. Cita confirmada.");
+            setCitaPago(null);
+            fetchCitas();
+            if (selectedCita?.idCita === citaPago.idCita) {
+                setSelectedCita(prev => ({ ...prev, citEstado: "CONFIRMADA" }));
+            }
+        } catch (error) {
+            toast.error(error.response?.data?.message || "Error al registrar el pago");
+        } finally {
+            setRegistrandoPago(false);
         }
     };
 
@@ -255,6 +352,87 @@ export default function GestionCitas() {
             toast.error(error.response?.data?.message || "Error al reprogramar la cita");
         } finally {
             setReprogramando(false);
+        }
+    };
+
+    const abrirNuevaCita = () => {
+        setNcBusqueda(""); setNcPaciente(null); setNcResultados([]);
+        setNcServicio(""); setNcFecha(""); setNcHora("");
+        setNcEstado("PENDIENTE"); setNcObs(""); setNcHorariosOcupados([]); setNcCargandoSlots(false);
+        setModalNuevaCita(true);
+    };
+
+    useEffect(() => {
+        if (!ncBusqueda.trim() || ncPaciente) { setNcResultados([]); return; }
+        const t = setTimeout(async () => {
+            setNcBuscando(true);
+            try {
+                const data = await getUsuarios({ busqueda: ncBusqueda });
+                setNcResultados(data.slice(0, 8));
+            } catch { /* ignore */ } finally { setNcBuscando(false); }
+        }, 300);
+        return () => clearTimeout(t);
+    }, [ncBusqueda, ncPaciente]);
+
+    useEffect(() => {
+        if (!ncFecha) { setNcHorariosOcupados([]); return; }
+        setNcCargandoSlots(true);
+        setNcHorariosOcupados([]);
+        citaService.getHorariosOcupados(ncFecha)
+            .then(data => setNcHorariosOcupados(Array.isArray(data) ? data : []))
+            .catch(() => setNcHorariosOcupados([]))
+            .finally(() => setNcCargandoSlots(false));
+    }, [ncFecha]);
+
+    const handleCrearCita = async (e) => {
+        e.preventDefault();
+        if (!ncPaciente) { toast.error("Selecciona un paciente"); return; }
+        if (!ncServicio) { toast.error("Selecciona un servicio"); return; }
+        if (!ncFecha) { toast.error("Selecciona una fecha"); return; }
+        if (!ncHora) { toast.error("Selecciona un horario"); return; }
+        const servicio = SERVICIOS.find(s => s.title === ncServicio);
+        try {
+            setCreandoCita(true);
+            const result = await citaService.crearCitaAdmin({
+                fkIdUsuario: ncPaciente.idUsuario,
+                citFecha: `${ncFecha}T${ncHora}:00.000Z`,
+                citMotivo: servicio.title,
+                citDuracion: servicio.durationMinutes,
+                citEstado: "PENDIENTE",
+                citObservaciones: ncObs || undefined,
+            });
+            setModalNuevaCita(false);
+            fetchCitas();
+            if (ncEstado === "CONFIRMADA") {
+                // Si el admin quería confirmarla directamente, pedir pago de inmediato
+                setCitaPago(result.data);
+                setPagoMonto("");
+                setPagoMetodo("EFECTIVO");
+            } else {
+                toast.success("Cita creada correctamente");
+            }
+        } catch (error) {
+            toast.error(error.response?.data?.message || "Error al crear la cita");
+        } finally { setCreandoCita(false); }
+    };
+
+    const handleAbrirCompletar = (cita) => {
+        setCitaParaCompletar(cita);
+        setHistoriaForm({ hisDiagnostico: "", hisFormulaOptica: "", hisObservaciones: "" });
+    };
+
+    const handleGuardarHistoria = async (e) => {
+        e.preventDefault();
+        try {
+            setGuardandoHistoria(true);
+            await crearHistoriaClinica(citaParaCompletar.idCita, historiaForm);
+            toast.success("Cita completada e historia clínica registrada");
+            setCitaParaCompletar(null);
+            fetchCitas();
+        } catch (error) {
+            toast.error(error.response?.data?.message || "Error al registrar historia clínica");
+        } finally {
+            setGuardandoHistoria(false);
         }
     };
 
@@ -338,13 +516,14 @@ export default function GestionCitas() {
                         cita={cita}
                         onCambiarEstado={handleCambiarEstado}
                         onReprogramar={abrirReprogramar}
+                        onCompletarCita={handleAbrirCompletar}
                         isUpdating={updatingId === cita.idCita}
                     />
                 </div>
             ),
             meta: { headerClassName: "text-right", skeletonClass: "h-5 w-6 float-right", stopPropagation: true },
         }),
-    ], [updatingId, handleCambiarEstado, abrirReprogramar]);
+    ], [updatingId, handleCambiarEstado, abrirReprogramar, handleAbrirCompletar]);
 
     return (
         <div className="p-8 max-w-7xl mx-auto w-full">
@@ -355,13 +534,22 @@ export default function GestionCitas() {
                     <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Gestión de Citas</h1>
                     <p className="text-sm font-medium text-slate-500 mt-1">Visualiza y gestiona todas las citas de la óptica</p>
                 </div>
-                <button
-                    onClick={fetchCitas}
-                    className="flex items-center justify-center gap-2 bg-white border border-slate-200 text-slate-700 px-5 py-2.5 rounded-xl font-bold text-sm shadow-sm hover:bg-slate-50 transition cursor-pointer self-start md:self-auto"
-                >
-                    <FaSyncAlt className={`text-sm ${loading ? "animate-spin" : ""}`} />
-                    Actualizar
-                </button>
+                <div className="flex gap-3 self-start md:self-auto">
+                    <button
+                        onClick={abrirNuevaCita}
+                        className="flex items-center justify-center gap-2 bg-blue-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-sm hover:bg-blue-700 transition cursor-pointer"
+                    >
+                        <FaPlus className="text-xs" />
+                        Nueva Cita
+                    </button>
+                    <button
+                        onClick={fetchCitas}
+                        className="flex items-center justify-center gap-2 bg-white border border-slate-200 text-slate-700 px-5 py-2.5 rounded-xl font-bold text-sm shadow-sm hover:bg-slate-50 transition cursor-pointer"
+                    >
+                        <FaSyncAlt className={`text-sm ${loading ? "animate-spin" : ""}`} />
+                        Actualizar
+                    </button>
+                </div>
             </div>
 
             {/* KPIs */}
@@ -601,6 +789,183 @@ export default function GestionCitas() {
                 </div>
             )}
 
+            {/* Modal Historia Clínica */}
+            {citaParaCompletar && (
+                <div
+                    className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm"
+                    onClick={() => setCitaParaCompletar(null)}
+                >
+                    <div
+                        className="bg-white w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden"
+                        onClick={e => e.stopPropagation()}
+                    >
+                        <div className="px-8 py-6 border-b border-slate-100 flex items-center justify-between">
+                            <div>
+                                <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
+                                    <FaStethoscope className="text-blue-500" /> Registrar Historia Clínica
+                                </h2>
+                                <p className="text-sm text-slate-500 mt-0.5">
+                                    {citaParaCompletar.usuario?.usuNombre} {citaParaCompletar.usuario?.usuApellido} — {citaParaCompletar.citMotivo}
+                                </p>
+                            </div>
+                            <button onClick={() => setCitaParaCompletar(null)} className="text-slate-400 hover:text-slate-600 transition">
+                                <FaTimes className="text-xl" />
+                            </button>
+                        </div>
+
+                        <form onSubmit={handleGuardarHistoria} className="px-8 py-6 space-y-5">
+                            <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 text-sm text-blue-700 font-medium flex items-start gap-2">
+                                <FaStethoscope className="mt-0.5 shrink-0" />
+                                Al guardar, la cita quedará marcada como <span className="font-bold">Completada</span> automáticamente.
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="text-sm font-bold text-slate-700 ml-1">
+                                    Diagnóstico <span className="text-red-500">*</span>
+                                </label>
+                                <textarea
+                                    rows="3"
+                                    required
+                                    value={historiaForm.hisDiagnostico}
+                                    onChange={e => setHistoriaForm(p => ({ ...p, hisDiagnostico: e.target.value }))}
+                                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition resize-none"
+                                    placeholder="Describe el diagnóstico del paciente..."
+                                />
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="text-sm font-bold text-slate-700 ml-1">
+                                    Fórmula Óptica <span className="text-red-500">*</span>
+                                </label>
+                                <textarea
+                                    rows="4"
+                                    required
+                                    value={historiaForm.hisFormulaOptica}
+                                    onChange={e => setHistoriaForm(p => ({ ...p, hisFormulaOptica: e.target.value }))}
+                                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition resize-none font-mono text-sm"
+                                    placeholder={"OD: Esfera: +1.25  Cilindro: -0.50  Eje: 180°\nOI: Esfera: +1.00  Cilindro: -0.25  Eje: 175°\nDIP: 62 mm\nADD: +2.00"}
+                                />
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="text-sm font-bold text-slate-700 ml-1">Observaciones</label>
+                                <textarea
+                                    rows="3"
+                                    value={historiaForm.hisObservaciones}
+                                    onChange={e => setHistoriaForm(p => ({ ...p, hisObservaciones: e.target.value }))}
+                                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition resize-none"
+                                    placeholder="Observaciones adicionales (opcional)..."
+                                />
+                            </div>
+
+                            <div className="flex gap-4 pt-2">
+                                <button
+                                    type="button"
+                                    onClick={() => setCitaParaCompletar(null)}
+                                    className="flex-1 py-3.5 border border-slate-200 text-slate-600 font-bold rounded-xl hover:bg-slate-50 transition"
+                                >
+                                    Cancelar
+                                </button>
+                                <button
+                                    type="submit"
+                                    disabled={guardandoHistoria}
+                                    className="flex-1 py-3.5 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition shadow-lg shadow-blue-600/20 disabled:opacity-50"
+                                >
+                                    {guardandoHistoria ? "Guardando..." : "Completar Cita"}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {/* Modal Registrar Pago */}
+            {citaPago && (
+                <div
+                    className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm"
+                    onClick={() => setCitaPago(null)}
+                >
+                    <div
+                        className="bg-white w-full max-w-sm rounded-3xl shadow-2xl overflow-hidden"
+                        onClick={e => e.stopPropagation()}
+                    >
+                        <div className="px-8 py-6 border-b border-slate-100 flex items-center justify-between">
+                            <div>
+                                <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+                                    <FaMoneyBillWave className="text-emerald-500" /> Registrar Pago
+                                </h2>
+                                <p className="text-sm text-slate-500 mt-0.5">
+                                    El paciente paga antes de ser atendido
+                                </p>
+                            </div>
+                            <button onClick={() => setCitaPago(null)} className="text-slate-400 hover:text-slate-600 transition">
+                                <FaTimes />
+                            </button>
+                        </div>
+                        <div className="px-8 py-6 space-y-5">
+                            <div>
+                                <label className="block text-xs font-semibold text-slate-600 mb-1.5 uppercase tracking-wide">
+                                    Monto total a cobrar
+                                </label>
+                                <div className="relative">
+                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold">$</span>
+                                    <input
+                                        type="number"
+                                        min="0"
+                                        step="100"
+                                        placeholder="0"
+                                        value={pagoMonto}
+                                        onChange={e => setPagoMonto(e.target.value)}
+                                        className="w-full pl-7 pr-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-400 focus:border-transparent outline-none text-slate-800 font-semibold"
+                                    />
+                                </div>
+                            </div>
+                            <div>
+                                <label className="block text-xs font-semibold text-slate-600 mb-1.5 uppercase tracking-wide">
+                                    Método de pago
+                                </label>
+                                <div className="grid grid-cols-3 gap-2">
+                                    {[
+                                        { value: "EFECTIVO", label: "Efectivo", Icon: FaMoneyBillWave },
+                                        { value: "TARJETA", label: "Tarjeta", Icon: FaCreditCard },
+                                        { value: "TRANSFERENCIA", label: "Transferencia", Icon: FaExchangeAlt },
+                                    ].map(({ value, label, Icon }) => (
+                                        <button
+                                            key={value}
+                                            onClick={() => setPagoMetodo(value)}
+                                            className={`flex flex-col items-center gap-1 py-3 rounded-xl border-2 text-xs font-semibold transition ${
+                                                pagoMetodo === value
+                                                    ? "border-emerald-500 bg-emerald-50 text-emerald-700"
+                                                    : "border-slate-200 text-slate-500 hover:border-slate-300"
+                                            }`}
+                                        >
+                                            <Icon className="text-base" />
+                                            {label}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                        <div className="px-8 py-5 border-t border-slate-100 flex gap-3">
+                            <button
+                                onClick={() => setCitaPago(null)}
+                                className="flex-1 py-2.5 rounded-xl border border-slate-200 text-slate-600 text-sm font-semibold hover:bg-slate-50 transition"
+                            >
+                                Cancelar
+                            </button>
+                            <button
+                                onClick={handleRegistrarPago}
+                                disabled={registrandoPago}
+                                className="flex-1 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold transition disabled:opacity-60 flex items-center justify-center gap-2"
+                            >
+                                {registrandoPago ? <FaSpinner className="animate-spin" /> : <FaMoneyBillWave />}
+                                {registrandoPago ? "Registrando..." : "Confirmar Pago"}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* Modal Reprogramar */}
             {reprogramarCita && (
                 <div
@@ -674,6 +1039,228 @@ export default function GestionCitas() {
                                 {reprogramando ? "Reprogramando..." : "Confirmar Fecha"}
                             </button>
                         </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Modal Nueva Cita */}
+            {modalNuevaCita && (
+                <div
+                    className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm"
+                    onClick={() => setModalNuevaCita(false)}
+                >
+                    <div
+                        className="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden"
+                        onClick={e => e.stopPropagation()}
+                    >
+                        <div className="px-8 py-6 border-b border-slate-100 flex items-center justify-between">
+                            <div>
+                                <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
+                                    <FaCalendarCheck className="text-blue-500" /> Nueva Cita
+                                </h2>
+                                <p className="text-sm text-slate-500 mt-0.5">Agendar cita para un paciente</p>
+                            </div>
+                            <button onClick={() => setModalNuevaCita(false)} className="text-slate-400 hover:text-slate-600 transition">
+                                <FaTimes className="text-xl" />
+                            </button>
+                        </div>
+
+                        <form onSubmit={handleCrearCita} className="px-8 py-6 space-y-5 max-h-[70vh] overflow-y-auto custom-scrollbar">
+                            {/* Buscar paciente */}
+                            <div className="space-y-2">
+                                <label className="text-sm font-bold text-slate-700 ml-1">Paciente <span className="text-red-500">*</span></label>
+                                {ncPaciente ? (
+                                    <div className="flex items-center justify-between bg-blue-50 border border-blue-200 rounded-xl px-4 py-3">
+                                        <div>
+                                            <p className="text-sm font-bold text-blue-900">{ncPaciente.usuNombre} {ncPaciente.usuApellido}</p>
+                                            <p className="text-xs text-blue-600 font-mono">{ncPaciente.usuDocumento}</p>
+                                        </div>
+                                        <button
+                                            type="button"
+                                            onClick={() => { setNcPaciente(null); setNcBusqueda(""); }}
+                                            className="text-blue-400 hover:text-blue-600 transition ml-4"
+                                        >
+                                            <FaTimes />
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <div className="relative">
+                                        <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm" />
+                                        <input
+                                            type="text"
+                                            placeholder="Buscar por nombre, apellido o documento..."
+                                            className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition text-sm"
+                                            value={ncBusqueda}
+                                            onChange={e => setNcBusqueda(e.target.value)}
+                                            autoFocus
+                                        />
+                                        {ncBuscando && (
+                                            <FaSpinner className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 animate-spin" />
+                                        )}
+                                        {ncResultados.length > 0 && (
+                                            <div className="absolute z-10 w-full mt-1 bg-white border border-slate-200 rounded-xl shadow-lg overflow-hidden">
+                                                {ncResultados.map(u => (
+                                                    <button
+                                                        key={u.idUsuario}
+                                                        type="button"
+                                                        onClick={() => { setNcPaciente(u); setNcResultados([]); setNcBusqueda(""); }}
+                                                        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-50 transition text-left border-b border-slate-50 last:border-0"
+                                                    >
+                                                        <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-bold shrink-0">
+                                                            {u.usuNombre?.[0]}{u.usuApellido?.[0]}
+                                                        </div>
+                                                        <div>
+                                                            <p className="text-sm font-bold text-slate-900">{u.usuNombre} {u.usuApellido}</p>
+                                                            <p className="text-xs text-slate-400 font-mono">{u.usuDocumento}</p>
+                                                        </div>
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Servicio */}
+                            <div className="space-y-2">
+                                <label className="text-sm font-bold text-slate-700 ml-1">Servicio <span className="text-red-500">*</span></label>
+                                <select
+                                    required
+                                    value={ncServicio}
+                                    onChange={e => { setNcServicio(e.target.value); setNcHora(""); }}
+                                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition appearance-none cursor-pointer text-sm"
+                                >
+                                    <option value="">Seleccionar servicio...</option>
+                                    {SERVICIOS.map(s => (
+                                        <option key={s.title} value={s.title}>{s.title} ({s.duration})</option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            {/* Fecha */}
+                            <div className="space-y-2">
+                                <label className="text-sm font-bold text-slate-700 ml-1">Fecha <span className="text-red-500">*</span></label>
+                                <input
+                                    type="date"
+                                    required
+                                    min={new Date().toISOString().split("T")[0]}
+                                    value={ncFecha}
+                                    onChange={e => { setNcFecha(e.target.value); setNcHora(""); }}
+                                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition text-sm"
+                                />
+                            </div>
+
+                            {/* Horario — grilla de slots */}
+                            {(() => {
+                                const dur = SERVICIOS.find(s => s.title === ncServicio)?.durationMinutes ?? 30;
+                                const validSlots = getSlotsForDuration(dur);
+                                const maxStartMin = 17 * 60 - dur;
+                                const maxStartLabel = `${String(Math.floor(maxStartMin / 60)).padStart(2, "0")}:${String(maxStartMin % 60).padStart(2, "0")}`;
+                                return (
+                                    <div className="space-y-2">
+                                        <div className="flex items-center justify-between">
+                                            <label className="text-sm font-bold text-slate-700 ml-1">
+                                                Hora <span className="text-red-500">*</span>
+                                            </label>
+                                            {ncServicio && (
+                                                <span className="text-xs text-slate-400">
+                                                    Último inicio: {maxStartLabel} · {dur} min
+                                                </span>
+                                            )}
+                                        </div>
+                                        {!ncFecha ? (
+                                            <p className="text-sm text-slate-400 italic py-2">Selecciona primero una fecha.</p>
+                                        ) : ncCargandoSlots ? (
+                                            <div className="flex items-center gap-2 text-slate-500 text-sm py-4">
+                                                <FaSpinner className="animate-spin" /> Consultando disponibilidad…
+                                            </div>
+                                        ) : (
+                                            <>
+                                                <div className="grid grid-cols-4 gap-2">
+                                                    {validSlots.map(slot => {
+                                                        const occ = isSlotOccupied(slot, dur, ncHorariosOcupados);
+                                                        const sel = ncHora === slot;
+                                                        return (
+                                                            <button
+                                                                key={slot}
+                                                                type="button"
+                                                                disabled={occ}
+                                                                onClick={() => setNcHora(slot)}
+                                                                className={`relative rounded-lg border px-2 py-2 text-sm font-medium transition-all text-center ${
+                                                                    occ
+                                                                        ? "cursor-not-allowed border-slate-200 bg-slate-100 text-slate-400 line-through"
+                                                                        : sel
+                                                                            ? "border-blue-600 bg-blue-600 text-white shadow-sm"
+                                                                            : "border-slate-300 bg-white text-slate-700 hover:border-slate-400 hover:bg-slate-50"
+                                                                }`}
+                                                            >
+                                                                {occ && <FaBan className="absolute top-1 right-1 text-[9px] text-slate-400" />}
+                                                                {slot}
+                                                            </button>
+                                                        );
+                                                    })}
+                                                </div>
+                                                {ncHorariosOcupados.length > 0 && (
+                                                    <p className="text-xs text-slate-400 flex items-center gap-1 mt-1">
+                                                        <FaBan className="inline text-slate-400" />
+                                                        Los horarios tachados ya están reservados.
+                                                    </p>
+                                                )}
+                                            </>
+                                        )}
+                                    </div>
+                                );
+                            })()}
+
+                            {/* Estado */}
+                            <div className="space-y-2">
+                                <label className="text-sm font-bold text-slate-700 ml-1">Estado inicial</label>
+                                <div className="flex gap-3">
+                                    {["PENDIENTE", "CONFIRMADA"].map(est => {
+                                        const cfg = getEstadoCfg(est);
+                                        return (
+                                            <button
+                                                key={est}
+                                                type="button"
+                                                onClick={() => setNcEstado(est)}
+                                                className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold border transition ${ncEstado === est ? `${cfg.bg} ${cfg.text} ${cfg.border}` : "bg-white text-slate-500 border-slate-200 hover:bg-slate-50"}`}
+                                            >
+                                                <cfg.Icon className="text-xs" /> {cfg.label}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+
+                            {/* Observaciones */}
+                            <div className="space-y-2">
+                                <label className="text-sm font-bold text-slate-700 ml-1">Observaciones</label>
+                                <textarea
+                                    rows="2"
+                                    value={ncObs}
+                                    onChange={e => setNcObs(e.target.value)}
+                                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition resize-none text-sm"
+                                    placeholder="Notas adicionales (opcional)..."
+                                />
+                            </div>
+
+                            <div className="flex gap-4 pt-2">
+                                <button
+                                    type="button"
+                                    onClick={() => setModalNuevaCita(false)}
+                                    className="flex-1 py-3.5 border border-slate-200 text-slate-600 font-bold rounded-xl hover:bg-slate-50 transition"
+                                >
+                                    Cancelar
+                                </button>
+                                <button
+                                    type="submit"
+                                    disabled={creandoCita}
+                                    className="flex-1 py-3.5 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition shadow-lg shadow-blue-600/20 disabled:opacity-50"
+                                >
+                                    {creandoCita ? "Creando..." : "Crear Cita"}
+                                </button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             )}

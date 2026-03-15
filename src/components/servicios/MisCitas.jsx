@@ -29,11 +29,8 @@ const isSlotOccupied = (slot, dur, occ) => {
 
 // ─── date helpers ─────────────────────────────────────────────────────────────
 
-const formatFecha = (iso) => {
-  const d = new Date(iso);
-  return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()))
-    .toLocaleDateString("es-CO", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
-};
+const formatFecha = (iso) =>
+  new Date(iso).toLocaleDateString("es-CO", { weekday: "long", day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
 const formatHora = (iso) => {
   const d = new Date(iso);
   return `${String(d.getUTCHours()).padStart(2, "0")}:${String(d.getUTCMinutes()).padStart(2, "0")}`;
@@ -259,7 +256,7 @@ function FacturaModal({ factura, citMotivo, onClose }) {
               { label: "Servicio", value: citMotivo },
               {
                 label: "Fecha",
-                value: new Date(factura.facFecha).toLocaleDateString("es-CO", { dateStyle: "medium" }),
+                value: new Date(factura.facFecha).toLocaleDateString("es-CO", { dateStyle: "medium", timeZone: "UTC" }),
               },
               { label: "Total", value: formatMoneda(factura.facTotal), highlight: true },
             ].map(({ label, value, highlight }) => (

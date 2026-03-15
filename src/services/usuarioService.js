@@ -8,3 +8,6 @@ export const getUsuarios = (params = {}) =>
 
 export const toggleUsuarioEstado = (id, estado) =>
     api.patch(`/usuario/${id}/estado`, { estado }).then(res => res.data);
+
+export const editarUsuario = (id, data) =>
+    api.put(`/usuario/${id}`, data).then(res => res.data);

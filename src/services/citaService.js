@@ -43,3 +43,9 @@ export const actualizarEstadoCita = (id, estado) =>
 export const reprogramarCita = (id, fecha) =>
   api.patch(`/cita/${id}/reprogramar`, { fecha }).then(res => res.data);
 
+export const crearCitaAdmin = (data) =>
+  api.post("/cita/admin", data).then(res => res.data);
+
+export const registrarPagoCita = (id, data) =>
+  api.post(`/cita/${id}/pago`, data).then(res => res.data);
+

@@ -1,28 +1,23 @@
-import { useState, useEffect, useMemo } from "react";
-import { createColumnHelper } from "@tanstack/react-table";
-import {
-    FaSearch, FaFilter, FaToggleOn, FaToggleOff,
-    FaCheckCircle, FaTimesCircle, FaUserCircle
-} from "react-icons/fa";
+import { useState, useEffect } from "react";
+import { FaSearch, FaFilter } from "react-icons/fa";
 import * as usuarioService from "../../services/usuarioService";
 import toast from "react-hot-toast";
-import DataTable from "../ui/DataTable";
+import UsuariosTabla from "./usuarios/UsuariosTabla";
+import EditarUsuarioModal from "./usuarios/EditarUsuarioModal";
 
 const ROLES = ["CLIENTE", "ADMINISTRADOR", "EMPLEADO"];
-
-const ROL_COLORS = {
-    ADMINISTRADOR: "bg-purple-100 text-purple-700",
-    EMPLEADO: "bg-blue-100 text-blue-700",
-    CLIENTE: "bg-sky-100 text-sky-700",
-};
-
-const columnHelper = createColumnHelper();
 
 export default function GestionUsuarios() {
     const [usuarios, setUsuarios] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedRol, setSelectedRol] = useState("");
+
+    const [editando, setEditando] = useState(null);
+    const [editForm, setEditForm] = useState({});
+    const [guardando, setGuardando] = useState(false);
+    const [mostrarPass, setMostrarPass] = useState(false);
+    const [mostrarConfirm, setMostrarConfirm] = useState(false);
 
     const fetchUsuarios = async (busqueda, rol) => {
         try {
@@ -61,89 +56,44 @@ export default function GestionUsuarios() {
         }
     };
 
-    const columns = useMemo(() => [
-        columnHelper.accessor("usuNombre", {
-            header: "Usuario",
-            cell: ({ row: { original: u } }) => {
-                const iniciales = ((u.usuNombre?.[0] ?? "") + (u.usuApellido?.[0] ?? "")).toUpperCase();
-                return (
-                    <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-sm shrink-0">
-                            {iniciales || <FaUserCircle className="text-lg" />}
-                        </div>
-                        <div>
-                            <p className="font-bold text-slate-900 leading-tight">{u.usuNombre} {u.usuApellido}</p>
-                            <p className="text-xs text-slate-400 font-mono">ID #{u.idUsuario}</p>
-                        </div>
-                    </div>
-                );
-            },
-            meta: { skeletonClass: "h-10 w-40" },
-        }),
-        columnHelper.accessor("usuDocumento", {
-            header: "Documento",
-            cell: ({ getValue }) => <span className="text-sm text-slate-600">{getValue() ?? "—"}</span>,
-            meta: { skeletonClass: "h-6 w-24" },
-        }),
-        columnHelper.accessor("usuCorreo", {
-            header: "Correo",
-            cell: ({ getValue }) => <span className="text-sm text-slate-600">{getValue()}</span>,
-            meta: { skeletonClass: "h-6 w-36" },
-        }),
-        columnHelper.accessor("usuTelefono", {
-            header: "Teléfono",
-            enableSorting: false,
-            cell: ({ getValue }) => <span className="text-sm text-slate-600">{getValue() ?? "—"}</span>,
-            meta: { skeletonClass: "h-6 w-24" },
-        }),
-        columnHelper.accessor(row => row.rol?.rolNombre ?? "", {
-            id: "rol",
-            header: "Rol",
-            cell: ({ getValue }) => {
-                const rolNombre = getValue() || "—";
-                return (
-                    <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${ROL_COLORS[rolNombre] ?? "bg-slate-100 text-slate-600"}`}>
-                        {rolNombre}
-                    </span>
-                );
-            },
-            meta: { skeletonClass: "h-6 w-20" },
-        }),
-        columnHelper.accessor("usuEstado", {
-            header: "Estado",
-            cell: ({ getValue }) => {
-                const estado = getValue();
-                return (
-                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${estado === "ACTIVO" ? "bg-green-100 text-green-700" : "bg-slate-100 text-slate-600"}`}>
-                        {estado === "ACTIVO" ? <FaCheckCircle /> : <FaTimesCircle />}
-                        {estado}
-                    </span>
-                );
-            },
-            meta: { skeletonClass: "h-6 w-20" },
-        }),
-        columnHelper.display({
-            id: "_acciones",
-            header: "Acciones",
-            cell: ({ row: { original: u } }) => (
-                <div className="flex justify-end">
-                    <button
-                        onClick={() => handleToggleEstado(u)}
-                        className={`p-2 transition rounded-lg ${u.usuEstado === "ACTIVO"
-                            ? "text-slate-400 hover:text-red-600 hover:bg-red-50"
-                            : "text-slate-400 hover:text-green-600 hover:bg-green-50"
-                        }`}
-                        title={u.usuEstado === "ACTIVO" ? "Desactivar" : "Activar"}
-                    >
-                        {u.usuEstado === "ACTIVO"
-                            ? <FaToggleOn className="text-xl" />
-                            : <FaToggleOff className="text-xl" />}
-                    </button>
-                </div>
-            ),
-            meta: { headerClassName: "text-right", skeletonClass: "h-6 w-10 float-right" },
-        }),
-    ], [handleToggleEstado]);
+    const abrirEditar = (u) => {
+        setEditando(u);
+        setEditForm({
+            usuNombre: u.usuNombre ?? "",
+            usuApellido: u.usuApellido ?? "",
+            usuDocumento: u.usuDocumento ?? "",
+            usuTelefono: u.usuTelefono ?? "",
+            usuCorreo: u.usuCorreo ?? "",
+            usuDireccion: u.usuDireccion ?? "",
+            rolNombre: u.rol?.rolNombre ?? "CLIENTE",
+            usuPassword: "",
+            confirmarPassword: "",
+        });
+        setMostrarPass(false);
+        setMostrarConfirm(false);
+    };
+
+    const handleGuardarEdicion = async (e) => {
+        e.preventDefault();
+        if (editForm.usuPassword && editForm.usuPassword !== editForm.confirmarPassword) {
+            toast.error("Las contraseñas no coinciden.");
+            return;
+        }
+        try {
+            setGuardando(true);
+            const payload = { ...editForm };
+            delete payload.confirmarPassword;
+            if (!payload.usuPassword) delete payload.usuPassword;
+            const actualizado = await usuarioService.editarUsuario(editando.idUsuario, payload);
+            setUsuarios(prev => prev.map(u => u.idUsuario === actualizado.idUsuario ? actualizado : u));
+            toast.success("Usuario actualizado correctamente.");
+            setEditando(null);
+        } catch (error) {
+            toast.error(error.message || "Error al actualizar usuario.");
+        } finally {
+            setGuardando(false);
+        }
+    };
 
     return (
         <div className="p-8 max-w-7xl mx-auto w-full">
@@ -187,12 +137,24 @@ export default function GestionUsuarios() {
                 </div>
             </div>
 
-            {/* Tabla */}
-            <DataTable
-                columns={columns}
-                data={usuarios}
+            <UsuariosTabla
+                usuarios={usuarios}
                 loading={loading}
-                emptyMessage="No se encontraron usuarios."
+                onEditar={abrirEditar}
+                onToggleEstado={handleToggleEstado}
+            />
+
+            <EditarUsuarioModal
+                editando={editando}
+                editForm={editForm}
+                setEditForm={setEditForm}
+                guardando={guardando}
+                mostrarPass={mostrarPass}
+                setMostrarPass={setMostrarPass}
+                mostrarConfirm={mostrarConfirm}
+                setMostrarConfirm={setMostrarConfirm}
+                onClose={() => setEditando(null)}
+                onSubmit={handleGuardarEdicion}
             />
         </div>
     );

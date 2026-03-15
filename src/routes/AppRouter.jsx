@@ -16,6 +16,7 @@ import InventarioPage from "../pages/admin/InventarioPage";
 import NotificacionesPage from "../pages/admin/NotificacionesPage";
 import UsuariosPage from "../pages/admin/UsuariosPage";
 import AdminCitasPage from "../pages/admin/AdminCitasPage";
+import HistorialClinicoPage from "../pages/admin/HistorialClinicoPage";
 import CitasPage from "../pages/public/CitasPage";
 
 import FacturaListPage from "../pages/factura/FacturaListPage";
@@ -47,6 +48,7 @@ export default function AppRouter() {
             <Route index element={<AdminDashboardPage />} />
             <Route path="inventario" element={<InventarioPage />} />
             <Route path="citas" element={<AdminCitasPage />} />
+            <Route path="historial" element={<HistorialClinicoPage />} />
             <Route path="notificaciones" element={<NotificacionesPage />} />
             <Route path="usuarios" element={<UsuariosPage />} />
           </Route>
