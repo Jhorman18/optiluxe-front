@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaTrash, FaMinus, FaPlus, FaShoppingBag, FaArrowLeft } from "react-icons/fa";
-import HeaderHome from "../components/home/HeaderHome.jsx";
-import Footer from "../components/layout/Footer.jsx";
-import { useCart } from "../context/cart/CartContext.jsx";
-import PagoModal from "../components/cart/PagoModal.jsx";
+import HeaderHome from "../../components/home/HeaderHome.jsx";
+import Footer from "../../components/layout/Footer.jsx";
+import { useCart } from "../../context/cart/CartContext.jsx";
+import PagoModal from "../../components/cart/PagoModal.jsx";
 
 export default function Carrito() {
   const { carrito, cargando, updateItem, removeItem } = useCart();

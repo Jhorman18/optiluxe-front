@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import HomePage from "../pages/HomePage";
+import HomePage from "../pages/public/HomePage";
 import AuthPage from "../pages/auth/AuthPage";
 import ForgotPasswordPage from "../pages/auth/ForgotPasswordPage";
 import ResetPasswordPage from "../pages/auth/ResetPasswordPage";
@@ -7,20 +7,20 @@ import ProtectedRoute from "./ProtectedRoute";
 import TestPage from "../pages/TestPage";
 import AdminLayout from "../layouts/AdminLayout";
 import AdminDashboardPage from "../pages/admin/AdminDashboardPage";
-import Services from "../pages/Services";
-import Conocenos from "../pages/Conocenos";
-import Productos from "../pages/Productos";
-import ProductDetailPage from "../pages/ProductDetailPage";
-import Contacto from "../pages/Contacto";
+import Services from "../pages/public/Services";
+import Conocenos from "../pages/public/Conocenos";
+import Productos from "../pages/public/Productos";
+import ProductDetailPage from "../pages/public/ProductDetailPage";
+import Contacto from "../pages/public/Contacto";
 import InventarioPage from "../pages/admin/InventarioPage";
 import NotificacionesPage from "../pages/admin/NotificacionesPage";
 import UsuariosPage from "../pages/admin/UsuariosPage";
 import AdminCitasPage from "../pages/admin/AdminCitasPage";
-import CitasPage from "../pages/CitasPage";
+import CitasPage from "../pages/public/CitasPage";
 
 import FacturaListPage from "../pages/factura/FacturaListPage";
 import FacturaCreatePage from "../pages/factura/FacturaCreatePage";
-import Carrito from "../pages/Carrito";
+import Carrito from "../pages/cliente/Carrito";
 import CartPanel from "../components/cart/CartPanel.jsx";
 
 export default function AppRouter() {

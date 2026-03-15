@@ -1,8 +1,8 @@
 import { useState } from "react";
-import HeaderHome from "../components/home/HeaderHome";
-import Footer from "../components/layout/Footer";
-import AgendarCita from "../components/servicios/AgendarCita";
-import MisCitas from "../components/servicios/MisCitas";
+import HeaderHome from "../../components/home/HeaderHome";
+import Footer from "../../components/layout/Footer";
+import AgendarCita from "../../components/servicios/AgendarCita";
+import MisCitas from "../../components/servicios/MisCitas";
 
 const CitasPage = () => {
   const [refreshKey, setRefreshKey] = useState(0);

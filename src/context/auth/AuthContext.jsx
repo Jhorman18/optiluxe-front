@@ -5,7 +5,7 @@ import {
   logoutService,
   meService,
   registerService,
-} from "../../services/auth.service";
+} from "../../services/authService";
 import { registrarServiceWorker, suscribirPush, desuscribirPush } from "../../services/webpushService";
 
 const AuthContext = createContext(null);

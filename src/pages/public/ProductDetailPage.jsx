@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { getProductoById, getProductos } from "../services/productoService";
-import { useCart } from "../context/cart/CartContext";
+import { getProductoById, getProductos } from "../../services/productoService";
+import { useCart } from "../../context/cart/CartContext";
 import { FaStar, FaChevronRight, FaShoppingCart, FaArrowLeft, FaCheck } from "react-icons/fa";
-import Footer from "../components/layout/Footer";
-import HeaderHome from "../components/home/HeaderHome";
+import Footer from "../../components/layout/Footer";
+import HeaderHome from "../../components/home/HeaderHome";
 
 export default function ProductDetailPage() {
     const { id } = useParams();
