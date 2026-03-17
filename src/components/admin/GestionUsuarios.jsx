@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
-import { FaSearch, FaFilter } from "react-icons/fa";
+import { FaSearch, FaFilter, FaUserPlus } from "react-icons/fa";
 import * as usuarioService from "../../services/usuarioService";
 import toast from "react-hot-toast";
 import UsuariosTabla from "./usuarios/UsuariosTabla";
 import EditarUsuarioModal from "./usuarios/EditarUsuarioModal";
+import CrearUsuarioModal from "./usuarios/CrearUsuarioModal";
 
 const ROLES = ["CLIENTE", "ADMINISTRADOR", "EMPLEADO"];
 
@@ -18,6 +19,9 @@ export default function GestionUsuarios() {
     const [guardando, setGuardando] = useState(false);
     const [mostrarPass, setMostrarPass] = useState(false);
     const [mostrarConfirm, setMostrarConfirm] = useState(false);
+
+    const [modalCrear, setModalCrear] = useState(false);
+    const [creando, setCreando] = useState(false);
 
     const fetchUsuarios = async (busqueda, rol) => {
         try {
@@ -73,6 +77,21 @@ export default function GestionUsuarios() {
         setMostrarConfirm(false);
     };
 
+    const handleCrearUsuario = async (payload, resetForm) => {
+        try {
+            setCreando(true);
+            const nuevo = await usuarioService.crearUsuario(payload);
+            setUsuarios((prev) => [nuevo, ...prev]);
+            toast.success("Usuario creado correctamente.");
+            setModalCrear(false);
+            resetForm();
+        } catch (error) {
+            toast.error(error?.response?.data?.message || error?.message || "Error al crear usuario.");
+        } finally {
+            setCreando(false);
+        }
+    };
+
     const handleGuardarEdicion = async (e) => {
         e.preventDefault();
         if (editForm.usuPassword && editForm.usuPassword !== editForm.confirmarPassword) {
@@ -104,9 +123,17 @@ export default function GestionUsuarios() {
                     <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Usuarios</h1>
                     <p className="text-sm font-medium text-slate-500 mt-1">Consulta y gestiona el estado de todos los usuarios registrados</p>
                 </div>
-                <div className="bg-white border border-slate-200 rounded-2xl px-5 py-3 text-center shadow-sm">
-                    <p className="text-2xl font-extrabold text-blue-600">{usuarios.length}</p>
-                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Total</p>
+                <div className="flex items-center gap-3">
+                    <button
+                        onClick={() => setModalCrear(true)}
+                        className="flex items-center gap-2 px-5 py-3 bg-blue-600 text-white font-bold rounded-2xl hover:bg-blue-700 transition shadow-lg shadow-blue-600/20"
+                    >
+                        <FaUserPlus /> Crear usuario
+                    </button>
+                    <div className="bg-white border border-slate-200 rounded-2xl px-5 py-3 text-center shadow-sm">
+                        <p className="text-2xl font-extrabold text-blue-600">{usuarios.length}</p>
+                        <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Total</p>
+                    </div>
                 </div>
             </div>
 
@@ -142,6 +169,13 @@ export default function GestionUsuarios() {
                 loading={loading}
                 onEditar={abrirEditar}
                 onToggleEstado={handleToggleEstado}
+            />
+
+            <CrearUsuarioModal
+                abierto={modalCrear}
+                guardando={creando}
+                onClose={() => setModalCrear(false)}
+                onSubmit={handleCrearUsuario}
             />
 
             <EditarUsuarioModal
