@@ -186,7 +186,7 @@ export default function EncuestaModal({ categoria, fkIdCita, fkIdFactura, onClos
     setEnviando(true);
     try {
       const payload = {
-        enTipo: categoria === "cita" ? "Satisfacción Cita" : "Satisfacción Compra",
+        enTipo: categoria === "cita" ? "CITA" : "VENTA",
         fkIdCita: fkIdCita || null,
         fkIdFactura: fkIdFactura || null,
         respuestas: Object.entries(respuestas).map(([idPregunta, resValor]) => ({
@@ -280,11 +280,11 @@ export default function EncuestaModal({ categoria, fkIdCita, fkIdFactura, onClos
               <button
                 onClick={() => {
                   onClose();
-                  navigate("/servicios");
+                  navigate(categoria === "cita" ? "/productos" : "/servicios");
                 }}
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition cursor-pointer mt-2"
               >
-                Ir a Servicios
+                {categoria === "cita" ? "Ir a productos" : "Ir a Servicios"}
               </button>
             </div>
           ) : (

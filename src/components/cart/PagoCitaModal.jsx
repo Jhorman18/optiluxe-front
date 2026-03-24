@@ -67,7 +67,7 @@ export default function PagoCitaModal({ onClose, totalAPagar, onConfirmar }) {
     try {
       await new Promise((resolve) => setTimeout(resolve, 1500));
       await onConfirmar(metodoElegido);
-      setStep("success");
+      // El componente padre cerrará este modal si tiene éxito
     } catch (err) {
       setError(err?.message || "Error al procesar el pago. Inténtalo de nuevo.");
       if (metodoElegido === "EFECTIVO") setStep("select");
@@ -91,7 +91,7 @@ export default function PagoCitaModal({ onClose, totalAPagar, onConfirmar }) {
       {procesando ? (
         <div className="text-center py-8">
           <FaSpinner className="animate-spin text-3xl text-blue-600 mx-auto" />
-          <p className="mt-2 text-sm text-gray-600 font-medium">Agendando tu cita...</p>
+          <p className="mt-2 text-sm text-gray-600 font-medium">Procesando pago...</p>
         </div>
       ) : (
         <>
@@ -201,30 +201,11 @@ export default function PagoCitaModal({ onClose, totalAPagar, onConfirmar }) {
         {procesando ? (
           <>
             <FaSpinner className="animate-spin" />
-            Agendando cita...
+            Procesando...
           </>
         ) : (
           `Pagar ${totalAPagar}`
         )}
-      </button>
-    </div>
-  );
-
-
-  const renderSuccess = () => (
-    <div className="text-center space-y-4 py-2">
-      <FaCheckCircle className="text-green-500 text-5xl mx-auto" />
-      <div>
-        <p className="text-lg font-bold text-gray-900">¡Transacción Exitosa!</p>
-        <p className="text-sm text-gray-500 mt-1">
-          El valor del servicio ha sido saldado y tu cita confirmada.
-        </p>
-      </div>
-      <button
-        onClick={onClose}
-        className="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition cursor-pointer"
-      >
-        Ver Resumen
       </button>
     </div>
   );
@@ -246,25 +227,21 @@ export default function PagoCitaModal({ onClose, totalAPagar, onConfirmar }) {
             <h2 className="font-bold text-gray-900 text-lg">
               {step === "select" && "Valor del Servicio"}
               {step === "form" && "Pago con PSE"}
-              {step === "success" && "¡Pago confirmado!"}
             </h2>
           </div>
-          {step !== "success" && (
-            <button
-              onClick={onClose}
-              disabled={procesando}
-              className="text-gray-400 hover:text-gray-600 transition cursor-pointer disabled:opacity-50"
-            >
-              <FaTimes />
-            </button>
-          )}
+          <button
+            onClick={onClose}
+            disabled={procesando}
+            className="text-gray-400 hover:text-gray-600 transition cursor-pointer disabled:opacity-50"
+          >
+            <FaTimes />
+          </button>
         </div>
 
         {/* Body */}
         <div className="px-6 py-5">
           {step === "select" && renderSelect()}
           {step === "form" && renderForm()}
-          {step === "success" && renderSuccess()}
         </div>
       </div>
     </div>

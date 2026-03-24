@@ -13,6 +13,7 @@ import { getUsuarios } from "../../services/usuarioService";
 import { services as SERVICIOS } from "../../config/servicesData";
 import toast from "react-hot-toast";
 import DataTable from "../ui/DataTable";
+import EncuestaModal from "../encuesta/EncuestaModal";
 
 // ─── Configuración ────────────────────────────────────────────────────────────
 
@@ -251,6 +252,10 @@ export default function GestionCitas() {
     const [ncHorariosOcupados, setNcHorariosOcupados] = useState([]);
     const [ncCargandoSlots, setNcCargandoSlots] = useState(false);
     const [creandoCita, setCreandoCita] = useState(false);
+    
+    // Encuesta post-creación
+    const [showEncuesta, setShowEncuesta] = useState(false);
+    const [ncCitaIdCreada, setNcCitaIdCreada] = useState(null);
 
     const fetchCitas = async () => {
         try {
@@ -401,10 +406,17 @@ export default function GestionCitas() {
                 citEstado: "PENDIENTE",
                 citObservaciones: ncObs || undefined,
             });
+            
+            const idCita = result.data?.idCita || result.data?.cita?.idCita;
+            if (idCita) setNcCitaIdCreada(idCita);
+
             setModalNuevaCita(false);
             fetchCitas();
-            if (ncEstado === "CONFIRMADA") {
-                // Si el admin quería confirmarla directamente, pedir pago de inmediato
+
+            if (idCita) {
+                setShowEncuesta(true);
+            } else if (ncEstado === "CONFIRMADA") {
+                // ... fallback anterior si no hay ID por algún motivo
                 setCitaPago(result.data);
                 setPagoMonto("");
                 setPagoMetodo("EFECTIVO");
@@ -1271,6 +1283,19 @@ export default function GestionCitas() {
                 .custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
                 .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #cbd5e1; }
             `}</style>
+            {/* Modal Nueva Cita logic... */}
+
+            {showEncuesta && (
+                <EncuestaModal
+                    categoria="cita"
+                    fkIdCita={ncCitaIdCreada}
+                    fkIdFactura={null}
+                    onClose={() => {
+                        setShowEncuesta(false);
+                        toast.success("Cita y encuesta gestionadas correctamente");
+                    }}
+                />
+            )}
         </div>
     );
 }

@@ -1,33 +1,42 @@
 import { api } from "./api";
 
 /**
- * Obtiene las preguntas activas filtradas por categoría
- * @param {string} categoria - "cita" | "compra"
+ * Obtiene todas las encuestas (Admin)
  */
-export const obtenerPreguntas = async (categoria) => {
-  try {
-    const response = await api.get(`/encuesta/preguntas`, {
-      params: { categoria },
-    });
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error.message;
-  }
+export const getEncuestas = async (params = {}) => {
+  const response = await api.get("/encuesta", { params });
+  return response.data;
 };
 
 /**
- * Envía las respuestas de una encuesta
- * @param {Object} encuestaData
- * @param {string} encuestaData.enTipo - Tipo de encuesta
- * @param {number|null} encuestaData.fkIdCita - ID de la cita (si aplica)
- * @param {number|null} encuestaData.fkIdFactura - ID de la factura (si aplica)
- * @param {Array} encuestaData.respuestas - [{ fkIdPregunta, resValor }]
+ * Obtiene el detalle de una encuesta por ID (Admin)
  */
-export const enviarEncuesta = async (encuestaData) => {
-  try {
-    const response = await api.post("/encuesta", encuestaData);
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error.message;
-  }
+export const getEncuestaById = async (id) => {
+  const response = await api.get(`/encuesta/${id}`);
+  return response.data;
+};
+
+/**
+ * Elimina una encuesta (Admin)
+ */
+export const deleteEncuesta = async (id) => {
+  const response = await api.delete(`/encuesta/${id}`);
+  return response.data;
+};
+
+/**
+ * Obtiene el catálogo de preguntas para el cliente
+ */
+export const getPreguntas = async (categoria) => {
+  const params = categoria ? { categoria } : {};
+  const response = await api.get("/encuesta/preguntas", { params });
+  return response.data;
+};
+
+/**
+ * Registra una nueva encuesta (Cliente)
+ */
+export const enviarEncuesta = async (data) => {
+  const response = await api.post("/encuesta", data);
+  return response.data;
 };

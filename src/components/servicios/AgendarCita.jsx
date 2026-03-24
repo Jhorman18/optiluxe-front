@@ -137,12 +137,18 @@ const AgendarCita = ({ onCitaAgendada, refreshKey = 0 }) => {
         };
       }
 
-      await registrarCita(payload);
+       const response = await registrarCita(payload);
+      const idCita = response.data?.cita?.idCita;
+      if (idCita) setCitaIdCreada(idCita);
+
       toast.success("¡Cita agendada con éxito!");
       // Actualiza el estado de cita activa y notifica al panel MisCitas
       getTieneCitaActiva().then(({ cita }) => setCitaActiva(cita ?? null)).catch(() => { });
       onCitaAgendada?.();
       setStep(4);
+      // El usuario podrá elegir responder la encuesta en el Paso 4 (Opcional)
+      setShowPago(false);
+      return idCita;
     } catch (error) {
       toast.error(error.message || "Error al agendar la cita");
     } finally {
@@ -150,322 +156,6 @@ const AgendarCita = ({ onCitaAgendada, refreshKey = 0 }) => {
       setShowPago(false);
     }
   };
-
-  // ─── PASO 1: Selección de servicio ──────────────────────────────────────────
-  const Step1 = () => (
-    <div className="space-y-6 animate-in slide-in-from-right-4">
-      <h2 className="text-2xl font-semibold text-slate-800">
-        1. Selecciona un Servicio
-      </h2>
-      <div className="grid gap-4 md:grid-cols-2">
-        {services.map((service, idx) => (
-          <button
-            key={idx}
-            type="button"
-            onClick={() => {
-              setFormData({
-                ...formData,
-                citMotivo: service.title,
-                totalAPagar: service.price,
-                durationMinutes: service.durationMinutes,
-                // Resetea hora si cambia el servicio (puede cambiar rango válido)
-                citHora: "",
-              });
-              handleNext();
-            }}
-            className={`flex flex-col items-start rounded-xl border p-5 text-left transition-all ${formData.citMotivo === service.title
-                ? "border-blue-600 bg-blue-50/50 shadow-sm ring-1 ring-blue-600"
-                : "border-slate-200 bg-white hover:border-slate-300 hover:shadow-sm"
-              }`}
-          >
-            <div className="flex w-full items-center justify-between">
-              <span className="font-medium text-slate-900">{service.title}</span>
-              {formData.citMotivo === service.title && (
-                <FaCheckCircle className="text-blue-600" />
-              )}
-            </div>
-            <p className="mt-1 text-sm text-slate-500 line-clamp-2">
-              {service.description}
-            </p>
-            <div className="mt-4 flex items-center justify-between w-full">
-              <span className="inline-flex rounded-md bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600">
-                <FaClock className="mr-1.5 inline h-3 w-3" /> {service.duration}
-              </span>
-              <span
-                className={`text-sm font-semibold ${service.price === "Servicio gratuito"
-                    ? "text-green-600"
-                    : "text-blue-700"
-                  }`}
-              >
-                {service.price}
-              </span>
-            </div>
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-
-  // ─── PASO 2: Fecha y horario ─────────────────────────────────────────────────
-  const Step2 = () => {
-    const today = new Date().toISOString().split("T")[0];
-    const { durationMinutes } = formData;
-
-    // Slots válidos según duración del servicio seleccionado
-    const validSlots = getSlotsForDuration(durationMinutes);
-
-    // Hora límite legible para mostrar al usuario
-    const maxStartMin = 17 * 60 - durationMinutes;
-    const maxStartH = Math.floor(maxStartMin / 60);
-    const maxStartM = maxStartMin % 60;
-    const maxStartLabel = `${String(maxStartH).padStart(2, "0")}:${String(
-      maxStartM
-    ).padStart(2, "0")}`;
-
-    const handleDateChange = (e) => {
-      setFormData({ ...formData, citFecha: e.target.value, citHora: "" });
-    };
-
-    const handleSlotClick = (slot) => {
-      if (isSlotOccupied(slot, durationMinutes, occupiedRanges)) return;
-      if (isSlotPast(slot, formData.citFecha)) return;
-      setFormData({ ...formData, citHora: slot });
-    };
-
-    const canContinue =
-      formData.citFecha && formData.citHora && !loadingSlots;
-
-    return (
-      <div className="space-y-6 animate-in slide-in-from-right-4">
-        <h2 className="text-2xl font-semibold text-slate-800">
-          2. Escoge Fecha y Hora
-        </h2>
-
-        <div className="space-y-5">
-          {/* Selector de fecha */}
-          <div>
-            <label className="mb-2 block text-sm font-medium text-slate-700">
-              Fecha de la cita
-            </label>
-            <div className="relative">
-              <div className="pointer-events-none absolute inset-y-0 left-0 pl-3 flex items-center">
-                <FaCalendarAlt className="text-slate-400" />
-              </div>
-              <input
-                type="date"
-                min={today}
-                required
-                value={formData.citFecha}
-                onChange={handleDateChange}
-                className="block w-full rounded-lg border border-slate-300 pl-10 px-4 py-2.5 text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-              />
-            </div>
-          </div>
-
-          {/* Grilla de horarios */}
-          <div>
-            <div className="mb-2 flex items-center justify-between">
-              <label className="text-sm font-medium text-slate-700">
-                Horario disponible
-              </label>
-              <span className="text-xs text-slate-400">
-                Último inicio: {maxStartLabel} · Duración: {durationMinutes} min
-              </span>
-            </div>
-
-            {!formData.citFecha ? (
-              <p className="text-sm text-slate-400 italic py-4">
-                Selecciona primero una fecha para ver los horarios.
-              </p>
-            ) : loadingSlots ? (
-              <div className="flex items-center gap-2 py-6 text-slate-500 text-sm">
-                <FaSpinner className="animate-spin" />
-                Consultando disponibilidad…
-              </div>
-            ) : (
-              <>
-                <div className="grid grid-cols-3 gap-3 sm:grid-cols-4">
-                  {validSlots.map((slot) => {
-                    const occupied =
-                      isSlotOccupied(slot, durationMinutes, occupiedRanges) ||
-                      isSlotPast(slot, formData.citFecha);
-                    const selected = formData.citHora === slot;
-
-                    return (
-                      <button
-                        key={slot}
-                        type="button"
-                        disabled={occupied}
-                        onClick={() => handleSlotClick(slot)}
-                        title={occupied ? "Horario no disponible" : undefined}
-                        className={`relative rounded-lg border px-3 py-2 text-sm font-medium transition-all
-                          ${occupied
-                            ? "cursor-not-allowed border-slate-200 bg-slate-100 text-slate-400 line-through"
-                            : selected
-                              ? "border-blue-600 bg-blue-600 text-white shadow-sm"
-                              : "border-slate-300 bg-white text-slate-700 hover:border-slate-400 hover:bg-slate-50"
-                          }`}
-                      >
-                        {occupied && (
-                          <FaBan className="absolute top-1 right-1 text-[9px] text-slate-400" />
-                        )}
-                        {slot}
-                      </button>
-                    );
-                  })}
-                </div>
-
-                {occupiedRanges.length > 0 && (
-                  <p className="mt-3 text-xs text-slate-400 flex items-center gap-1">
-                    <FaBan className="text-slate-400" />
-                    Los horarios tachados ya están reservados para este día.
-                  </p>
-                )}
-              </>
-            )}
-          </div>
-        </div>
-
-        <div className="flex gap-3 pt-4">
-          <button
-            onClick={handleBack}
-            className="rounded-lg border border-slate-300 bg-white px-5 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
-          >
-            Atrás
-          </button>
-          <button
-            onClick={handleNext}
-            disabled={!canContinue}
-            className="rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            Continuar
-          </button>
-        </div>
-      </div>
-    );
-  };
-
-  // ─── PASO 3: Confirmación ────────────────────────────────────────────────────
-  const Step3 = () => (
-    <div className="space-y-6 animate-in slide-in-from-right-4">
-      <h2 className="text-2xl font-semibold text-slate-800">
-        3. Confirma tu Cita
-      </h2>
-
-      <div className="rounded-xl border border-blue-100 bg-blue-50/50 p-6">
-        <h3 className="text-sm font-medium uppercase tracking-wider text-blue-800">
-          Resumen
-        </h3>
-        <ul className="mt-4 flex flex-col gap-3">
-          <li className="flex justify-between border-b border-blue-100 pb-2">
-            <span className="text-slate-600">Servicio</span>
-            <span className="font-medium text-slate-900">{formData.citMotivo}</span>
-          </li>
-          <li className="flex justify-between border-b border-blue-100 pb-2">
-            <span className="text-slate-600">Duración</span>
-            <span className="font-medium text-slate-900">
-              {formData.durationMinutes} min
-            </span>
-          </li>
-          <li className="flex justify-between border-b border-blue-100 pb-2">
-            <span className="text-slate-600">Fecha</span>
-            <span className="font-medium text-slate-900">{formData.citFecha}</span>
-          </li>
-          <li className="flex justify-between border-b border-blue-100 pb-2">
-            <span className="text-slate-600">Hora</span>
-            <span className="font-medium text-slate-900">{formData.citHora}</span>
-          </li>
-          <li className="flex justify-between pt-1">
-            <span className="text-slate-600 font-semibold">Valor del Servicio</span>
-            <span
-              className={`font-bold ${formData.totalAPagar === "Servicio gratuito"
-                  ? "text-green-600"
-                  : "text-blue-700"
-                }`}
-            >
-              {formData.totalAPagar}
-            </span>
-          </li>
-        </ul>
-      </div>
-
-      <div>
-        <label className="mb-2 block text-sm font-medium text-slate-700">
-          Observaciones (Opcional)
-        </label>
-        <textarea
-          rows={3}
-          value={formData.citObservaciones}
-          onChange={(e) =>
-            setFormData({ ...formData, citObservaciones: e.target.value })
-          }
-          placeholder="Ej: Tengo sensibilidad a la luz últimamente..."
-          className="block w-full rounded-lg border border-slate-300 px-4 py-3 text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-        />
-      </div>
-
-      {!isAuthenticated && (
-        <div className="rounded-lg bg-amber-50 p-4 flex gap-3 text-amber-800 text-sm">
-          <FaExclamationTriangle className="mt-0.5 flex-shrink-0" />
-          <p>
-            Debes iniciar sesión para agendar la cita. Al confirmar, te
-            redirigiremos a la página de inicio de sesión.
-          </p>
-        </div>
-      )}
-
-      <div className="flex gap-3 pt-4">
-        <button
-          onClick={handleBack}
-          type="button"
-          disabled={loading}
-          className="rounded-lg border border-slate-300 bg-white px-5 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50"
-        >
-          Atrás
-        </button>
-        <button
-          onClick={iniciarProcesoCita}
-          disabled={loading}
-          className="flex-1 rounded-lg bg-blue-600 px-5 py-2.5 text-center text-sm font-medium text-white shadow-sm transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-70"
-        >
-          {loading
-            ? "Procesando..."
-            : formData.totalAPagar === "Servicio gratuito"
-              ? "Confirmar Cita"
-              : "Pagar y Confirmar"}
-        </button>
-      </div>
-    </div>
-  );
-
-  // ─── PASO 4: Éxito ───────────────────────────────────────────────────────────
-  const Step4 = () => (
-    <div className="flex flex-col items-center justify-center space-y-4 py-8 text-center animate-in zoom-in-95">
-      <div className="rounded-full bg-green-100 p-4">
-        <FaCheckCircle className="h-12 w-12 text-green-600" />
-      </div>
-      <h2 className="text-2xl font-bold text-slate-800">¡Cita Agendada!</h2>
-      <p className="max-w-md text-slate-500">
-        Tu cita para <strong>{formData.citMotivo}</strong> el día{" "}
-        <strong>{formData.citFecha}</strong> a las{" "}
-        <strong>{formData.citHora}</strong> ha sido agendada con éxito.
-      </p>
-      <div className="flex flex-col gap-3 w-full max-w-xs mt-4">
-        <button
-          onClick={() => setShowEncuesta(true)}
-          className="rounded-lg bg-gradient-to-r from-[#1D3B8B] to-[#3B82F6] px-6 py-2.5 text-sm font-medium text-white hover:opacity-90 transition cursor-pointer"
-        >
-          📋 ¿Cómo fue tu experiencia?
-        </button>
-        <button
-          onClick={() => navigate("/")}
-          className="rounded-lg bg-slate-900 px-6 py-2.5 text-sm font-medium text-white hover:bg-slate-800 cursor-pointer"
-        >
-          Volver al Inicio
-        </button>
-      </div>
-    </div>
-  );
 
   // ─── RENDER ──────────────────────────────────────────────────────────────────
 
@@ -480,8 +170,8 @@ const AgendarCita = ({ onCitaAgendada, refreshKey = 0 }) => {
     );
   }
 
-  // Bloqueo: usuario autenticado con cita activa
-  if (isAuthenticated && citaActiva) {
+  // Bloqueo: usuario autenticado con cita activa (solo si no estamos en el paso de éxito)
+  if (isAuthenticated && citaActiva && step !== 4) {
     return (
       <div className="rounded-2xl bg-white border border-amber-200 shadow-sm overflow-hidden">
         <div className="bg-amber-50 px-6 py-5 flex items-center gap-3">
@@ -533,10 +223,174 @@ const AgendarCita = ({ onCitaAgendada, refreshKey = 0 }) => {
       )}
 
       <div className="rounded-2xl bg-white p-6 shadow-sm sm:p-8 border border-slate-100">
-        {step === 1 && <Step1 />}
-        {step === 2 && <Step2 />}
-        {step === 3 && <Step3 />}
-        {step === 4 && <Step4 />}
+        {step === 1 && (
+          <div className="space-y-6 animate-in slide-in-from-right-4">
+            <h2 className="text-2xl font-semibold text-slate-800">1. Selecciona un Servicio</h2>
+            <div className="grid gap-4 md:grid-cols-2">
+              {services.map((service, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => {
+                    setFormData({
+                      ...formData,
+                      citMotivo: service.title,
+                      totalAPagar: service.price,
+                      durationMinutes: service.durationMinutes,
+                      citHora: "",
+                    });
+                    handleNext();
+                  }}
+                  className={`flex flex-col items-start rounded-xl border p-5 text-left transition-all ${formData.citMotivo === service.title
+                    ? "border-blue-600 bg-blue-50/50 shadow-sm ring-1 ring-blue-600"
+                    : "border-slate-200 bg-white hover:border-slate-300 hover:shadow-sm"
+                    }`}
+                >
+                  <div className="flex w-full items-center justify-between">
+                    <span className="font-medium text-slate-900">{service.title}</span>
+                    {formData.citMotivo === service.title && <FaCheckCircle className="text-blue-600" />}
+                  </div>
+                  <p className="mt-1 text-sm text-slate-500 line-clamp-2">{service.description}</p>
+                  <div className="mt-4 flex items-center justify-between w-full">
+                    <span className="inline-flex rounded-md bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600">
+                      <FaClock className="mr-1.5 inline h-3 w-3" /> {service.duration}
+                    </span>
+                    <span className={`text-sm font-semibold ${service.price === "Servicio gratuito" ? "text-green-600" : "text-blue-700"}`}>
+                      {service.price}
+                    </span>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {step === 2 && (
+          <div className="space-y-6 animate-in slide-in-from-right-4">
+            <h2 className="text-2xl font-semibold text-slate-800">2. Escoge Fecha y Hora</h2>
+            <div className="space-y-5">
+              <div>
+                <label className="mb-2 block text-sm font-medium text-slate-700">Fecha de la cita</label>
+                <div className="relative">
+                  <div className="pointer-events-none absolute inset-y-0 left-0 pl-3 flex items-center">
+                    <FaCalendarAlt className="text-slate-400" />
+                  </div>
+                  <input
+                    type="date"
+                    min={new Date().toISOString().split("T")[0]}
+                    required
+                    value={formData.citFecha}
+                    onChange={(e) => setFormData({ ...formData, citFecha: e.target.value, citHora: "" })}
+                    className="block w-full rounded-lg border border-slate-300 pl-10 px-4 py-2.5 text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <div className="mb-2 flex items-center justify-between">
+                  <label className="text-sm font-medium text-slate-700">Horario disponible</label>
+                  <span className="text-xs text-slate-400">Duración: {formData.durationMinutes} min</span>
+                </div>
+                {!formData.citFecha ? (
+                  <p className="text-sm text-slate-400 italic py-4">Selecciona primero una fecha para ver los horarios.</p>
+                ) : loadingSlots ? (
+                  <div className="flex items-center gap-2 py-6 text-slate-500 text-sm">
+                    <FaSpinner className="animate-spin" />
+                    Consultando disponibilidad…
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-3 gap-3 sm:grid-cols-4">
+                    {getSlotsForDuration(formData.durationMinutes).map((slot) => {
+                      const occupied = isSlotOccupied(slot, formData.durationMinutes, occupiedRanges) || isSlotPast(slot, formData.citFecha);
+                      const selected = formData.citHora === slot;
+                      return (
+                        <button
+                          key={slot}
+                          type="button"
+                          disabled={occupied}
+                          onClick={() => setFormData({ ...formData, citHora: slot })}
+                          className={`relative rounded-lg border px-3 py-2 text-sm font-medium transition-all ${occupied
+                            ? "cursor-not-allowed border-slate-200 bg-slate-100 text-slate-400 line-through"
+                            : selected
+                              ? "border-blue-600 bg-blue-600 text-white shadow-sm"
+                              : "border-slate-300 bg-white text-slate-700 hover:border-slate-400 hover:bg-slate-50"
+                            }`}
+                        >
+                          {slot}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            </div>
+            <div className="flex gap-3 pt-4">
+              <button onClick={handleBack} className="rounded-lg border border-slate-300 bg-white px-5 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50">Atrás</button>
+              <button onClick={handleNext} disabled={!formData.citFecha || !formData.citHora || loadingSlots} className="rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50">Continuar</button>
+            </div>
+          </div>
+        )}
+
+        {step === 3 && (
+          <div className="space-y-6 animate-in slide-in-from-right-4">
+            <h2 className="text-2xl font-semibold text-slate-800">3. Confirma tu Cita</h2>
+            <div className="rounded-xl border border-blue-100 bg-blue-50/50 p-6">
+              <h3 className="text-sm font-medium uppercase tracking-wider text-blue-800">Resumen</h3>
+              <ul className="mt-4 flex flex-col gap-3">
+                <li className="flex justify-between border-b border-blue-100 pb-2">
+                  <span className="text-slate-600">Servicio</span>
+                  <span className="font-medium text-slate-900">{formData.citMotivo}</span>
+                </li>
+                <li className="flex justify-between border-b border-blue-100 pb-2">
+                  <span className="text-slate-600">Fecha</span>
+                  <span className="font-medium text-slate-900">{formData.citFecha}</span>
+                </li>
+                <li className="flex justify-between border-b border-blue-100 pb-2">
+                  <span className="text-slate-600">Hora</span>
+                  <span className="font-medium text-slate-900">{formData.citHora}</span>
+                </li>
+                <li className="flex justify-between pt-1">
+                  <span className="text-slate-600 font-semibold">Valor del Servicio</span>
+                  <span className={`font-bold ${formData.totalAPagar === "Servicio gratuito" ? "text-green-600" : "text-blue-700"}`}>
+                    {formData.totalAPagar}
+                  </span>
+                </li>
+              </ul>
+            </div>
+            <div>
+              <label className="mb-2 block text-sm font-medium text-slate-700">Observaciones (Opcional)</label>
+              <textarea
+                rows={3}
+                value={formData.citObservaciones}
+                onChange={(e) => setFormData({ ...formData, citObservaciones: e.target.value })}
+                placeholder="Ej: Tengo sensibilidad a la luz últimamente..."
+                className="block w-full rounded-lg border border-slate-300 px-4 py-3 text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              />
+            </div>
+            <div className="flex gap-3 pt-4">
+              <button onClick={handleBack} disabled={loading} className="rounded-lg border border-slate-300 bg-white px-5 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50">Atrás</button>
+              <button onClick={iniciarProcesoCita} disabled={loading} className="flex-1 rounded-lg bg-blue-600 px-5 py-2.5 text-center text-sm font-medium text-white shadow-sm transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-70">
+                {loading ? "Procesando..." : formData.totalAPagar === "Servicio gratuito" ? "Confirmar Cita" : "Pagar y Confirmar"}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {step === 4 && (
+          <div className="flex flex-col items-center justify-center space-y-4 py-8 text-center animate-in zoom-in-95">
+            <div className="rounded-full bg-green-100 p-4">
+              <FaCheckCircle className="h-12 w-12 text-green-600" />
+            </div>
+            <h2 className="text-2xl font-bold text-slate-800">¡Cita Agendada!</h2>
+            <p className="max-w-md text-slate-500">
+              Tu cita para <strong>{formData.citMotivo}</strong> el día <strong>{formData.citFecha}</strong> a las <strong>{formData.citHora}</strong> ha sido agendada con éxito.
+            </p>
+            <div className="flex flex-col gap-3 w-full max-w-xs mt-4">
+              <button onClick={() => setShowEncuesta(true)} className="rounded-lg bg-gradient-to-r from-[#1D3B8B] to-[#3B82F6] px-6 py-2.5 text-sm font-medium text-white hover:opacity-90 transition cursor-pointer">📋 ¿Cómo fue tu experiencia?</button>
+              <button onClick={() => navigate("/")} className="rounded-lg bg-slate-900 px-6 py-2.5 text-sm font-medium text-white hover:bg-slate-800 cursor-pointer">Volver al Inicio</button>
+            </div>
+          </div>
+        )}
       </div>
 
       {showPago && (

@@ -3,7 +3,8 @@ import { useAuth } from "../context/auth/AuthContext";
 import {
     FaUserShield, FaUsers, FaCalendarAlt, FaFileMedical,
     FaShoppingBag, FaBoxOpen, FaChartBar, FaBell,
-    FaCog, FaSignOutAlt, FaEye, FaFileInvoiceDollar
+    FaCog, FaSignOutAlt, FaEye, FaFileInvoiceDollar,
+    FaClipboardList
 } from "react-icons/fa";
 
 const MENU_SIDEBAR = [
@@ -15,6 +16,7 @@ const MENU_SIDEBAR = [
     { label: "Inventario", icon: FaBoxOpen, to: "/panel-admin/inventario" },
     { label: "Reportes", icon: FaChartBar, to: "/panel-admin/reportes" },
     { label: "Notificaciones", icon: FaBell, to: "/panel-admin/notificaciones" },
+    { label: "Encuestas", icon: FaClipboardList, to: "/panel-admin/encuestas" },
     { label: "Configuración", icon: FaCog, to: "/panel-admin/configuracion" },
 ];
 
