@@ -17,10 +17,8 @@ import NotificacionesPage from "../pages/admin/NotificacionesPage";
 import UsuariosPage from "../pages/admin/UsuariosPage";
 import AdminCitasPage from "../pages/admin/AdminCitasPage";
 import HistorialClinicoPage from "../pages/admin/HistorialClinicoPage";
+import FacturasPage from "../pages/admin/FacturasPage";
 import CitasPage from "../pages/public/CitasPage";
-
-import FacturaListPage from "../pages/factura/FacturaListPage";
-import FacturaCreatePage from "../pages/factura/FacturaCreatePage";
 import Carrito from "../pages/cliente/Carrito";
 import CartPanel from "../components/cart/CartPanel.jsx";
 
@@ -51,6 +49,7 @@ export default function AppRouter() {
             <Route path="historial" element={<HistorialClinicoPage />} />
             <Route path="notificaciones" element={<NotificacionesPage />} />
             <Route path="usuarios" element={<UsuariosPage />} />
+            <Route path="facturas" element={<FacturasPage />} />
           </Route>
         </Route>
 
@@ -63,14 +62,6 @@ export default function AppRouter() {
         </Route>
 
 
-        <Route
-          element={
-            <ProtectedRoute allowedRoles={["ADMINISTRADOR", "EMPLEADO"]} />
-          }
-        >
-          <Route path="/facturas" element={<FacturaListPage />} />
-          <Route path="/facturas/crear" element={<FacturaCreatePage />} />
-        </Route>
 
       </Routes>
     </BrowserRouter>
