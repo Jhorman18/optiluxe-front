@@ -78,7 +78,7 @@ export default function FacturasTabla({
         header: "Monto Total",
         cell: ({ getValue }) => (
           <span className="font-black text-blue-600">
-            ${Math.round(getValue()).toLocaleString()}
+            ${Math.round(getValue()).toLocaleString("es-CO")}
           </span>
         ),
         meta: { skeletonClass: "h-6 w-24" },

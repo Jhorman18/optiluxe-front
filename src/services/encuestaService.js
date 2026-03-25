@@ -40,3 +40,37 @@ export const enviarEncuesta = async (data) => {
   const response = await api.post("/encuesta", data);
   return response.data;
 };
+
+// ==================== PREGUNTAS ADMIN ====================
+
+/**
+ * Lista TODAS las preguntas (activas e inactivas) — Admin
+ */
+export const getPreguntasAdmin = async () => {
+  const response = await api.get("/encuesta/preguntas/admin");
+  return response.data;
+};
+
+/**
+ * Crea una nueva pregunta — Admin
+ */
+export const crearPregunta = async (data) => {
+  const response = await api.post("/encuesta/preguntas", data);
+  return response.data;
+};
+
+/**
+ * Actualiza una pregunta existente — Admin
+ */
+export const actualizarPregunta = async (id, data) => {
+  const response = await api.put(`/encuesta/preguntas/${id}`, data);
+  return response.data;
+};
+
+/**
+ * Alterna el estado activo/inactivo de una pregunta — Admin
+ */
+export const togglePregunta = async (id) => {
+  const response = await api.patch(`/encuesta/preguntas/${id}/toggle`);
+  return response.data;
+};

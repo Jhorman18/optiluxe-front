@@ -25,14 +25,14 @@ export default function EncuestaDetalleModal({ encuestaId, onClose, onEliminar, 
     <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in duration-200">
       <div className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-3xl overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
         {/* Header */}
-        <div className="bg-slate-900 px-8 py-7 text-white flex justify-between items-center shrink-0">
+        <div className="bg-blue-600 px-8 py-7 text-white flex justify-between items-center shrink-0">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center text-xl shadow-inner border border-white/5">
               <FaClipboardCheck className="text-blue-400" />
             </div>
             <div>
               <h2 className="text-xl font-black tracking-tight uppercase">Resultados de Encuesta</h2>
-              <p className="text-[10px] text-slate-400 font-mono tracking-[0.2em] opacity-80 uppercase">Auditoría de Satisfacción</p>
+              <p className="text-[10px] text-blue-200 font-mono tracking-[0.2em] opacity-80 uppercase">Auditoría de Satisfacción</p>
             </div>
           </div>
           <button onClick={onClose} className="p-2.5 hover:bg-white/10 rounded-full transition cursor-pointer group">
@@ -134,7 +134,7 @@ export default function EncuestaDetalleModal({ encuestaId, onClose, onEliminar, 
           </button>
           <button
             onClick={onClose}
-            className="px-10 py-3.5 bg-slate-900 text-white font-black text-[10px] uppercase tracking-widest rounded-2xl hover:bg-slate-800 transition shadow-2xl shadow-slate-900/40 cursor-pointer active:scale-95"
+            className="px-10 py-3.5 bg-blue-600 text-white font-black text-[10px] uppercase tracking-widest rounded-2xl hover:bg-blue-700 transition shadow-2xl shadow-blue-600/40 cursor-pointer active:scale-95"
           >
             Cerrar Detalle
           </button>

@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
-import { FaSearch, FaClipboardList, FaFilter, FaRedo } from "react-icons/fa";
+import { FaSearch, FaClipboardList, FaFilter, FaRedo, FaQuestionCircle } from "react-icons/fa";
 import * as encuestaService from "../../../services/encuestaService";
 import toast from "react-hot-toast";
 import EncuestasTabla from "./EncuestasTabla";
 import EncuestaDetalleModal from "./EncuestaDetalleModal";
+import PreguntasModal from "./PreguntasModal";
 
 export default function GestionEncuestas() {
   const [encuestas, setEncuestas] = useState([]);
@@ -13,6 +14,7 @@ export default function GestionEncuestas() {
   
   const [detalleEncuesta, setDetalleEncuesta] = useState(null);
   const [eliminando, setEliminando] = useState(false);
+  const [modalPreguntas, setModalPreguntas] = useState(false);
 
   const fetchEncuestas = async () => {
     try {
@@ -67,6 +69,12 @@ export default function GestionEncuestas() {
         </div>
         <div className="flex items-center gap-3">
           <button
+            onClick={() => setModalPreguntas(true)}
+            className="flex items-center gap-2 px-5 py-3 bg-blue-600 text-white font-bold rounded-2xl hover:bg-blue-700 transition shadow-lg shadow-blue-600/20 cursor-pointer"
+          >
+            <FaQuestionCircle /> Gestionar Preguntas
+          </button>
+          <button
             onClick={fetchEncuestas}
             className="p-3 bg-white border border-slate-200 text-slate-600 rounded-2xl hover:bg-slate-50 transition shadow-sm cursor-pointer"
             title="Refrescar datos"
@@ -118,6 +126,11 @@ export default function GestionEncuestas() {
         onClose={() => setDetalleEncuesta(null)}
         onEliminar={handleEliminar}
         eliminando={eliminando}
+      />
+
+      <PreguntasModal
+        abierto={modalPreguntas}
+        onClose={() => setModalPreguntas(false)}
       />
     </div>
   );

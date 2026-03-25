@@ -16,14 +16,14 @@ export default function FacturaDetalleModal({ factura, onClose }) {
       {/* Modal widened to max-w-4xl to ensure nothing is 'squeezed' */}
       <div className="bg-white rounded-3xl shadow-2xl w-full max-w-4xl overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
         {/* Header */}
-        <div className="bg-slate-900 px-10 py-8 text-white flex justify-between items-center shrink-0">
+        <div className="bg-blue-600 px-10 py-8 text-white flex justify-between items-center shrink-0">
           <div className="flex items-center gap-5">
             <div className="w-14 h-14 rounded-2xl bg-white/10 flex items-center justify-center text-2xl shadow-inner border border-white/5">
               <FaFileInvoiceDollar className="text-blue-400" />
             </div>
             <div>
               <h2 className="text-2xl font-black tracking-tight uppercase">Detalle de Factura</h2>
-              <p className="text-sm text-slate-400 font-mono tracking-widest opacity-80">{factura.facNumero}</p>
+              <p className="text-sm text-blue-200 font-mono tracking-widest opacity-80">{factura.facNumero}</p>
             </div>
           </div>
           <button onClick={onClose} className="p-3 hover:bg-white/10 rounded-full transition cursor-pointer group">
@@ -126,17 +126,17 @@ export default function FacturaDetalleModal({ factura, onClose }) {
           </div>
 
           {/* Totales Profesional */}
-          <div className="bg-slate-900 rounded-[3rem] p-12 space-y-6 relative overflow-hidden group border border-white/5">
+          <div className="bg-blue-700 rounded-[3rem] p-12 space-y-6 relative overflow-hidden group border border-white/5">
             <div className="absolute top-0 right-0 w-80 h-80 bg-blue-500/5 blur-3xl rounded-full -mr-20 -mt-20 group-hover:bg-blue-500/10 transition-colors duration-500"></div>
             <div className="flex justify-between text-lg text-slate-400">
-              <span className="font-black border-l-4 border-slate-700 pl-6 uppercase tracking-[0.2em] text-[11px] h-fit">Subtotal Liquidado</span>
-              <span className="text-white font-mono font-black tracking-widest text-xl">${Math.round(factura.facSubtotal).toLocaleString()}</span>
+              <span className="font-black border-l-4 border-blue-500/40 pl-6 uppercase tracking-[0.2em] text-[11px] h-fit">Subtotal Liquidado</span>
+              <span className="text-white font-mono font-black tracking-widest text-xl">${Math.round(factura.facSubtotal).toLocaleString("es-CO")}</span>
             </div>
             <div className="flex justify-between text-lg text-slate-400">
-              <span className="font-black border-l-4 border-slate-700 pl-6 uppercase tracking-[0.2em] text-[11px] h-fit">Monto IVA (19%)</span>
-              <span className="text-white font-mono font-black tracking-widest text-xl">${Math.round(factura.facIva).toLocaleString()}</span>
+              <span className="font-black border-l-4 border-blue-500/40 pl-6 uppercase tracking-[0.2em] text-[11px] h-fit">Monto IVA (19%)</span>
+              <span className="text-white font-mono font-black tracking-widest text-xl">${Math.round(factura.facIva).toLocaleString("es-CO")}</span>
             </div>
-            <div className="pt-10 mt-8 border-t border-slate-800 flex justify-between items-end">
+            <div className="pt-10 mt-8 border-t border-blue-600 flex justify-between items-end">
               <div>
                 <p className="text-[11px] text-blue-400 font-black uppercase tracking-[0.4em] mb-3 px-1">Importe Total Neto</p>
                 <div className="flex items-baseline gap-2">
@@ -146,7 +146,7 @@ export default function FacturaDetalleModal({ factura, onClose }) {
               <div className="text-right">
                 <span className="text-blue-500 text-xl font-black mr-2 opacity-50">$</span>
                 <span className="text-white text-7xl font-black font-mono tracking-tighter drop-shadow-2xl shadow-blue-500/40">
-                  {Math.round(factura.facTotal).toLocaleString()}
+                  {Math.round(factura.facTotal).toLocaleString("es-CO")}
                 </span>
               </div>
             </div>
@@ -157,7 +157,7 @@ export default function FacturaDetalleModal({ factura, onClose }) {
         <div className="px-10 py-8 bg-slate-50 border-t border-slate-100 flex justify-end shrink-0">
           <button
             onClick={onClose}
-            className="px-16 py-5 bg-slate-900 text-white font-black text-sm uppercase tracking-[0.25em] rounded-2xl hover:bg-slate-800 transition shadow-2xl shadow-slate-900/40 cursor-pointer active:scale-95 ring-4 ring-slate-900/5"
+            className="px-16 py-5 bg-blue-600 text-white font-black text-sm uppercase tracking-[0.25em] rounded-2xl hover:bg-blue-700 transition shadow-2xl shadow-blue-600/40 cursor-pointer active:scale-95 ring-4 ring-blue-600/5"
           >
             Cerrar Consulta
           </button>

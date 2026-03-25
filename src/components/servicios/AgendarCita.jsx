@@ -129,7 +129,7 @@ const AgendarCita = ({ onCitaAgendada, refreshKey = 0 }) => {
       };
 
       if (metodoPago && metodoPago !== "Gratuito") {
-        const valorNumerico = parseFloat(formData.totalAPagar.replace(/[^\d.-]/g, ''));
+        const valorNumerico = parseInt(formData.totalAPagar.replace(/\D/g, ''), 10);
         payload.pago = {
           metodo: metodoPago,
           estado: "Aprobado",

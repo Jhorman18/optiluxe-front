@@ -71,20 +71,20 @@ export default function EncuestasTabla({ encuestas, loading, onVerDetalle, onEli
                 </p>
               </td>
               <td className="px-6 py-5">
-                <div className="flex items-center justify-center gap-2">
+                <div className="flex items-center justify-center gap-1">
                   <button
                     onClick={() => onVerDetalle(e)}
-                    className="p-2.5 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-600 hover:text-white transition cursor-pointer shadow-sm active:scale-90"
+                    className="p-2.5 rounded-xl text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition cursor-pointer group shadow-sm hover:shadow-md bg-white border border-slate-100"
                     title="Ver detalle de respuestas"
                   >
-                    <FaEye />
+                    <FaEye className="text-base group-hover:scale-110 transition-transform" />
                   </button>
                   <button
                     onClick={() => onEliminar(e.idEncuesta)}
-                    className="p-2.5 bg-red-50 text-red-600 rounded-xl hover:bg-red-600 hover:text-white transition cursor-pointer shadow-sm active:scale-90"
+                    className="p-2.5 rounded-xl text-slate-400 hover:text-red-600 hover:bg-red-50 transition cursor-pointer group shadow-sm hover:shadow-md bg-white border border-slate-100"
                     title="Eliminar encuesta"
                   >
-                    <FaTrashAlt />
+                    <FaTrashAlt className="text-base group-hover:scale-110 transition-transform" />
                   </button>
                 </div>
               </td>
