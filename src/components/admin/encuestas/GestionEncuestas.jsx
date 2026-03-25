@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
-import { FaSearch, FaClipboardList, FaFilter, FaRedo, FaQuestionCircle } from "react-icons/fa";
+import { FaSearch, FaClipboardList, FaFilter, FaRedo, FaQuestionCircle, FaChartBar } from "react-icons/fa";
 import * as encuestaService from "../../../services/encuestaService";
 import toast from "react-hot-toast";
 import EncuestasTabla from "./EncuestasTabla";
 import EncuestaDetalleModal from "./EncuestaDetalleModal";
 import PreguntasModal from "./PreguntasModal";
+import EstadisticasModal from "./EstadisticasModal";
+import CustomSelect from "../../ui/CustomSelect";
 
 export default function GestionEncuestas() {
   const [encuestas, setEncuestas] = useState([]);
@@ -15,6 +17,7 @@ export default function GestionEncuestas() {
   const [detalleEncuesta, setDetalleEncuesta] = useState(null);
   const [eliminando, setEliminando] = useState(false);
   const [modalPreguntas, setModalPreguntas] = useState(false);
+  const [modalEstadisticas, setModalEstadisticas] = useState(false);
 
   const fetchEncuestas = async () => {
     try {
@@ -69,6 +72,12 @@ export default function GestionEncuestas() {
         </div>
         <div className="flex items-center gap-3">
           <button
+            onClick={() => setModalEstadisticas(true)}
+            className="flex items-center gap-2 px-5 py-3 bg-blue-600 text-white font-bold rounded-2xl hover:bg-blue-700 transition shadow-lg shadow-blue-600/20 cursor-pointer"
+          >
+            <FaChartBar /> Ver Estadísticas
+          </button>
+          <button
             onClick={() => setModalPreguntas(true)}
             className="flex items-center gap-2 px-5 py-3 bg-blue-600 text-white font-bold rounded-2xl hover:bg-blue-700 transition shadow-lg shadow-blue-600/20 cursor-pointer"
           >
@@ -101,16 +110,16 @@ export default function GestionEncuestas() {
           />
         </div>
         <div className="relative">
-          <FaFilter className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-          <select
-            className="w-full pl-12 pr-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition text-sm font-bold text-slate-600 appearance-none"
+          <CustomSelect
             value={filtroTipo}
-            onChange={(e) => setFiltroTipo(e.target.value)}
-          >
-            <option value="">Todos los Tipos</option>
-            <option value="VENTA">Venta Directa</option>
-            <option value="CITA">Cita Médica</option>
-          </select>
+            onChange={setFiltroTipo}
+            placeholder="Todos los Tipos"
+            options={[
+              { value: "", label: "Todos los Tipos" },
+              { value: "VENTA", label: "Venta Directa" },
+              { value: "CITA", label: "Cita Médica" }
+            ]}
+          />
         </div>
       </div>
 
@@ -131,6 +140,13 @@ export default function GestionEncuestas() {
       <PreguntasModal
         abierto={modalPreguntas}
         onClose={() => setModalPreguntas(false)}
+      />
+
+      <EstadisticasModal
+        abierto={modalEstadisticas}
+        onClose={() => setModalEstadisticas(false)}
+        encuestas={encuestas}
+        loading={loading}
       />
     </div>
   );

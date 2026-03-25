@@ -1,4 +1,5 @@
 import { FaEdit, FaTimes, FaEye, FaEyeSlash } from "react-icons/fa";
+import CustomSelect from "../../ui/CustomSelect";
 
 const ROLES = ["CLIENTE", "ADMINISTRADOR", "EMPLEADO"];
 
@@ -85,11 +86,12 @@ export default function EditarUsuarioModal({
                     </CAMPO>
 
                     <CAMPO label="Rol *">
-                        <select required className={INPUT_CLS + " cursor-pointer appearance-none"}
+                        <CustomSelect
                             value={editForm.rolNombre}
-                            onChange={e => setEditForm(p => ({ ...p, rolNombre: e.target.value }))}>
-                            {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
-                        </select>
+                            onChange={(val) => setEditForm(p => ({ ...p, rolNombre: val }))}
+                            options={ROLES.map(r => ({ value: r, label: r }))}
+                            required={true}
+                        />
                     </CAMPO>
 
                     <div className="border-t border-slate-100 pt-4">

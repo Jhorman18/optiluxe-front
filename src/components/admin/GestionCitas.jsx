@@ -14,6 +14,7 @@ import { services as SERVICIOS } from "../../config/servicesData";
 import toast from "react-hot-toast";
 import DataTable from "../ui/DataTable";
 import EncuestaModal from "../encuesta/EncuestaModal";
+import CustomSelect from "../ui/CustomSelect";
 
 // ─── Configuración ────────────────────────────────────────────────────────────
 
@@ -585,17 +586,15 @@ export default function GestionCitas() {
                     />
                 </div>
                 <div className="relative md:col-span-2">
-                    <FaFilter className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-                    <select
-                        className="w-full pl-12 pr-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition appearance-none cursor-pointer"
+                    <CustomSelect
                         value={selectedEstado}
-                        onChange={(e) => setSelectedEstado(e.target.value)}
-                    >
-                        <option value="">Todos los estados</option>
-                        {ESTADOS.map(e => (
-                            <option key={e.value} value={e.value}>{e.label}</option>
-                        ))}
-                    </select>
+                        onChange={setSelectedEstado}
+                        placeholder="Todos los estados"
+                        options={[
+                            { value: "", label: "Todos los estados" },
+                            ...ESTADOS.map(e => ({ value: e.value, label: e.label }))
+                        ]}
+                    />
                 </div>
                 <div className="md:col-span-3">
                     <input
@@ -1136,17 +1135,13 @@ export default function GestionCitas() {
                             {/* Servicio */}
                             <div className="space-y-2">
                                 <label className="text-sm font-bold text-slate-700 ml-1">Servicio <span className="text-red-500">*</span></label>
-                                <select
-                                    required
+                                <CustomSelect
                                     value={ncServicio}
-                                    onChange={e => { setNcServicio(e.target.value); setNcHora(""); }}
-                                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition appearance-none cursor-pointer text-sm"
-                                >
-                                    <option value="">Seleccionar servicio...</option>
-                                    {SERVICIOS.map(s => (
-                                        <option key={s.title} value={s.title}>{s.title} ({s.duration})</option>
-                                    ))}
-                                </select>
+                                    onChange={val => { setNcServicio(val); setNcHora(""); }}
+                                    placeholder="Seleccionar servicio..."
+                                    options={SERVICIOS.map(s => ({ value: s.title, label: `${s.title} (${s.duration})` }))}
+                                    required={true}
+                                />
                             </div>
 
                             {/* Fecha */}

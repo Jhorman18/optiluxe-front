@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { FaEdit, FaTimes, FaSpinner, FaSave } from "react-icons/fa";
+import CustomSelect from "../../ui/CustomSelect";
 
 export default function EditarFacturaModal({ abierto, factura, guardando, onClose, onSubmit }) {
   const [formData, setFormData] = useState({
@@ -101,16 +102,16 @@ export default function EditarFacturaModal({ abierto, factura, guardando, onClos
 
           <div>
             <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Método de Pago</label>
-            <select
-              name="facCondiciones"
-              className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-amber-500 outline-none transition text-sm font-medium"
+            <CustomSelect
               value={formData.facCondiciones}
-              onChange={handleChange}
-            >
-              <option value="Efectivo">Efectivo</option>
-              <option value="PSE">PSE / Transferencia</option>
-              <option value="Tarjeta">Tarjeta de Crédito/Débito</option>
-            </select>
+              onChange={(val) => handleChange({ target: { name: "facCondiciones", value: val } })}
+              options={[
+                { value: "Efectivo", label: "Efectivo" },
+                { value: "PSE", label: "PSE / Transferencia" },
+                { value: "Tarjeta", label: "Tarjeta de Crédito/Débito" }
+              ]}
+              required={true}
+            />
           </div>
 
           <div className="flex gap-4 pt-4 border-t border-slate-100">

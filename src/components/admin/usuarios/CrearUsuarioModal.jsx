@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { FaUserPlus, FaTimes, FaEye, FaEyeSlash } from "react-icons/fa";
+import CustomSelect from "../../ui/CustomSelect";
 
 const ROLES = ["CLIENTE", "ADMINISTRADOR", "EMPLEADO"];
 
@@ -30,6 +31,7 @@ export default function CrearUsuarioModal({ abierto, guardando, onClose, onSubmi
         handleSubmit,
         watch,
         reset,
+        setValue,
         formState: { errors },
     } = useForm({ defaultValues: { rolNombre: "CLIENTE" } });
 
@@ -144,12 +146,12 @@ export default function CrearUsuarioModal({ abierto, guardando, onClose, onSubmi
                     </CAMPO>
 
                     <CAMPO label="Rol" error={errors.rolNombre}>
-                        <select
-                            className={inputCls(errors.rolNombre) + " cursor-pointer appearance-none"}
-                            {...register("rolNombre", { required: "Selecciona un rol" })}
-                        >
-                            {ROLES.map((r) => <option key={r} value={r}>{r}</option>)}
-                        </select>
+                        <CustomSelect
+                            value={watch("rolNombre")}
+                            onChange={(val) => setValue("rolNombre", val, { shouldValidate: true })}
+                            options={ROLES.map(r => ({ value: r, label: r }))}
+                            required={true}
+                        />
                     </CAMPO>
 
                     <div className="grid grid-cols-2 gap-4">

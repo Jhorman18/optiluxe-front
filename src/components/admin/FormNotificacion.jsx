@@ -3,6 +3,7 @@ import { FaBell, FaPaperPlane, FaUser, FaClock, FaCheckCircle, FaSpinner } from 
 import { getUsuarios } from "../../services/usuarioService";
 import { registrarNotificacion } from "../../services/notificacionService";
 import toast from "react-hot-toast";
+import CustomSelect from "../ui/CustomSelect";
 
 export default function FormNotificacion({ onSuccess }) {
   const [usuarios, setUsuarios] = useState([]);
@@ -89,21 +90,14 @@ export default function FormNotificacion({ onSuccess }) {
             <label className="text-sm font-bold text-slate-700 flex items-center gap-2">
               <FaUser className="text-slate-400 text-xs" /> Paciente Destinatario
             </label>
-            <select
-              name="fkIdUsuario"
+            <CustomSelect
               value={formData.fkIdUsuario}
-              onChange={handleChange}
+              onChange={(val) => handleChange({ target: { name: "fkIdUsuario", value: val } })}
               disabled={loadingUsers}
-              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition"
-              required
-            >
-              <option value="">{loadingUsers ? "Cargando..." : "Seleccionar paciente..."}</option>
-              {usuarios.map((u) => (
-                <option key={u.idUsuario} value={u.idUsuario}>
-                  {u.usuNombre} {u.usuApellido} ({u.usuDocumento})
-                </option>
-              ))}
-            </select>
+              placeholder={loadingUsers ? "Cargando..." : "Seleccionar paciente..."}
+              options={usuarios.map(u => ({ value: u.idUsuario, label: `${u.usuNombre} ${u.usuApellido} (${u.usuDocumento})` }))}
+              required={true}
+            />
           </div>
 
           {/* Canal */}
@@ -111,15 +105,12 @@ export default function FormNotificacion({ onSuccess }) {
             <label className="text-sm font-bold text-slate-700 flex items-center gap-2">
               <FaPaperPlane className="text-slate-400 text-xs" /> Canal de Envío
             </label>
-            <select
-              name="notCanal"
+            <CustomSelect
               value={formData.notCanal}
-              onChange={handleChange}
-              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition"
-              required
-            >
-              <option value="Email">Email / Notificación Interna</option>
-            </select>
+              onChange={(val) => handleChange({ target: { name: "notCanal", value: val } })}
+              options={[{ value: "Email", label: "Email / Notificación Interna" }]}
+              required={true}
+            />
           </div>
         </div>
 

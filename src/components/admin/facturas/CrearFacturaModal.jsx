@@ -4,6 +4,7 @@ import * as usuarioService from "../../../services/usuarioService";
 import * as productoService from "../../../services/productoService";
 import * as citaService from "../../../services/citaService";
 import toast from "react-hot-toast";
+import CustomSelect from "../../ui/CustomSelect";
 
 const SERVICIOS_CATALOGO = [
   { id: "S1", nombre: "Examen Visual Completo", precio: 80000, descripcion: "Evaluación exhaustiva de salud visual" },
@@ -166,20 +167,13 @@ export default function CrearFacturaModal({ abierto, guardando, onClose, onSubmi
               <span><FaUser className="inline mr-1" /> Cliente Destinatario</span>
               {loadingData && <FaSpinner className="animate-spin text-blue-500" />}
             </label>
-            <select
-              required
-              name="fkIdUsuario"
-              className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition text-sm font-bold"
+            <CustomSelect
               value={formData.fkIdUsuario}
-              onChange={handleChange}
-            >
-              <option value="">Seleccionar Cliente...</option>
-              {usuarios.map(u => (
-                <option key={u.idUsuario} value={u.idUsuario}>
-                  {u.usuNombre} {u.usuApellido} ({u.usuDocumento})
-                </option>
-              ))}
-            </select>
+              onChange={(val) => handleChange({ target: { name: "fkIdUsuario", value: val } })}
+              placeholder="Seleccionar Cliente..."
+              options={usuarios.map(u => ({ value: String(u.idUsuario), label: `${u.usuNombre} ${u.usuApellido} (${u.usuDocumento})` }))}
+              required={true}
+            />
           </div>
 
           {/* Tipo de Venta Principal */}
@@ -234,33 +228,21 @@ export default function CrearFacturaModal({ abierto, guardando, onClose, onSubmi
               {formData.tipoVenta === "producto" ? "Lista de Productos Disponibles" :
                 formData.subTipo === "cita" ? "Citas Activas del Usuario" : "Servicios Clínicos Estándar"}
             </label>
-            <select
-              name="idReferencia"
-              className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition text-sm font-bold text-slate-700"
+            <CustomSelect
               value={formData.idReferencia}
-              onChange={handleChange}
-            >
-              <option value="">Seleccionar {formData.tipoVenta === "producto" ? "Producto" : "Servicio"}...</option>
-              {formData.tipoVenta === "producto" ? (
-                productos.map(p => (
-                  <option key={p.id} value={p.id}>
-                    {p.nombre} — ${Math.round(p.precio).toLocaleString()}
-                  </option>
-                ))
-              ) : formData.subTipo === "catalogo" ? (
-                SERVICIOS_CATALOGO.map(s => (
-                  <option key={s.id} value={s.id}>
-                    {s.nombre} — {s.precio > 0 ? `$${s.precio.toLocaleString()}` : 'GRATUITO'}
-                  </option>
-                ))
-              ) : (
-                citasUsuario.map(c => (
-                  <option key={c.idCita} value={c.idCita}>
-                    {new Date(c.citFecha).toLocaleDateString()} — {c.citMotivo}
-                  </option>
-                ))
-              )}
-            </select>
+              onChange={(val) => handleChange({ target: { name: "idReferencia", value: val } })}
+              placeholder={`Seleccionar ${formData.tipoVenta === "producto" ? "Producto" : "Servicio"}...`}
+              options={
+                formData.tipoVenta === "producto" ? (
+                  productos.map(p => ({ value: String(p.id), label: `${p.nombre} — $${Math.round(p.precio).toLocaleString()}` }))
+                ) : formData.subTipo === "catalogo" ? (
+                  SERVICIOS_CATALOGO.map(s => ({ value: s.id, label: `${s.nombre} — ${s.precio > 0 ? '$'+s.precio.toLocaleString() : 'GRATUITO'}` }))
+                ) : (
+                  citasUsuario.map(c => ({ value: String(c.idCita), label: `${new Date(c.citFecha).toLocaleDateString()} — ${c.citMotivo}` }))
+                )
+              }
+              required={true}
+            />
           </div>
 
           <div className="grid grid-cols-1 gap-5">

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { FaTimes, FaPlus, FaSpinner, FaQuestionCircle, FaToggleOn, FaToggleOff, FaStar, FaCheckCircle, FaAlignLeft, FaListUl } from "react-icons/fa";
 import * as encuestaService from "../../../services/encuestaService";
 import toast from "react-hot-toast";
+import CustomSelect from "../../ui/CustomSelect";
 
 const TIPOS = [
   { value: "estrellas", label: "Estrellas", icon: <FaStar className="text-amber-400" /> },
@@ -143,27 +144,19 @@ export default function PreguntasModal({ abierto, onClose }) {
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="text-xs font-bold text-slate-500 block mb-1.5">Tipo de respuesta</label>
-                      <select
-                        className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition font-bold text-sm appearance-none"
+                      <CustomSelect
                         value={form.preTipo}
-                        onChange={(e) => setForm({ ...form, preTipo: e.target.value })}
-                      >
-                        {TIPOS.map((t) => (
-                          <option key={t.value} value={t.value}>{t.label}</option>
-                        ))}
-                      </select>
+                        onChange={(val) => setForm({ ...form, preTipo: val })}
+                        options={TIPOS.map((t) => ({ value: t.value, label: t.label }))}
+                      />
                     </div>
                     <div>
                       <label className="text-xs font-bold text-slate-500 block mb-1.5">Categoría</label>
-                      <select
-                        className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition font-bold text-sm appearance-none"
+                      <CustomSelect
                         value={form.preCategoria}
-                        onChange={(e) => setForm({ ...form, preCategoria: e.target.value })}
-                      >
-                        {CATEGORIAS.map((c) => (
-                          <option key={c.value} value={c.value}>{c.label}</option>
-                        ))}
-                      </select>
+                        onChange={(val) => setForm({ ...form, preCategoria: val })}
+                        options={CATEGORIAS.map((c) => ({ value: c.value, label: c.label }))}
+                      />
                     </div>
                   </div>
                   <div className="flex justify-end gap-3 pt-2">

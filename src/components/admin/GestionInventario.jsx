@@ -8,6 +8,7 @@ import * as productoService from "../../services/productoService";
 import { getCategoriasAdmin } from "../../services/categoriaService";
 import toast from "react-hot-toast";
 import DataTable from "../ui/DataTable";
+import CustomSelect from "../ui/CustomSelect";
 
 const columnHelper = createColumnHelper();
 
@@ -262,17 +263,15 @@ export default function GestionInventario() {
                     />
                 </div>
                 <div className="relative">
-                    <FaFilter className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-                    <select
-                        className="w-full pl-12 pr-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition appearance-none cursor-pointer"
+                    <CustomSelect
                         value={selectedCategory}
-                        onChange={(e) => setSelectedCategory(e.target.value)}
-                    >
-                        <option value="">Todas las Categorías</option>
-                        {categorias.map(cat => (
-                            <option key={cat.idCategoria} value={cat.catNombre}>{cat.catNombre}</option>
-                        ))}
-                    </select>
+                        onChange={setSelectedCategory}
+                        placeholder="Todas las Categorías"
+                        options={[
+                            { value: "", label: "Todas las Categorías" },
+                            ...categorias.map(cat => ({ value: cat.catNombre, label: cat.catNombre }))
+                        ]}
+                    />
                 </div>
             </div>
 
@@ -361,15 +360,13 @@ export default function GestionInventario() {
                                             <label className="text-sm font-bold text-slate-700 ml-1">
                                                 Categoría <span className="text-red-500 ml-0.5">*</span>
                                             </label>
-                                            <select
-                                                name="idCategoria" value={formData.idCategoria} onChange={handleInputChange} required
-                                                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition appearance-none cursor-pointer"
-                                            >
-                                                <option value="">Selecciona una categoría</option>
-                                                {categorias.map(cat => (
-                                                    <option key={cat.idCategoria} value={cat.idCategoria}>{cat.catNombre}</option>
-                                                ))}
-                                            </select>
+                                            <CustomSelect
+                                                value={formData.idCategoria}
+                                                onChange={(val) => handleInputChange({ target: { name: "idCategoria", value: val } })}
+                                                placeholder="Selecciona una categoría"
+                                                options={categorias.map(cat => ({ value: String(cat.idCategoria), label: String(cat.catNombre) }))}
+                                                required={true}
+                                            />
                                         </div>
                                         <div className="space-y-2">
                                             <label className="text-sm font-bold text-slate-700 ml-1">

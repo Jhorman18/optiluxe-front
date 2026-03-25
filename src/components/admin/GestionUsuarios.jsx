@@ -5,6 +5,7 @@ import toast from "react-hot-toast";
 import UsuariosTabla from "./usuarios/UsuariosTabla";
 import EditarUsuarioModal from "./usuarios/EditarUsuarioModal";
 import CrearUsuarioModal from "./usuarios/CrearUsuarioModal";
+import CustomSelect from "../ui/CustomSelect";
 
 const ROLES = ["CLIENTE", "ADMINISTRADOR", "EMPLEADO"];
 
@@ -150,17 +151,15 @@ export default function GestionUsuarios() {
                     />
                 </div>
                 <div className="relative">
-                    <FaFilter className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-                    <select
-                        className="w-full pl-12 pr-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition appearance-none cursor-pointer"
+                    <CustomSelect
                         value={selectedRol}
-                        onChange={(e) => setSelectedRol(e.target.value)}
-                    >
-                        <option value="">Todos los roles</option>
-                        {ROLES.map(r => (
-                            <option key={r} value={r}>{r}</option>
-                        ))}
-                    </select>
+                        onChange={setSelectedRol}
+                        placeholder="Todos los roles"
+                        options={[
+                            { value: "", label: "Todos los roles" },
+                            ...ROLES.map(r => ({ value: r, label: r }))
+                        ]}
+                    />
                 </div>
             </div>
 
