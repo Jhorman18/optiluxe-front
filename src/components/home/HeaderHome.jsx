@@ -59,11 +59,12 @@ export default function HeaderHome() {
 
   const rolLabel = ROL_LABELS[rol] ?? rol;
 
-  const menuItems = [
-    ...MENU_BASE,
-    ...(rol === "EMPLEADO" || rol === "ADMINISTRADOR" ? [MENU_STAFF] : []),
-    ...(rol === "ADMINISTRADOR" ? [MENU_ADMIN] : []),
-  ];
+  const menuItems = rol === "ADMINISTRADOR"
+    ? [MENU_ADMIN]
+    : [
+        ...MENU_BASE,
+        ...(rol === "EMPLEADO" ? [MENU_STAFF] : []),
+      ];
 
   const handleLogout = async () => {
     setMenuOpen(false);
