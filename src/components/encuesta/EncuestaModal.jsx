@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   FaTimes,
@@ -8,79 +8,11 @@ import {
   FaSpinner,
   FaClipboardList,
 } from "react-icons/fa";
-import { enviarEncuesta } from "../../services/encuestaService";
+import { enviarEncuesta, getPreguntas } from "../../services/encuestaService";
 import toast from "react-hot-toast";
 
-
-const PREGUNTAS_CITA = [
-  {
-    idPregunta: 1,
-    preTexto: "¿Cómo calificarías tu experiencia agendando la cita?",
-    preTipo: "estrellas",
-    preCategoria: "cita",
-  },
-  {
-    idPregunta: 2,
-    preTexto: "¿Habías agendado una cita con OptiLuxe anteriormente?",
-    preTipo: "si_no",
-    preCategoria: "cita",
-  },
-  {
-    idPregunta: 3,
-    preTexto: "¿Qué tan fácil fue el proceso de agendamiento?",
-    preTipo: "seleccion",
-    preCategoria: "cita",
-    opciones: ["Muy fácil", "Fácil", "Normal", "Difícil"],
-  },
-  {
-    idPregunta: 4,
-    preTexto: "¿Recomendarías nuestros servicios a familiares o amigos?",
-    preTipo: "si_no",
-    preCategoria: "cita",
-  },
-  {
-    idPregunta: 5,
-    preTexto: "¿Tienes algún comentario para mejorar nuestro servicio?",
-    preTipo: "texto",
-    preCategoria: "cita",
-  },
-];
-
-const PREGUNTAS_COMPRA = [
-  {
-    idPregunta: 6,
-    preTexto: "¿Cómo calificarías tu experiencia de compra en OptiLuxe?",
-    preTipo: "estrellas",
-    preCategoria: "compra",
-  },
-  {
-    idPregunta: 7,
-    preTexto: "¿Habías comprado productos en OptiLuxe anteriormente?",
-    preTipo: "si_no",
-    preCategoria: "compra",
-  },
-  {
-    idPregunta: 8,
-    preTexto: "¿Cómo conociste a OptiLuxe?",
-    preTipo: "seleccion",
-    preCategoria: "compra",
-    opciones: ["Redes sociales", "Recomendación", "Búsqueda en internet", "Publicidad", "Otro"],
-  },
-  {
-    idPregunta: 9,
-    preTexto: "¿Recomendarías nuestros productos a familiares o amigos?",
-    preTipo: "si_no",
-    preCategoria: "compra",
-  },
-  {
-    idPregunta: 10,
-    preTexto: "¿Tienes algún comentario para mejorar tu experiencia de compra?",
-    preTipo: "texto",
-    preCategoria: "compra",
-  },
-];
-
-
+const DEFAULT_OPCIONES_CITA = ["Muy fácil", "Fácil", "Normal", "Difícil"];
+const DEFAULT_OPCIONES_COMPRA = ["Redes sociales", "Recomendación", "Búsqueda en internet", "Publicidad", "Otro"];
 
 const StarRating = ({ value, onChange }) => (
   <div className="flex gap-1">
@@ -126,7 +58,7 @@ const SiNoButtons = ({ value, onChange }) => (
 
 const SeleccionButtons = ({ value, onChange, opciones }) => (
   <div className="flex flex-wrap gap-2">
-    {opciones.map((opt) => (
+    {opciones?.map((opt) => (
       <button
         key={opt}
         type="button"
@@ -152,8 +84,6 @@ const TextInput = ({ value, onChange }) => (
   />
 );
 
-
-
 /**
  * @param {Object} props
  * @param {"cita"|"compra"} props.categoria - Tipo de encuesta
@@ -163,17 +93,33 @@ const TextInput = ({ value, onChange }) => (
  */
 export default function EncuestaModal({ categoria, fkIdCita, fkIdFactura, onClose }) {
   const navigate = useNavigate();
-  const preguntas = categoria === "cita" ? PREGUNTAS_CITA : PREGUNTAS_COMPRA;
 
+  const [preguntas, setPreguntas] = useState([]);
+  const [loadingPreguntas, setLoadingPreguntas] = useState(true);
 
   const [respuestas, setRespuestas] = useState({});
   const [enviando, setEnviando] = useState(false);
   const [enviado, setEnviado] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
 
+  useEffect(() => {
+    const fetchP = async () => {
+      try {
+        setLoadingPreguntas(true);
+        const data = await getPreguntas(categoria);
+        setPreguntas(data);
+      } catch (error) {
+        toast.error("Error al cargar las preguntas.");
+      } finally {
+        setLoadingPreguntas(false);
+      }
+    };
+    fetchP();
+  }, [categoria]);
+
   const preguntaActual = preguntas[currentStep];
   const totalPreguntas = preguntas.length;
-  const progreso = ((currentStep + 1) / totalPreguntas) * 100;
+  const progreso = totalPreguntas > 0 ? ((currentStep + 1) / totalPreguntas) * 100 : 0;
 
   const setRespuesta = (idPregunta, valor) => {
     setRespuestas((prev) => ({ ...prev, [idPregunta]: valor }));
@@ -199,8 +145,8 @@ export default function EncuestaModal({ categoria, fkIdCita, fkIdFactura, onClos
       setEnviado(true);
       toast.success("¡Gracias por tu opinión!");
     } catch (error) {
-
       console.error("Error enviando encuesta:", error);
+      // Even if it errors (e.g. they already answered), close gracefully assuming success.
       setEnviado(true);
       toast.success("¡Gracias por tu opinión!");
     } finally {
@@ -209,6 +155,7 @@ export default function EncuestaModal({ categoria, fkIdCita, fkIdFactura, onClos
   };
 
   const renderPregunta = (pregunta) => {
+    if (!pregunta) return null;
     const valor = respuestas[pregunta.idPregunta] || "";
 
     switch (pregunta.preTipo) {
@@ -217,11 +164,12 @@ export default function EncuestaModal({ categoria, fkIdCita, fkIdFactura, onClos
       case "si_no":
         return <SiNoButtons value={valor} onChange={(v) => setRespuesta(pregunta.idPregunta, v)} />;
       case "seleccion":
+        const opciones = pregunta.opciones || (categoria === "cita" ? DEFAULT_OPCIONES_CITA : DEFAULT_OPCIONES_COMPRA);
         return (
           <SeleccionButtons
             value={valor}
             onChange={(v) => setRespuesta(pregunta.idPregunta, v)}
-            opciones={pregunta.opciones || []}
+            opciones={opciones}
           />
         );
       case "texto":
@@ -234,9 +182,25 @@ export default function EncuestaModal({ categoria, fkIdCita, fkIdFactura, onClos
   return (
     <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md relative overflow-hidden">
+        
+        {/* Close Button if we want to cancel */}
+        {!enviado && (
+          <button
+            onClick={() => {
+              onClose();
+              if (totalPreguntas === 0) {
+                 navigate(categoria === "cita" ? "/productos" : "/servicios");
+              }
+            }}
+            className="absolute top-4 right-4 text-white/80 hover:text-white transition cursor-pointer disabled:opacity-50"
+            disabled={enviando}
+          >
+             <FaTimes />
+          </button>
+        )}
 
         {/* Header */}
-        <div className="bg-gradient-to-r from-[#1D3B8B] to-[#3B82F6] px-6 py-4 text-white">
+        <div className="bg-gradient-to-r from-[#1D3B8B] to-[#3B82F6] px-6 py-4 text-white pr-10">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <FaClipboardList className="text-lg" />
@@ -255,7 +219,7 @@ export default function EncuestaModal({ categoria, fkIdCita, fkIdFactura, onClos
         </div>
 
         {/* Barra de progreso */}
-        {!enviado && (
+        {!enviado && totalPreguntas > 0 && (
           <div className="h-1 bg-gray-100">
             <div
               className="h-full bg-amber-400 transition-all duration-300"
@@ -265,10 +229,28 @@ export default function EncuestaModal({ categoria, fkIdCita, fkIdFactura, onClos
         )}
 
         {/* Body */}
-        <div className="px-6 py-5">
+        <div className="px-6 py-5 min-h-[200px] flex flex-col justify-center">
 
-          {/* Pantalla de éxito */}
-          {enviado ? (
+          {loadingPreguntas ? (
+            <div className="flex flex-col items-center justify-center space-y-3 py-6">
+              <FaSpinner className="animate-spin text-4xl text-blue-500" />
+              <p className="text-slate-500 font-medium">Cargando preguntas...</p>
+            </div>
+          ) : !enviado && totalPreguntas === 0 ? (
+            <div className="text-center space-y-4 py-4">
+              <FaCheckCircle className="text-green-500 text-5xl mx-auto" />
+              <p className="text-gray-600 font-medium pb-2">No hay preguntas de encuesta configuradas en este momento.</p>
+              <button
+                onClick={() => {
+                  onClose();
+                  navigate(categoria === "cita" ? "/productos" : "/servicios");
+                }}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition cursor-pointer"
+              >
+                Continuar
+              </button>
+            </div>
+          ) : enviado ? (
             <div className="text-center space-y-4 py-4">
               <FaCheckCircle className="text-green-500 text-5xl mx-auto" />
               <div>
@@ -294,14 +276,14 @@ export default function EncuestaModal({ categoria, fkIdCita, fkIdFactura, onClos
                 <span className="text-xs font-medium text-gray-400 uppercase tracking-wider">
                   Pregunta {currentStep + 1} de {totalPreguntas}
                 </span>
-                {preguntaActual.preTipo === "texto" && (
+                {preguntaActual?.preTipo === "texto" && (
                   <span className="text-xs text-gray-400">Opcional</span>
                 )}
               </div>
 
               {/* Pregunta */}
               <p className="text-base font-semibold text-gray-800 leading-relaxed">
-                {preguntaActual.preTexto}
+                {preguntaActual?.preTexto}
               </p>
 
               {/* Input dinámico */}
@@ -321,7 +303,7 @@ export default function EncuestaModal({ categoria, fkIdCita, fkIdFactura, onClos
                 {currentStep < totalPreguntas - 1 ? (
                   <button
                     onClick={() => setCurrentStep((prev) => prev + 1)}
-                    disabled={!puedeAvanzar && preguntaActual.preTipo !== "texto"}
+                    disabled={!puedeAvanzar && preguntaActual?.preTipo !== "texto"}
                     className="flex-1 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
                   >
                     Siguiente
@@ -329,7 +311,7 @@ export default function EncuestaModal({ categoria, fkIdCita, fkIdFactura, onClos
                 ) : (
                   <button
                     onClick={handleEnviar}
-                    disabled={enviando || (!puedeAvanzar && preguntaActual.preTipo !== "texto")}
+                    disabled={enviando || (!puedeAvanzar && preguntaActual?.preTipo !== "texto")}
                     className="flex-1 rounded-lg bg-green-600 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-70 cursor-pointer flex items-center justify-center gap-2"
                   >
                     {enviando ? (
@@ -350,3 +332,4 @@ export default function EncuestaModal({ categoria, fkIdCita, fkIdFactura, onClos
     </div>
   );
 }
+

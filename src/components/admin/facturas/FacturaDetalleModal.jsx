@@ -140,12 +140,12 @@ export default function FacturaDetalleModal({ factura, onClose }) {
               <div>
                 <p className="text-[11px] text-blue-400 font-black uppercase tracking-[0.4em] mb-3 px-1">Importe Total Neto</p>
                 <div className="flex items-baseline gap-2">
-                  <span className="text-white text-5xl font-black tracking-tighter underline underline-offset-[16px] decoration-blue-500 decoration-8">FACTURA</span>
+                  <span className="text-white text-3xl font-black tracking-tighter underline underline-offset-[8px] decoration-blue-500 decoration-4">FACTURA</span>
                 </div>
               </div>
               <div className="text-right">
-                <span className="text-blue-500 text-xl font-black mr-2 opacity-50">$</span>
-                <span className="text-white text-7xl font-black font-mono tracking-tighter drop-shadow-2xl shadow-blue-500/40">
+                <span className="text-blue-500 text-lg font-black mr-2 opacity-50">$</span>
+                <span className="text-white text-5xl font-black font-mono tracking-tighter drop-shadow-2xl shadow-blue-500/40">
                   {Math.round(factura.facTotal).toLocaleString("es-CO")}
                 </span>
               </div>

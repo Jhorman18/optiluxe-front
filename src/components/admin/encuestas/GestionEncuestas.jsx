@@ -13,6 +13,8 @@ export default function GestionEncuestas() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [filtroTipo, setFiltroTipo] = useState("");
+  const [fechaInicio, setFechaInicio] = useState("");
+  const [fechaFin, setFechaFin] = useState("");
   
   const [detalleEncuesta, setDetalleEncuesta] = useState(null);
   const [eliminando, setEliminando] = useState(false);
@@ -25,6 +27,8 @@ export default function GestionEncuestas() {
       const params = {
         ...(searchTerm && { busqueda: searchTerm }),
         ...(filtroTipo && { tipo: filtroTipo }),
+        ...(fechaInicio && { fechaInicio }),
+        ...(fechaFin && { fechaFin }),
       };
       const data = await encuestaService.getEncuestas(params);
       setEncuestas(data);
@@ -40,7 +44,7 @@ export default function GestionEncuestas() {
       fetchEncuestas();
     }, 500);
     return () => clearTimeout(timer);
-  }, [searchTerm, filtroTipo]);
+  }, [searchTerm, filtroTipo, fechaInicio, fechaFin]);
 
   const handleEliminar = async (id) => {
     if (!window.confirm("¿Estás seguro de que deseas eliminar esta encuesta? Esta acción no se puede deshacer.")) {
@@ -98,8 +102,8 @@ export default function GestionEncuestas() {
       </div>
 
       {/* Filtros */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-        <div className="relative md:col-span-2">
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-4 mb-8">
+        <div className="relative md:col-span-5">
           <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
             type="text"
@@ -109,7 +113,7 @@ export default function GestionEncuestas() {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-        <div className="relative">
+        <div className="relative md:col-span-3">
           <CustomSelect
             value={filtroTipo}
             onChange={setFiltroTipo}
@@ -119,6 +123,24 @@ export default function GestionEncuestas() {
               { value: "VENTA", label: "Venta Directa" },
               { value: "CITA", label: "Cita Médica" }
             ]}
+          />
+        </div>
+        <div className="relative md:col-span-2">
+          <input
+            type="date"
+            className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition font-medium text-slate-500"
+            title="Fecha inicio"
+            value={fechaInicio}
+            onChange={(e) => setFechaInicio(e.target.value)}
+          />
+        </div>
+        <div className="relative md:col-span-2">
+          <input
+            type="date"
+            className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition font-medium text-slate-500"
+            title="Fecha fin"
+            value={fechaFin}
+            onChange={(e) => setFechaFin(e.target.value)}
           />
         </div>
       </div>
