@@ -9,6 +9,7 @@ import {
   FaPhoneAlt,
   FaWhatsapp,
 } from "react-icons/fa";
+import { enviarMensaje } from "../../services/contactoService";
 
 const INFO_ITEMS = [
   {
@@ -45,14 +46,26 @@ export default function ContactoFormSection() {
     formState: { errors, isSubmitting },
   } = useForm();
 
-  const onSubmit = async () => {
-    await toast.promise(new Promise((res) => setTimeout(res, 1000)), {
-      loading: "Enviando mensaje...",
-      success: "¡Mensaje enviado! Te contactaremos pronto.",
-      error: "No fue posible enviar el mensaje.",
-    });
-    reset();
+  const onSubmit = async (data) => {
+    try {
+      await toast.promise(enviarMensaje(data), {
+        loading: "Enviando mensaje...",
+        success: "¡Mensaje enviado! Te contactaremos pronto.",
+        error: (err) => err.response?.data?.message || "No fue posible enviar el mensaje.",
+      });
+      reset();
+    } catch (error) {
+      console.error("Error al enviar mensaje:", error);
+    }
   };
+
+  const inputCls = (error) =>
+    `w-full border rounded-lg px-4 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:ring-1 focus:ring-blue-200 ${
+      error ? "border-red-400 bg-red-50" : "border-gray-300 bg-white"
+    }`;
+
+  const ErrorMsg = ({ error }) => 
+    error ? <p className="text-xs text-red-500 mt-1">{error.message}</p> : null;
 
   return (
     <section className="bg-gray-50 py-16 px-6">
@@ -67,63 +80,75 @@ export default function ContactoFormSection() {
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Nombre Completo
+              <label className="block text-sm font-bold text-gray-700 mb-1">
+                Nombre Completo<span className="text-red-500 ml-0.5">*</span>
               </label>
               <input
                 type="text"
                 placeholder="Juan Pérez"
-                className={`w-full border rounded-lg px-4 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:ring-1 focus:ring-blue-200 ${
-                  errors.nombre ? "border-red-400" : "border-gray-300"
-                }`}
-                {...register("nombre", { required: true })}
+                className={inputCls(errors.nombre)}
+                {...register("nombre", { 
+                  required: "El nombre es obligatorio",
+                  minLength: { value: 3, message: "Mínimo 3 caracteres" }
+                })}
               />
+              <ErrorMsg error={errors.nombre} />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Correo Electrónico
+              <label className="block text-sm font-bold text-gray-700 mb-1">
+                Correo Electrónico<span className="text-red-500 ml-0.5">*</span>
               </label>
               <input
                 type="email"
                 placeholder="juan@ejemplo.com"
-                className={`w-full border rounded-lg px-4 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:ring-1 focus:ring-blue-200 ${
-                  errors.correo ? "border-red-400" : "border-gray-300"
-                }`}
-                {...register("correo", { required: true })}
+                className={inputCls(errors.correo)}
+                {...register("correo", { 
+                  required: "El correo es obligatorio",
+                  pattern: {
+                    value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                    message: "Ingresa un correo válido"
+                  }
+                })}
               />
+              <ErrorMsg error={errors.correo} />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-bold text-gray-700 mb-1">
                 Teléfono
               </label>
               <input
                 type="tel"
                 placeholder="+57 310 123 4567"
-                className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:ring-1 focus:ring-blue-200"
-                {...register("telefono")}
+                className={inputCls(errors.telefono)}
+                {...register("telefono", {
+                  pattern: {
+                    value: /^\+?[\d\s-]{7,15}$/,
+                    message: "Número de teléfono inválido"
+                  }
+                })}
               />
+              <ErrorMsg error={errors.telefono} />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-bold text-gray-700 mb-1">
                 Mensaje
               </label>
               <textarea
                 rows={4}
                 placeholder="Cuéntanos cómo podemos ayudarte..."
-                className={`w-full border rounded-lg px-4 py-2.5 text-sm outline-none transition resize-none focus:border-blue-500 focus:ring-1 focus:ring-blue-200 ${
-                  errors.mensaje ? "border-red-400" : "border-gray-300"
-                }`}
-                {...register("mensaje", { required: true })}
+                className={inputCls(errors.mensaje)}
+                {...register("mensaje")}
               />
+              <ErrorMsg error={errors.mensaje} />
             </div>
 
             <button
               type="submit"
               disabled={isSubmitting}
-              className="cursor-pointer w-full flex items-center justify-center gap-2 bg-blue-800 hover:bg-blue-900 text-white font-medium py-3 rounded-lg transition disabled:opacity-60"
+              className="mt-2 cursor-pointer w-full flex items-center justify-center gap-2 bg-blue-800 hover:bg-black text-white font-bold py-3.5 rounded-xl transition shadow-lg shadow-blue-900/10 disabled:opacity-60 active:scale-[0.98]"
             >
               <FaPaperPlane />
               {isSubmitting ? "Enviando..." : "Enviar Mensaje"}

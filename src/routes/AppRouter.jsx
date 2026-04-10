@@ -19,6 +19,7 @@ import AdminCitasPage from "../pages/admin/AdminCitasPage";
 import HistorialClinicoPage from "../pages/admin/HistorialClinicoPage";
 import FacturasPage from "../pages/admin/FacturasPage";
 import EncuestasPage from "../pages/admin/EncuestasPage";
+import MensajesContactoPage from "../pages/admin/MensajesContactoPage";
 import CitasPage from "../pages/public/CitasPage";
 import Carrito from "../pages/cliente/Carrito";
 import CartPanel from "../components/cart/CartPanel.jsx";
@@ -54,6 +55,7 @@ export default function AppRouter() {
             <Route path="usuarios" element={<UsuariosPage />} />
             <Route path="facturas" element={<FacturasPage />} />
             <Route path="encuestas" element={<EncuestasPage />} />
+            <Route path="mensajes" element={<MensajesContactoPage />} />
           </Route>
         </Route>
 

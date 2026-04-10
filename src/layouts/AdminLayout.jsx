@@ -4,7 +4,7 @@ import {
     FaUserShield, FaUsers, FaCalendarAlt, FaFileMedical,
     FaShoppingBag, FaBoxOpen, FaChartBar, FaBell,
     FaCog, FaSignOutAlt, FaEye, FaFileInvoiceDollar,
-    FaClipboardList
+    FaClipboardList, FaEnvelopeOpenText
 } from "react-icons/fa";
 
 const MENU_SIDEBAR = [
@@ -15,6 +15,7 @@ const MENU_SIDEBAR = [
     { label: "Facturas (Ventas)", icon: FaFileInvoiceDollar, to: "/panel-admin/facturas" },
     { label: "Inventario", icon: FaBoxOpen, to: "/panel-admin/inventario" },
     { label: "Reportes", icon: FaChartBar, to: "/panel-admin/reportes" },
+    { label: "Mensajes", icon: FaEnvelopeOpenText, to: "/panel-admin/mensajes" },
     { label: "Notificaciones", icon: FaBell, to: "/panel-admin/notificaciones" },
     { label: "Encuestas", icon: FaClipboardList, to: "/panel-admin/encuestas" },
     { label: "Configuración", icon: FaCog, to: "/panel-admin/configuracion" },
