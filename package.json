@@ -13,6 +13,8 @@
     "@tailwindcss/vite": "^4.2.0",
     "@tanstack/react-table": "^8.21.3",
     "axios": "^1.13.5",
+    "jspdf": "^4.2.1",
+    "jspdf-autotable": "^5.0.7",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-hook-form": "^7.71.2",

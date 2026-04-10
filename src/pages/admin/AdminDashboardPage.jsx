@@ -232,10 +232,13 @@ export default function AdminDashboardPage() {
                             <span className="font-semibold">Crear Historial Clínico</span>
                         </button>
                         {rol !== "EMPLEADO" && (
-                            <button className="w-full flex items-center gap-4 p-4 rounded-xl border border-slate-200 hover:border-blue-300 hover:bg-blue-50 text-slate-700 transition cursor-pointer group">
+                             <Link 
+                                to="/panel-admin/reportes"
+                                className="w-full flex items-center gap-4 p-4 rounded-xl border border-slate-200 hover:border-blue-300 hover:bg-blue-50 text-slate-700 transition cursor-pointer group"
+                            >
                                 <FaChartBar className="text-slate-400 group-hover:text-blue-600 transition" />
                                 <span className="font-semibold">Ver Reportes</span>
-                            </button>
+                            </Link>
                         )}
                     </div>
                 </div>

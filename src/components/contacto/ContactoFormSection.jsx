@@ -157,52 +157,31 @@ export default function ContactoFormSection() {
         </div>
 
         {/* Información de contacto */}
-        <div>
+        <div className="pt-8">
           <h2 className="text-xl font-bold text-gray-900 mb-1">Información de Contacto</h2>
-          <p className="text-sm text-gray-500 mb-6">
+          <p className="text-sm text-gray-500 mb-6 font-medium">
             Visítenos en nuestras instalaciones o contáctenos por cualquiera de estos medios
           </p>
 
-          <div className="space-y-3 mb-6">
+          <div className="space-y-6">
             {INFO_ITEMS.map(({ icon: Icon, label, lines }) => (
               <div
                 key={label}
-                className="flex gap-4 items-start bg-white border border-gray-100 rounded-xl p-4 shadow-sm"
+                className="flex gap-5 items-center bg-white border border-gray-100 rounded-2xl p-6 shadow-sm hover:shadow-md hover:border-blue-200 transition-all duration-300"
               >
-                <div className="bg-blue-100 text-blue-600 rounded-full w-9 h-9 flex items-center justify-center shrink-0 mt-0.5">
-                  <Icon className="text-sm" />
+                <div className="bg-blue-50 text-blue-600 rounded-2xl w-14 h-14 flex items-center justify-center shrink-0 border border-blue-100">
+                  <Icon className="text-xl" />
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-gray-800">{label}</p>
+                  <p className="text-[16px] font-extrabold text-gray-900 mb-1 tracking-tight">{label}</p>
                   {lines.map((line) => (
-                    <p key={line} className="text-sm text-gray-500">{line}</p>
+                    <p key={line} className="text-[13px] text-gray-500 leading-relaxed font-medium">{line}</p>
                   ))}
                 </div>
               </div>
             ))}
           </div>
 
-          {/* Tarjeta WhatsApp */}
-          <div className="bg-gradient-to-r from-blue-900 to-blue-700 rounded-xl p-5 text-white">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="bg-white/20 rounded-full w-9 h-9 flex items-center justify-center shrink-0">
-                <FaComments />
-              </div>
-              <h3 className="font-semibold">Atención Inmediata</h3>
-            </div>
-            <p className="text-sm text-blue-200 mb-4">
-              Escríbenos por WhatsApp para atención más rápida
-            </p>
-            <a
-              href="https://wa.me/573101234567"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 bg-blue-500 hover:bg-blue-400 text-white text-sm font-medium px-5 py-2.5 rounded-lg transition"
-            >
-              <FaWhatsapp />
-              Abrir WhatsApp
-            </a>
-          </div>
         </div>
 
       </div>
