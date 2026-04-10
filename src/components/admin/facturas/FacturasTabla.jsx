@@ -25,6 +25,7 @@ export default function FacturasTabla({
   onVerDetalle,
   onEditar,
   onAnular,
+  esEmpleado
 }) {
   const columns = useMemo(
     () => [
@@ -112,7 +113,7 @@ export default function FacturasTabla({
             >
               <FaEye className="text-base group-hover:scale-110 transition-transform" />
             </button>
-            {f.facEstado !== "ANULADA" && (
+            {!esEmpleado && f.facEstado !== "ANULADA" && (
               <>
                 <button
                   onClick={() => onEditar(f)}
@@ -134,11 +135,11 @@ export default function FacturasTabla({
         ),
         meta: {
           headerClassName: "text-right",
-          skeletonClass: "h-6 w-24 float-right",
+          skeletonClass: "h-6 w-12 float-right",
         },
       }),
     ],
-    [onVerDetalle, onEditar, onAnular]
+    [onVerDetalle, onEditar, onAnular, esEmpleado]
   );
 
   return (

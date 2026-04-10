@@ -44,7 +44,7 @@ export default function AppRouter() {
         <Route path="/contacto" element={<Contacto />} />
 
 
-        <Route element={<ProtectedRoute allowedRoles={["ADMINISTRADOR"]} />}>
+        <Route element={<ProtectedRoute allowedRoles={["ADMINISTRADOR", "EMPLEADO"]} />}>
           <Route path="/test" element={<TestPage />} />
           <Route path="/panel-admin" element={<AdminLayout />}>
             <Route index element={<AdminDashboardPage />} />

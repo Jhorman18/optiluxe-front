@@ -24,17 +24,22 @@ const MENU_SIDEBAR = [
 import NotificacionBell from "../components/layout/NotificacionBell";
 
 export default function AdminLayout() {
-    const { usuario, logout } = useAuth();
+    const { usuario, rol, logout } = useAuth();
     const navigate = useNavigate();
+
+    const menuFiltrado = MENU_SIDEBAR.filter(item => {
+        if (rol === "EMPLEADO" && item.label === "Reportes") return false;
+        return true;
+    });
 
     const handleLogout = async () => {
         await logout();
         navigate("/");
     };
 
-    const nombre = usuario?.usuNombre ?? usuario?.nombre ?? "Admin";
-    const correo = usuario?.usuCorreo ?? usuario?.correo ?? "admin@optiluxe.com";
-    const initials = (nombre[0] ?? "A").toUpperCase() + (nombre[1] ?? "D").toUpperCase();
+    const nombre = usuario?.usuNombre ?? usuario?.nombre ?? "Usuario";
+    const correo = usuario?.usuCorreo ?? usuario?.correo ?? "usuario@optiluxe.com";
+    const initials = (nombre[0] ?? "U").toUpperCase() + (nombre[1] ?? (nombre[0] ? "" : "S")).toUpperCase();
 
     return (
         <div className="flex h-screen bg-slate-50 font-sans">
@@ -55,7 +60,7 @@ export default function AdminLayout() {
 
                 {/* Navegación */}
                 <nav className="flex-1 overflow-y-auto py-6 px-4 space-y-1 scrollbar-thin scrollbar-thumb-slate-200">
-                    {MENU_SIDEBAR.map((item) => (
+                    {menuFiltrado.map((item) => (
                         <NavLink
                             key={item.to}
                             to={item.to}

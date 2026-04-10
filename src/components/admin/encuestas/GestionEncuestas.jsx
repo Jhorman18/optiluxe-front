@@ -8,7 +8,12 @@ import PreguntasModal from "./PreguntasModal";
 import EstadisticasModal from "./EstadisticasModal";
 import CustomSelect from "../../ui/CustomSelect";
 
+import { useAuth } from "../../../context/auth/AuthContext";
+
 export default function GestionEncuestas() {
+  const { rol } = useAuth();
+  const esEmpleado = rol === "EMPLEADO";
+
   const [encuestas, setEncuestas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -75,18 +80,22 @@ export default function GestionEncuestas() {
           <p className="text-sm font-medium text-slate-500 mt-1">Monitorea y gestiona el feedback de tus clientes</p>
         </div>
         <div className="flex items-center gap-3">
-          <button
-            onClick={() => setModalEstadisticas(true)}
-            className="flex items-center gap-2 px-5 py-3 bg-blue-600 text-white font-bold rounded-2xl hover:bg-blue-700 transition shadow-lg shadow-blue-600/20 cursor-pointer"
-          >
-            <FaChartBar /> Ver Estadísticas
-          </button>
-          <button
-            onClick={() => setModalPreguntas(true)}
-            className="flex items-center gap-2 px-5 py-3 bg-blue-600 text-white font-bold rounded-2xl hover:bg-blue-700 transition shadow-lg shadow-blue-600/20 cursor-pointer"
-          >
-            <FaQuestionCircle /> Gestionar Preguntas
-          </button>
+          {!esEmpleado && (
+            <>
+              <button
+                onClick={() => setModalEstadisticas(true)}
+                className="flex items-center gap-2 px-5 py-3 bg-blue-600 text-white font-bold rounded-2xl hover:bg-blue-700 transition shadow-lg shadow-blue-600/20 cursor-pointer"
+              >
+                <FaChartBar /> Ver Estadísticas
+              </button>
+              <button
+                onClick={() => setModalPreguntas(true)}
+                className="flex items-center gap-2 px-5 py-3 bg-blue-600 text-white font-bold rounded-2xl hover:bg-blue-700 transition shadow-lg shadow-blue-600/20 cursor-pointer"
+              >
+                <FaQuestionCircle /> Gestionar Preguntas
+              </button>
+            </>
+          )}
           <button
             onClick={fetchEncuestas}
             className="p-3 bg-white border border-slate-200 text-slate-600 rounded-2xl hover:bg-slate-50 transition shadow-sm cursor-pointer"
@@ -149,14 +158,16 @@ export default function GestionEncuestas() {
         encuestas={encuestas}
         loading={loading}
         onVerDetalle={(e) => setDetalleEncuesta(e)}
-        onEliminar={handleEliminar}
+        onEliminar={esEmpleado ? null : handleEliminar}
+        esEmpleado={esEmpleado}
       />
 
       <EncuestaDetalleModal
         encuestaId={detalleEncuesta?.idEncuesta}
         onClose={() => setDetalleEncuesta(null)}
-        onEliminar={handleEliminar}
+        onEliminar={esEmpleado ? null : handleEliminar}
         eliminando={eliminando}
+        esEmpleado={esEmpleado}
       />
 
       <PreguntasModal

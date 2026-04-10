@@ -3,7 +3,7 @@ import { FaTimes, FaClipboardCheck, FaUser, FaInfoCircle, FaCalendarAlt, FaTrash
 import * as encuestaService from "../../../services/encuestaService";
 import toast from "react-hot-toast";
 
-export default function EncuestaDetalleModal({ encuestaId, onClose, onEliminar, eliminando }) {
+export default function EncuestaDetalleModal({ encuestaId, onClose, onEliminar, eliminando, esEmpleado }) {
   const [encuesta, setEncuesta] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -114,7 +114,7 @@ export default function EncuestaDetalleModal({ encuestaId, onClose, onEliminar, 
                     ) : (
                       <div className="bg-amber-50 rounded-2xl p-10 border border-amber-100 text-center text-amber-600 space-y-2">
                         <FaClipboardCheck className="text-4xl mx-auto opacity-30" />
-                        <p className="font-bold">No se encontraron respuestas registradas para esta encuesta</p>
+                        <p className="font-bold">No se encontraron respuestas registradas for esta encuesta</p>
                       </div>
                     )}
                 </div>
@@ -125,13 +125,15 @@ export default function EncuestaDetalleModal({ encuestaId, onClose, onEliminar, 
 
         {/* Footer */}
         <div className="px-8 py-6 bg-slate-50 border-t border-slate-100 flex justify-between items-center shrink-0">
-          <button
-            onClick={() => onEliminar(encuesta.idEncuesta)}
-            disabled={eliminando || loading}
-            className="flex items-center gap-2 px-6 py-3.5 bg-red-50 text-red-600 font-black text-[10px] uppercase tracking-widest rounded-2xl hover:bg-red-600 hover:text-white transition shadow-sm disabled:opacity-50 cursor-pointer active:scale-95"
-          >
-            {eliminando ? <FaSpinner className="animate-spin" /> : <><FaTrashAlt /> Eliminar Registro</>}
-          </button>
+          {!esEmpleado ? (
+            <button
+              onClick={() => onEliminar(encuesta.idEncuesta)}
+              disabled={eliminando || loading}
+              className="flex items-center gap-2 px-6 py-3.5 bg-red-50 text-red-600 font-black text-[10px] uppercase tracking-widest rounded-2xl hover:bg-red-600 hover:text-white transition shadow-sm disabled:opacity-50 cursor-pointer active:scale-95"
+            >
+              {eliminando ? <FaSpinner className="animate-spin" /> : <><FaTrashAlt /> Eliminar Registro</>}
+            </button>
+          ) : <div></div>}
           <button
             onClick={onClose}
             className="px-10 py-3.5 bg-blue-600 text-white font-black text-[10px] uppercase tracking-widest rounded-2xl hover:bg-blue-700 transition shadow-2xl shadow-blue-600/40 cursor-pointer active:scale-95"

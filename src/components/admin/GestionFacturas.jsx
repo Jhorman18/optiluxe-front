@@ -8,7 +8,12 @@ import CrearFacturaModal from "./facturas/CrearFacturaModal";
 import EditarFacturaModal from "./facturas/EditarFacturaModal";
 import AnularFacturaModal from "./facturas/AnularFacturaModal";
 
+import { useAuth } from "../../context/auth/AuthContext";
+
 export default function GestionFacturas() {
+  const { rol } = useAuth();
+  const esEmpleado = rol === "EMPLEADO";
+
   const [facturas, setFacturas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -150,6 +155,7 @@ export default function GestionFacturas() {
         onVerDetalle={(f) => setDetalleFactura(f)}
         onEditar={(f) => setEditando(f)}
         onAnular={(f) => setAnulando(f)}
+        esEmpleado={esEmpleado}
       />
 
       <FacturaDetalleModal

@@ -7,10 +7,17 @@ import * as usuarioService from "../../services/usuarioService";
 import * as facturaService from "../../services/facturaService";
 import toast from "react-hot-toast";
 
-export default function AdminDashboardPage() {
-    const { usuario } = useAuth();
-    const nombre = usuario?.usuNombre ?? usuario?.nombre ?? "Admin";
+// Modales para Acciones Rápidas
+import CrearCitaModal from "../../components/admin/citas/CrearCitaModal";
+import CrearHistoriaModal from "../../components/admin/citas/CrearHistoriaModal";
+import CrearUsuarioModal from "../../components/admin/usuarios/CrearUsuarioModal";
+import CrearFacturaModal from "../../components/admin/facturas/CrearFacturaModal";
 
+export default function AdminDashboardPage() {
+    const { usuario, rol } = useAuth();
+    const nombre = usuario?.usuNombre ?? usuario?.nombre ?? "Usuario";
+
+    const [loading, setLoading] = useState(true);
     const [stats, setStats] = useState({
         citasPendientes: 0,
         pacientesActivos: 0,
@@ -18,43 +25,73 @@ export default function AdminDashboardPage() {
         crecimiento: 0,
         proximasCitas: []
     });
-    const [loading, setLoading] = useState(true);
+
+    // Estados para Modales de Acciones Rápidas
+    const [modalCita, setModalCita] = useState(false);
+    const [modalPaciente, setModalPaciente] = useState(false);
+    const [modalVenta, setModalVenta] = useState(false);
+    const [modalHistoria, setModalHistoria] = useState(false);
+    const [guardando, setGuardando] = useState(false);
+
+    const fetchAllData = async () => {
+        try {
+            setLoading(true);
+            const [citasPendientes, pacientesActivos, ventasMes, proximasCitas] = await Promise.all([
+                citaService.getEstadisticasCitas(),
+                usuarioService.getEstadisticasPacientes(),
+                facturaService.getEstadisticasVentas(),
+                citaService.getProximasCitas()
+            ]);
+
+            setStats({
+                citasPendientes: citasPendientes.pendientes,
+                pacientesActivos: pacientesActivos.activos,
+                ventasMes: ventasMes.total,
+                crecimiento: 15,
+                proximasCitas: proximasCitas
+            });
+        } catch (error) {
+            toast.error("Error al cargar datos del dashboard");
+            console.error(error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
-        let mounted = true;
-        const fetchAllData = async () => {
-            try {
-                setLoading(true);
-                // Realizamos las peticiones en paralelo a los servicios independientes
-                const [citasPendientes, pacientesActivos, ventasMes, proximasCitas] = await Promise.all([
-                    citaService.getEstadisticasCitas(),
-                    usuarioService.getEstadisticasPacientes(),
-                    facturaService.getEstadisticasVentas(),
-                    citaService.getProximasCitas()
-                ]);
-
-                if (mounted) {
-                    setStats({
-                        citasPendientes: citasPendientes.pendientes,
-                        pacientesActivos: pacientesActivos.activos,
-                        ventasMes: ventasMes.total,
-                        crecimiento: 15, // Mantener placeholder de crecimiento por ahora
-                        proximasCitas: proximasCitas
-                    });
-                }
-            } catch (error) {
-                if (mounted) {
-                    toast.error("Error al cargar datos del dashboard");
-                    console.error(error);
-                }
-            } finally {
-                if (mounted) setLoading(false);
-            }
-        };
-
         fetchAllData();
-        return () => { mounted = false; };
     }, []);
+
+    // Handlers para creación
+    const handleCrearPaciente = async (payload, resetForm) => {
+        try {
+            setGuardando(true);
+            await usuarioService.crearUsuario(payload);
+            toast.success("Paciente registrado correctamente");
+            setModalPaciente(false);
+            resetForm();
+            fetchAllData(); 
+        } catch (error) {
+            toast.error(error?.response?.data?.message || "Error al registrar paciente");
+        } finally {
+            setGuardando(false);
+        }
+    };
+
+    const handleCrearVenta = async (payload, resetForm) => {
+        try {
+            setGuardando(true);
+            await facturaService.crearFactura(payload);
+            toast.success("Venta registrada correctamente");
+            setModalVenta(false);
+            resetForm();
+            fetchAllData();
+        } catch (error) {
+            toast.error(error?.response?.data?.message || "Error al registrar venta");
+        } finally {
+            setGuardando(false);
+        }
+    };
 
     return (
         <div className="p-8 max-w-7xl mx-auto w-full">
@@ -151,9 +188,12 @@ export default function AdminDashboardPage() {
                             ))
                         )}
                     </div>
-                    <button className="w-full mt-6 py-3 border border-slate-200 text-slate-700 font-bold text-sm rounded-xl hover:bg-slate-50 transition cursor-pointer">
+                    <Link 
+                        to="/panel-admin/citas"
+                        className="w-full mt-6 py-3 border border-slate-200 text-slate-700 font-bold text-sm rounded-xl hover:bg-slate-50 transition cursor-pointer text-center block"
+                    >
                         Ver Todas las Citas
-                    </button>
+                    </Link>
                 </div>
 
                 {/* Acciones Rápidas */}
@@ -163,26 +203,40 @@ export default function AdminDashboardPage() {
                         <p className="text-sm text-slate-500 mt-1">Accede a las funciones más utilizadas</p>
                     </div>
                     <div className="space-y-3">
-                        <button className="w-full flex items-center gap-4 p-4 rounded-xl border border-slate-200 hover:border-blue-300 hover:bg-blue-50 text-slate-700 transition cursor-pointer group">
+                        <button 
+                            onClick={() => setModalCita(true)}
+                            className="w-full flex items-center gap-4 p-4 rounded-xl border border-slate-200 hover:border-blue-300 hover:bg-blue-50 text-slate-700 transition cursor-pointer group"
+                        >
                             <FaCalendarPlus className="text-slate-400 group-hover:text-blue-600 transition" />
                             <span className="font-semibold">Agendar Nueva Cita</span>
                         </button>
-                        <button className="w-full flex items-center gap-4 p-4 rounded-xl border border-slate-200 hover:border-blue-300 hover:bg-blue-50 text-slate-700 transition cursor-pointer group">
+                        <button 
+                            onClick={() => setModalPaciente(true)}
+                            className="w-full flex items-center gap-4 p-4 rounded-xl border border-slate-200 hover:border-blue-300 hover:bg-blue-50 text-slate-700 transition cursor-pointer group"
+                        >
                             <FaUserPlus className="text-slate-400 group-hover:text-blue-600 transition" />
                             <span className="font-semibold">Registrar Nuevo Paciente</span>
                         </button>
-                        <button className="w-full flex items-center gap-4 p-4 rounded-xl border border-slate-200 hover:border-blue-300 hover:bg-blue-50 text-slate-700 transition cursor-pointer group">
+                        <button 
+                            onClick={() => setModalVenta(true)}
+                            className="w-full flex items-center gap-4 p-4 rounded-xl border border-slate-200 hover:border-blue-300 hover:bg-blue-50 text-slate-700 transition cursor-pointer group"
+                        >
                             <FaFileInvoiceDollar className="text-slate-400 group-hover:text-blue-600 transition" />
                             <span className="font-semibold">Registrar Venta</span>
                         </button>
-                        <button className="w-full flex items-center gap-4 p-4 rounded-xl border border-slate-200 hover:border-blue-300 hover:bg-blue-50 text-slate-700 transition cursor-pointer group">
+                        <button 
+                            onClick={() => setModalHistoria(true)}
+                            className="w-full flex items-center gap-4 p-4 rounded-xl border border-slate-200 hover:border-blue-300 hover:bg-blue-50 text-slate-700 transition cursor-pointer group"
+                        >
                             <FaFileMedical className="text-slate-400 group-hover:text-blue-600 transition" />
                             <span className="font-semibold">Crear Historial Clínico</span>
                         </button>
-                        <button className="w-full flex items-center gap-4 p-4 rounded-xl border border-slate-200 hover:border-blue-300 hover:bg-blue-50 text-slate-700 transition cursor-pointer group">
-                            <FaChartBar className="text-slate-400 group-hover:text-blue-600 transition" />
-                            <span className="font-semibold">Ver Reportes</span>
-                        </button>
+                        {rol !== "EMPLEADO" && (
+                            <button className="w-full flex items-center gap-4 p-4 rounded-xl border border-slate-200 hover:border-blue-300 hover:bg-blue-50 text-slate-700 transition cursor-pointer group">
+                                <FaChartBar className="text-slate-400 group-hover:text-blue-600 transition" />
+                                <span className="font-semibold">Ver Reportes</span>
+                            </button>
+                        )}
                     </div>
                 </div>
 
@@ -198,6 +252,30 @@ export default function AdminDashboardPage() {
                     Ir al Sitio Web
                 </Link>
             </div>
+
+            {/* Modales de Acciones Rápidas */}
+            <CrearCitaModal 
+                abierto={modalCita} 
+                onClose={() => setModalCita(false)} 
+                onSuccess={fetchAllData} 
+            />
+            <CrearUsuarioModal 
+                abierto={modalPaciente} 
+                guardando={guardando} 
+                onClose={() => setModalPaciente(false)} 
+                onSubmit={handleCrearPaciente} 
+            />
+            <CrearFacturaModal 
+                abierto={modalVenta} 
+                guardando={guardando} 
+                onClose={() => setModalVenta(false)} 
+                onSubmit={handleCrearVenta} 
+            />
+            <CrearHistoriaModal 
+                abierto={modalHistoria} 
+                onClose={() => setModalHistoria(false)} 
+                onSuccess={fetchAllData} 
+            />
 
         </div>
     );

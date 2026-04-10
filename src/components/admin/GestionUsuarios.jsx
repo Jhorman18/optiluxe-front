@@ -7,9 +7,14 @@ import EditarUsuarioModal from "./usuarios/EditarUsuarioModal";
 import CrearUsuarioModal from "./usuarios/CrearUsuarioModal";
 import CustomSelect from "../ui/CustomSelect";
 
+import { useAuth } from "../../context/auth/AuthContext";
+
 const ROLES = ["CLIENTE", "ADMINISTRADOR", "EMPLEADO"];
 
 export default function GestionUsuarios() {
+    const { rol } = useAuth();
+    const esEmpleado = rol === "EMPLEADO";
+
     const [usuarios, setUsuarios] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
@@ -168,6 +173,7 @@ export default function GestionUsuarios() {
                 loading={loading}
                 onEditar={abrirEditar}
                 onToggleEstado={handleToggleEstado}
+                esEmpleado={esEmpleado}
             />
 
             <CrearUsuarioModal

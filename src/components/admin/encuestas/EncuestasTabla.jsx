@@ -1,6 +1,6 @@
 import { FaEye, FaTrashAlt, FaClipboardCheck, FaCalendarDay, FaUser } from "react-icons/fa";
 
-export default function EncuestasTabla({ encuestas, loading, onVerDetalle, onEliminar }) {
+export default function EncuestasTabla({ encuestas, loading, onVerDetalle, onEliminar, esEmpleado }) {
   if (loading && encuestas.length === 0) {
     return (
       <div className="bg-white rounded-3xl p-12 shadow-sm border border-slate-100 flex flex-col items-center justify-center text-slate-400">
@@ -79,13 +79,15 @@ export default function EncuestasTabla({ encuestas, loading, onVerDetalle, onEli
                   >
                     <FaEye className="text-base group-hover:scale-110 transition-transform" />
                   </button>
-                  <button
-                    onClick={() => onEliminar(e.idEncuesta)}
-                    className="p-2.5 rounded-xl text-slate-400 hover:text-red-600 hover:bg-red-50 transition cursor-pointer group shadow-sm hover:shadow-md bg-white border border-slate-100"
-                    title="Eliminar encuesta"
-                  >
-                    <FaTrashAlt className="text-base group-hover:scale-110 transition-transform" />
-                  </button>
+                  {!esEmpleado && (
+                    <button
+                      onClick={() => onEliminar(e.idEncuesta)}
+                      className="p-2.5 rounded-xl text-slate-400 hover:text-red-600 hover:bg-red-50 transition cursor-pointer group shadow-sm hover:shadow-md bg-white border border-slate-100"
+                      title="Eliminar encuesta"
+                    >
+                      <FaTrashAlt className="text-base group-hover:scale-110 transition-transform" />
+                    </button>
+                  )}
                 </div>
               </td>
             </tr>

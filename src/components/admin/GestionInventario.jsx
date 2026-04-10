@@ -10,9 +10,14 @@ import toast from "react-hot-toast";
 import DataTable from "../ui/DataTable";
 import CustomSelect from "../ui/CustomSelect";
 
+import { useAuth } from "../../context/auth/AuthContext";
+
 const columnHelper = createColumnHelper();
 
 export default function GestionInventario() {
+    const { rol } = useAuth();
+    const esEmpleado = rol === "EMPLEADO";
+
     const [productos, setProductos] = useState([]);
     const [categorias, setCategorias] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -241,13 +246,15 @@ export default function GestionInventario() {
                     <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Inventario de Productos</h1>
                     <p className="text-sm font-medium text-slate-500 mt-1">Gestiona el catálogo, stock y visibilidad de tus productos</p>
                 </div>
-                <button
-                    onClick={() => handleOpenModal()}
-                    className="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-bold transition shadow-lg shadow-blue-600/20"
-                >
-                    <FaPlus className="text-sm" />
-                    Nuevo Producto
-                </button>
+                {!esEmpleado && (
+                    <button
+                        onClick={() => handleOpenModal()}
+                        className="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-bold transition shadow-lg shadow-blue-600/20"
+                    >
+                        <FaPlus className="text-sm" />
+                        Nuevo Producto
+                    </button>
+                )}
             </div>
 
             {/* Filtros */}
