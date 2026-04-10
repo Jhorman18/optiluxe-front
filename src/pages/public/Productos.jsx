@@ -11,7 +11,7 @@ export default function Productos() {
             <ProductsHero />
             <ProductsGrid />
             <ProductsBenefits />
-            <Footer />
+            <Footer currentPage="productos" />
         </>
     );
 }

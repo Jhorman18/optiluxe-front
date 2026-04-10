@@ -13,7 +13,7 @@ export default function HomePage() {
             <ServicesPreviewSection/>
             <WhyChooseUsSection/>
             <CtaSection />
-            <Footer />
+            <Footer currentPage="inicio" />
         </div>
     );
 }

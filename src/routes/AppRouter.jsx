@@ -22,10 +22,12 @@ import EncuestasPage from "../pages/admin/EncuestasPage";
 import CitasPage from "../pages/public/CitasPage";
 import Carrito from "../pages/cliente/Carrito";
 import CartPanel from "../components/cart/CartPanel.jsx";
+import ScrollToTop from "../components/layout/ScrollToTop.jsx";
 
 export default function AppRouter() {
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <CartPanel />
       <Routes>
 

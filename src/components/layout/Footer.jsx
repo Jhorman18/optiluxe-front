@@ -7,8 +7,17 @@ import {
     FaTwitter,
     FaEye,
 } from "react-icons/fa";
+import { Link } from "react-router-dom";
 
-export default function Footer() {
+const footerLinks = [
+    { key: "inicio", label: "Inicio", to: "/" },
+    { key: "servicios", label: "Servicios", to: "/servicios" },
+    { key: "conocenos", label: "Conócenos", to: "/conocenos" },
+    { key: "productos", label: "Productos", to: "/productos" },
+    { key: "contacto", label: "Contacto", to: "/contacto" },
+];
+
+export default function Footer({ currentPage = "" }) {
     return (
         <footer className="bg-gradient-to-r from-blue-700 to-blue-500 text-white">
             {/* Footer Principal */}
@@ -36,10 +45,13 @@ export default function Footer() {
                     <div>
                         <h4 className="font-semibold mb-4">Enlaces Rápidos</h4>
                         <ul className="space-y-2 text-sm text-blue-200">
-                            <li className="hover:text-white cursor-pointer">Inicio</li>
-                            <li className="hover:text-white cursor-pointer">Servicios</li>
-                            <li className="hover:text-white cursor-pointer">Conócenos</li>
-                            <li className="hover:text-white cursor-pointer">Productos</li>
+                            {footerLinks
+                                .filter((link) => link.key !== currentPage)
+                                .map((link) => (
+                                    <li key={link.key} className="hover:text-white cursor-pointer transition">
+                                        <Link to={link.to}>{link.label}</Link>
+                                    </li>
+                                ))}
                         </ul>
                     </div>
 

@@ -13,7 +13,7 @@ const Services = () => {
             <ServicesGrid />
             <ProcessSection />
             <ServicesCTA />
-            <Footer />
+            <Footer currentPage="servicios" />
         </>
     );
 };

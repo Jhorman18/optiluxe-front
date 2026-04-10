@@ -15,7 +15,7 @@ export default function Conocenos() {
       <ValuesSection />
       <WhyUsSection />
       <VisitSection />
-      <Footer />
+      <Footer currentPage="conocenos" />
     </>
   );
 }

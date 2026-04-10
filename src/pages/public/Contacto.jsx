@@ -11,7 +11,7 @@ export default function Contacto() {
       <ContactoHero />
       <ContactoFormSection />
       <ContactoMapa />
-      <Footer />
+      <Footer currentPage="contacto" />
     </>
   );
 }
