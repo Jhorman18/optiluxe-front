@@ -2,12 +2,15 @@ import { useState, useEffect, useMemo } from "react";
 import { createColumnHelper } from "@tanstack/react-table";
 import { FaHistory, FaCheckCircle, FaClock, FaExclamationCircle, FaTrashAlt, FaSearch } from "react-icons/fa";
 import { obtenerNotificaciones, eliminarNotificacion } from "../../services/notificacionService";
+import { useAuth } from "../../context/auth/AuthContext";
 import toast from "react-hot-toast";
 import DataTable from "../ui/DataTable";
 
 const columnHelper = createColumnHelper();
 
 export default function HistorialNotificaciones({ refreshKey }) {
+    const { rol } = useAuth();
+    const esEmpleado = rol === "EMPLEADO";
     const [notificaciones, setNotificaciones] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
@@ -101,7 +104,7 @@ export default function HistorialNotificaciones({ refreshKey }) {
             ),
             meta: { skeletonClass: "h-10 w-24" },
         }),
-        columnHelper.display({
+        ...(!esEmpleado ? [columnHelper.display({
             id: "_acciones",
             header: "",
             cell: ({ row: { original: notif } }) => notif.notEstado === "Pendiente" ? (
@@ -116,8 +119,8 @@ export default function HistorialNotificaciones({ refreshKey }) {
                 </div>
             ) : null,
             meta: { skeletonClass: "h-6 w-8" },
-        }),
-    ], [handleDelete]);
+        })] : []),
+    ], [handleDelete, esEmpleado]);
 
     return (
         <div className="space-y-6">

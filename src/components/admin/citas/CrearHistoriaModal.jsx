@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { FaStethoscope, FaTimes, FaSearch, FaUser, FaIdCard, FaCalendarAlt, FaClock } from "react-icons/fa";
+import { FaStethoscope, FaTimes, FaSearch, FaUser, FaIdCard, FaCalendarAlt, FaClock, FaCheck } from "react-icons/fa";
 import * as citaService from "../../../services/citaService";
 import { getUsuarios } from "../../../services/usuarioService";
 import { crearHistoriaClinica } from "../../../services/historiaClinicaService";
@@ -203,7 +203,7 @@ export default function CrearHistoriaModal({ abierto, onClose, onSuccess }) {
                                             </div>
                                             {citaSeleccionada?.idCita === c.idCita && (
                                                 <div className="w-5 h-5 rounded-full bg-purple-500 text-white flex items-center justify-center">
-                                                    <FaPlus className="text-[10px]" />
+                                                    <FaCheck className="text-[10px]" />
                                                 </div>
                                             )}
                                         </button>

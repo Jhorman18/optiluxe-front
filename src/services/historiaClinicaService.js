@@ -16,3 +16,18 @@ export const getHistoriaPorCita = async (idCita) => {
   const res = await api.get(`/historia-clinica/cita/${idCita}`);
   return res.data.historia;
 };
+
+export const getMisHistorias = async () => {
+  const res = await api.get("/historia-clinica/mis");
+  return res.data.historias;
+};
+
+export const actualizarHistoriaClinica = async (id, data) => {
+  const res = await api.put(`/historia-clinica/${id}`, data);
+  return res.data;
+};
+
+export const eliminarHistoriaClinica = async (id) => {
+  const res = await api.delete(`/historia-clinica/${id}`);
+  return res.data;
+};

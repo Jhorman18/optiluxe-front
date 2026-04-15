@@ -210,13 +210,15 @@ export default function AdminDashboardPage() {
                             <FaCalendarPlus className="text-slate-400 group-hover:text-blue-600 transition" />
                             <span className="font-semibold">Agendar Nueva Cita</span>
                         </button>
-                        <button 
-                            onClick={() => setModalPaciente(true)}
-                            className="w-full flex items-center gap-4 p-4 rounded-xl border border-slate-200 hover:border-blue-300 hover:bg-blue-50 text-slate-700 transition cursor-pointer group"
-                        >
-                            <FaUserPlus className="text-slate-400 group-hover:text-blue-600 transition" />
-                            <span className="font-semibold">Registrar Nuevo Paciente</span>
-                        </button>
+                        {rol !== "EMPLEADO" && (
+                            <button
+                                onClick={() => setModalPaciente(true)}
+                                className="w-full flex items-center gap-4 p-4 rounded-xl border border-slate-200 hover:border-blue-300 hover:bg-blue-50 text-slate-700 transition cursor-pointer group"
+                            >
+                                <FaUserPlus className="text-slate-400 group-hover:text-blue-600 transition" />
+                                <span className="font-semibold">Registrar Nuevo Paciente</span>
+                            </button>
+                        )}
                         <button 
                             onClick={() => setModalVenta(true)}
                             className="w-full flex items-center gap-4 p-4 rounded-xl border border-slate-200 hover:border-blue-300 hover:bg-blue-50 text-slate-700 transition cursor-pointer group"

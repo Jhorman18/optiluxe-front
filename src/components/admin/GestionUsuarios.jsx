@@ -130,12 +130,14 @@ export default function GestionUsuarios() {
                     <p className="text-sm font-medium text-slate-500 mt-1">Consulta y gestiona el estado de todos los usuarios registrados</p>
                 </div>
                 <div className="flex items-center gap-3">
-                    <button
-                        onClick={() => setModalCrear(true)}
-                        className="flex items-center gap-2 px-5 py-3 bg-blue-600 text-white font-bold rounded-2xl hover:bg-blue-700 transition shadow-lg shadow-blue-600/20"
-                    >
-                        <FaUserPlus /> Crear usuario
-                    </button>
+                    {!esEmpleado && (
+                        <button
+                            onClick={() => setModalCrear(true)}
+                            className="flex items-center gap-2 px-5 py-3 bg-blue-600 text-white font-bold rounded-2xl hover:bg-blue-700 transition shadow-lg shadow-blue-600/20"
+                        >
+                            <FaUserPlus /> Crear usuario
+                        </button>
+                    )}
                     <div className="bg-white border border-slate-200 rounded-2xl px-5 py-3 text-center shadow-sm">
                         <p className="text-2xl font-extrabold text-blue-600">{usuarios.length}</p>
                         <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Total</p>

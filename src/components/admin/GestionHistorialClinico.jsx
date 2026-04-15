@@ -2,9 +2,10 @@ import { useState, useEffect, useMemo } from "react";
 import { createColumnHelper } from "@tanstack/react-table";
 import {
     FaSearch, FaStethoscope, FaUser, FaCalendarAlt,
-    FaEye, FaIdCard, FaPhone, FaEnvelope
+    FaEye, FaIdCard, FaPhone, FaEnvelope, FaEdit, FaTrashAlt
 } from "react-icons/fa";
-import { getHistorias } from "../../services/historiaClinicaService";
+import { getHistorias, actualizarHistoriaClinica, eliminarHistoriaClinica } from "../../services/historiaClinicaService";
+import { useAuth } from "../../context/auth/AuthContext";
 import toast from "react-hot-toast";
 import DataTable from "../ui/DataTable";
 
@@ -14,10 +15,17 @@ const formatFecha = (iso) =>
     new Date(iso).toLocaleDateString("es-CO", { year: "numeric", month: "short", day: "numeric", timeZone: "UTC" });
 
 export default function GestionHistorialClinico() {
+    const { rol } = useAuth();
+    const esAdmin = rol === "ADMINISTRADOR";
+
     const [historias, setHistorias] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedHistoria, setSelectedHistoria] = useState(null);
+
+    const [editando, setEditando] = useState(null);
+    const [editForm, setEditForm] = useState({ hisDiagnostico: "", hisFormulaOptica: "", hisObservaciones: "" });
+    const [guardando, setGuardando] = useState(false);
 
     useEffect(() => {
         const timer = setTimeout(async () => {
@@ -33,6 +41,41 @@ export default function GestionHistorialClinico() {
         }, 400);
         return () => clearTimeout(timer);
     }, [searchTerm]);
+
+    const abrirEditar = (h) => {
+        setEditando(h);
+        setEditForm({
+            hisDiagnostico: h.hisDiagnostico ?? "",
+            hisFormulaOptica: h.hisFormulaOptica ?? "",
+            hisObservaciones: h.hisObservaciones ?? "",
+        });
+    };
+
+    const handleGuardarEdicion = async (e) => {
+        e.preventDefault();
+        try {
+            setGuardando(true);
+            const actualizada = await actualizarHistoriaClinica(editando.idHistoriaClinica, editForm);
+            setHistorias(prev => prev.map(h => h.idHistoriaClinica === editando.idHistoriaClinica ? { ...h, ...actualizada } : h));
+            toast.success("Historia clínica actualizada");
+            setEditando(null);
+        } catch {
+            toast.error("Error al actualizar la historia clínica");
+        } finally {
+            setGuardando(false);
+        }
+    };
+
+    const handleEliminar = async (h) => {
+        if (!window.confirm(`¿Eliminar la historia clínica de ${h.cita?.usuario?.usuNombre} ${h.cita?.usuario?.usuApellido}? Esta acción no se puede deshacer.`)) return;
+        try {
+            await eliminarHistoriaClinica(h.idHistoriaClinica);
+            setHistorias(prev => prev.filter(x => x.idHistoriaClinica !== h.idHistoriaClinica));
+            toast.success("Historia clínica eliminada");
+        } catch {
+            toast.error("Error al eliminar la historia clínica");
+        }
+    };
 
     const columns = useMemo(() => [
         columnHelper.display({
@@ -89,7 +132,7 @@ export default function GestionHistorialClinico() {
             id: "_acciones",
             header: "",
             cell: ({ row: { original: h } }) => (
-                <div className="flex justify-end">
+                <div className="flex justify-end gap-1">
                     <button
                         onClick={() => setSelectedHistoria(h)}
                         className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition"
@@ -97,11 +140,29 @@ export default function GestionHistorialClinico() {
                     >
                         <FaEye />
                     </button>
+                    {esAdmin && (
+                        <>
+                            <button
+                                onClick={() => abrirEditar(h)}
+                                className="p-2 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition"
+                                title="Editar"
+                            >
+                                <FaEdit />
+                            </button>
+                            <button
+                                onClick={() => handleEliminar(h)}
+                                className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition"
+                                title="Eliminar"
+                            >
+                                <FaTrashAlt />
+                            </button>
+                        </>
+                    )}
                 </div>
             ),
-            meta: { skeletonClass: "h-6 w-8 float-right" },
+            meta: { skeletonClass: "h-6 w-20 float-right" },
         }),
-    ], []);
+    ], [esAdmin, abrirEditar, handleEliminar]);
 
     return (
         <div className="p-8 max-w-7xl mx-auto w-full">
@@ -232,6 +293,87 @@ export default function GestionHistorialClinico() {
                                 </div>
                             )}
                         </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Modal Editar Historia Clínica */}
+            {editando && (
+                <div
+                    className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm"
+                    onClick={() => !guardando && setEditando(null)}
+                >
+                    <div
+                        className="bg-white w-full max-w-xl rounded-3xl shadow-2xl overflow-hidden"
+                        onClick={e => e.stopPropagation()}
+                    >
+                        <div className="px-8 py-6 border-b border-slate-100 flex items-center justify-between">
+                            <div>
+                                <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
+                                    <FaEdit className="text-amber-500" /> Editar Historia Clínica
+                                </h2>
+                                <p className="text-sm text-slate-500 mt-0.5">
+                                    {editando.cita?.usuario?.usuNombre} {editando.cita?.usuario?.usuApellido}
+                                </p>
+                            </div>
+                            <button
+                                onClick={() => setEditando(null)}
+                                disabled={guardando}
+                                className="text-slate-400 hover:text-slate-600 transition text-xl font-bold leading-none disabled:opacity-40"
+                            >
+                                ×
+                            </button>
+                        </div>
+
+                        <form onSubmit={handleGuardarEdicion} className="px-8 py-6 space-y-5">
+                            <div className="space-y-2">
+                                <label className="text-sm font-bold text-slate-700">Diagnóstico</label>
+                                <textarea
+                                    rows={3}
+                                    required
+                                    value={editForm.hisDiagnostico}
+                                    onChange={e => setEditForm(p => ({ ...p, hisDiagnostico: e.target.value }))}
+                                    className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none resize-none"
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-sm font-bold text-slate-700">Fórmula Óptica</label>
+                                <textarea
+                                    rows={4}
+                                    required
+                                    value={editForm.hisFormulaOptica}
+                                    onChange={e => setEditForm(p => ({ ...p, hisFormulaOptica: e.target.value }))}
+                                    className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm font-mono focus:ring-2 focus:ring-blue-500 outline-none resize-none"
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-sm font-bold text-slate-700">Observaciones <span className="text-slate-400 font-normal">(opcional)</span></label>
+                                <textarea
+                                    rows={2}
+                                    value={editForm.hisObservaciones}
+                                    onChange={e => setEditForm(p => ({ ...p, hisObservaciones: e.target.value }))}
+                                    className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none resize-none"
+                                />
+                            </div>
+                            <div className="flex justify-end gap-3 pt-2">
+                                <button
+                                    type="button"
+                                    onClick={() => setEditando(null)}
+                                    disabled={guardando}
+                                    className="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-semibold text-sm hover:bg-slate-50 transition disabled:opacity-40"
+                                >
+                                    Cancelar
+                                </button>
+                                <button
+                                    type="submit"
+                                    disabled={guardando}
+                                    className="px-5 py-2.5 rounded-xl bg-blue-600 text-white font-bold text-sm hover:bg-blue-700 transition disabled:opacity-50 flex items-center gap-2"
+                                >
+                                    {guardando ? <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : null}
+                                    Guardar cambios
+                                </button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             )}

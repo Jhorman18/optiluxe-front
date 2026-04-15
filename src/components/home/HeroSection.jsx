@@ -4,6 +4,7 @@ import {
   FaCheckCircle,
   FaStar
 } from 'react-icons/fa';
+import { Link } from 'react-router-dom';
 
 import heroImage from '../../assets/ImgHeroSection.png';
 
@@ -34,15 +35,15 @@ export default function HeroSection() {
 
           {/* Botones */}
           <div className="mt-8 flex flex-wrap gap-4">
-            <button className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition shadow-md">
+            <Link to="/citas" className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition shadow-md">
               <FaCalendarAlt />
               Agendar Cita
-            </button>
+            </Link>
 
-            <button className="flex items-center gap-2 border border-gray-300 hover:border-blue-600 hover:text-blue-600 px-6 py-3 rounded-lg font-medium transition">
+            <Link to="/productos" className="flex items-center gap-2 border border-gray-300 hover:border-blue-600 hover:text-blue-600 px-6 py-3 rounded-lg font-medium transition">
               <FaGlasses />
               Ver Productos
-            </button>
+            </Link>
           </div>
 
           {/* Features */}

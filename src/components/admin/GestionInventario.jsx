@@ -209,7 +209,7 @@ export default function GestionInventario() {
             },
             meta: { skeletonClass: "h-6 w-20" },
         }),
-        columnHelper.display({
+        ...(!esEmpleado ? [columnHelper.display({
             id: "_acciones",
             header: "Acciones",
             cell: ({ row: { original: p } }) => (
@@ -234,8 +234,8 @@ export default function GestionInventario() {
                 </div>
             ),
             meta: { headerClassName: "text-right", skeletonClass: "h-6 w-10 float-right" },
-        }),
-    ], [handleOpenModal, handleToggleStatus]);
+        })] : []),
+    ], [handleOpenModal, handleToggleStatus, esEmpleado]);
 
     return (
         <div className="p-8 max-w-7xl mx-auto w-full">

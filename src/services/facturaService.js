@@ -25,5 +25,8 @@ export const anularFactura = async (id, motivo) => {
   return response.data;
 };
 
+export const getMisFacturas = () =>
+  api.get("/factura/mis").then(res => res.data);
+
 export const getEstadisticasVentas = () =>
   api.get("/factura/estadisticas").then(res => res.data);

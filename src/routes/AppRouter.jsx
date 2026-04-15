@@ -21,8 +21,11 @@ import FacturasPage from "../pages/admin/FacturasPage";
 import EncuestasPage from "../pages/admin/EncuestasPage";
 import MensajesContactoPage from "../pages/admin/MensajesContactoPage";
 import ReportesPage from "../pages/admin/ReportesPage";
+import ConfiguracionPage from "../pages/admin/ConfiguracionPage";
 import CitasPage from "../pages/public/CitasPage";
 import Carrito from "../pages/cliente/Carrito";
+import HistoriaClinicaPage from "../pages/cliente/HistoriaClinicaPage";
+import PedidosPage from "../pages/cliente/PedidosPage";
 import CartPanel from "../components/cart/CartPanel.jsx";
 import ScrollToTop from "../components/layout/ScrollToTop.jsx";
 
@@ -58,6 +61,7 @@ export default function AppRouter() {
             <Route path="encuestas" element={<EncuestasPage />} />
             <Route path="mensajes" element={<MensajesContactoPage />} />
             <Route path="reportes" element={<ReportesPage />} />
+            <Route path="configuracion" element={<ConfiguracionPage />} />
           </Route>
         </Route>
 
@@ -67,6 +71,8 @@ export default function AppRouter() {
           }
         >
           <Route path="/carrito" element={<Carrito />} />
+          <Route path="/historia" element={<HistoriaClinicaPage />} />
+          <Route path="/pedidos" element={<PedidosPage />} />
         </Route>
 
 
