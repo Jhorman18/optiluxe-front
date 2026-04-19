@@ -1,81 +1,104 @@
 import { useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
 import { FaCog, FaUser, FaLock, FaEye, FaEyeSlash, FaCheckCircle } from "react-icons/fa";
 import { useAuth } from "../../context/auth/AuthContext";
-import { editarUsuario } from "../../services/usuarioService";
+import { editarPerfilPropio } from "../../services/usuarioService";
+import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 
-const INPUT_CLS = "w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition text-sm";
+const INPUT_CLS        = "w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition text-sm";
+const INPUT_ERROR_CLS  = "w-full px-4 py-2.5 bg-red-50 border border-red-400 rounded-xl focus:ring-2 focus:ring-red-400 outline-none transition text-sm";
+const INPUT_READONLY_CLS = "w-full px-4 py-2.5 bg-slate-100 border border-slate-200 rounded-xl text-sm text-slate-500 cursor-not-allowed select-none";
 
-function Campo({ label, children }) {
+function Campo({ label, error, children }) {
     return (
         <div className="space-y-1.5">
             <label className="block text-sm font-bold text-slate-700">{label}</label>
             {children}
+            {error && <p className="text-xs text-red-500 font-medium">{error.message}</p>}
         </div>
     );
 }
 
 export default function ConfiguracionPage() {
-    const { usuario, setUsuario } = useAuth();
-
-    const [form, setForm] = useState({
-        usuNombre:    usuario?.usuNombre    ?? "",
-        usuApellido:  usuario?.usuApellido  ?? "",
-        usuDocumento: usuario?.usuDocumento ?? "",
-        usuTelefono:  usuario?.usuTelefono  ?? "",
-        usuCorreo:    usuario?.usuCorreo    ?? "",
-        usuDireccion: usuario?.usuDireccion ?? "",
-        usuPassword:  "",
-        confirmar:    "",
-    });
-
-    // Rellena el form cuando el usuario del contexto esté disponible
-    useEffect(() => {
-        if (!usuario) return;
-        setForm(p => ({
-            ...p,
-            usuNombre:    usuario.usuNombre    ?? usuario.nombre    ?? "",
-            usuApellido:  usuario.usuApellido  ?? usuario.apellido  ?? "",
-            usuDocumento: usuario.usuDocumento ?? usuario.documento ?? "",
-            usuTelefono:  usuario.usuTelefono  ?? usuario.telefono  ?? "",
-            usuCorreo:    usuario.usuCorreo    ?? usuario.correo    ?? "",
-            usuDireccion: usuario.usuDireccion ?? usuario.direccion ?? "",
-        }));
-    }, [usuario]);
+    const { usuario, setUsuario, logout } = useAuth();
+    const navigate = useNavigate();
 
     const [mostrarPass, setMostrarPass]       = useState(false);
     const [mostrarConfirm, setMostrarConfirm] = useState(false);
     const [guardando, setGuardando]           = useState(false);
+    const [passValue, setPassValue]           = useState("");
+    const [confirmValue, setConfirmValue]     = useState("");
 
-    const set = (field) => (e) => setForm(p => ({ ...p, [field]: e.target.value }));
+    const { register, handleSubmit, reset, watch, formState: { errors } } = useForm({
+        defaultValues: {
+            usuTelefono:  usuario?.usuTelefono  ?? "",
+            usuCorreo:    usuario?.usuCorreo    ?? usuario?.correo ?? "",
+            usuDireccion: usuario?.usuDireccion ?? "",
+        },
+    });
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+    // Sincroniza cuando el usuario del contexto esté disponible
+    useEffect(() => {
+        if (!usuario) return;
+        reset({
+            usuTelefono:  usuario.usuTelefono  ?? usuario.telefono  ?? "",
+            usuCorreo:    usuario.usuCorreo    ?? usuario.correo    ?? "",
+            usuDireccion: usuario.usuDireccion ?? usuario.direccion ?? "",
+        });
+    }, [usuario, reset]);
 
-        if (form.usuPassword && form.usuPassword !== form.confirmar) {
+    const onSubmit = async (data) => {
+        if (passValue && passValue !== confirmValue) {
             toast.error("Las contraseñas no coinciden");
             return;
         }
-        if (form.usuPassword && form.usuPassword.length < 8) {
+        if (passValue && passValue.length < 8) {
             toast.error("La contraseña debe tener al menos 8 caracteres");
             return;
         }
 
-        const payload = {
-            usuNombre:    form.usuNombre,
-            usuApellido:  form.usuApellido,
-            usuDocumento: form.usuDocumento,
-            usuTelefono:  form.usuTelefono,
-            usuCorreo:    form.usuCorreo,
-            usuDireccion: form.usuDireccion,
+        const original = {
+            usuTelefono:  usuario?.usuTelefono  ?? usuario?.telefono  ?? "",
+            usuCorreo:    usuario?.usuCorreo    ?? usuario?.correo    ?? "",
+            usuDireccion: usuario?.usuDireccion ?? usuario?.direccion ?? "",
         };
-        if (form.usuPassword) payload.usuPassword = form.usuPassword;
+        const sinCambios =
+            data.usuTelefono  === original.usuTelefono  &&
+            data.usuCorreo    === original.usuCorreo    &&
+            data.usuDireccion === original.usuDireccion &&
+            !passValue;
+
+        if (sinCambios) {
+            toast("No hay cambios para guardar.", { icon: "ℹ️" });
+            return;
+        }
+
+        const payload = {
+            usuTelefono:  data.usuTelefono,
+            usuCorreo:    data.usuCorreo,
+            usuDireccion: data.usuDireccion,
+        };
+        if (passValue) payload.usuPassword = passValue;
 
         try {
             setGuardando(true);
-            const actualizado = await editarUsuario(usuario.idUsuario, payload);
-            setUsuario(prev => ({ ...prev, ...actualizado }));
-            setForm(p => ({ ...p, usuPassword: "", confirmar: "" }));
+            const actualizado = await editarPerfilPropio(payload);
+
+            if (passValue) {
+                toast.success("Contraseña cambiada. Inicia sesión nuevamente.");
+                await logout();
+                navigate("/login");
+                return;
+            }
+
+            setUsuario(prev => ({
+                ...prev,
+                ...actualizado,
+                rol: actualizado.rol?.rolNombre ?? prev.rol,
+            }));
+            setPassValue("");
+            setConfirmValue("");
             toast.success("Configuración guardada correctamente");
         } catch (err) {
             toast.error(err?.response?.data?.message || "Error al guardar los cambios");
@@ -84,7 +107,12 @@ export default function ConfiguracionPage() {
         }
     };
 
-    const hayPassword = form.usuPassword.length > 0;
+    // Valores de solo lectura del contexto
+    const nombre    = usuario?.usuNombre    ?? usuario?.nombre    ?? "";
+    const apellido  = usuario?.usuApellido  ?? usuario?.apellido  ?? "";
+    const documento = usuario?.usuDocumento ?? usuario?.documento ?? "";
+
+    const hayPassword = passValue.length > 0;
 
     return (
         <div className="p-8 max-w-3xl mx-auto w-full">
@@ -99,7 +127,7 @@ export default function ConfiguracionPage() {
                 </p>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
 
                 {/* Tarjeta datos personales */}
                 <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
@@ -108,54 +136,63 @@ export default function ConfiguracionPage() {
                         <h2 className="font-bold text-slate-900">Datos personales</h2>
                     </div>
                     <div className="px-6 py-6 space-y-4">
+                        <p className="text-xs text-slate-400 bg-slate-50 border border-slate-100 rounded-xl px-4 py-2.5">
+                            Solo puedes editar tu <strong>teléfono</strong>, <strong>correo electrónico</strong> y <strong>dirección</strong>. Para cambiar otros datos contáctanos.
+                        </p>
+
+                        {/* Readonly */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <Campo label="Nombre">
-                                <input
-                                    required
-                                    className={INPUT_CLS}
-                                    value={form.usuNombre}
-                                    onChange={set("usuNombre")}
-                                />
+                                <input readOnly tabIndex={-1} className={INPUT_READONLY_CLS} value={nombre} />
                             </Campo>
                             <Campo label="Apellido">
-                                <input
-                                    required
-                                    className={INPUT_CLS}
-                                    value={form.usuApellido}
-                                    onChange={set("usuApellido")}
-                                />
+                                <input readOnly tabIndex={-1} className={INPUT_READONLY_CLS} value={apellido} />
                             </Campo>
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <Campo label="Documento">
-                                <input
-                                    className={INPUT_CLS}
-                                    value={form.usuDocumento}
-                                    onChange={set("usuDocumento")}
-                                />
+                                <input readOnly tabIndex={-1} className={INPUT_READONLY_CLS} value={documento} />
                             </Campo>
-                            <Campo label="Teléfono">
+
+                            {/* Teléfono — editable con validación */}
+                            <Campo label="Teléfono" error={errors.usuTelefono}>
                                 <input
-                                    className={INPUT_CLS}
-                                    value={form.usuTelefono}
-                                    onChange={set("usuTelefono")}
+                                    inputMode="numeric"
+                                    className={errors.usuTelefono ? INPUT_ERROR_CLS : INPUT_CLS}
+                                    {...register("usuTelefono", {
+                                        required: "El teléfono es obligatorio",
+                                        pattern: {
+                                            value: /^\d{10}$/,
+                                            message: "Debe tener exactamente 10 dígitos",
+                                        },
+                                    })}
                                 />
                             </Campo>
                         </div>
-                        <Campo label="Correo electrónico">
+
+                        {/* Correo — editable con validación */}
+                        <Campo label="Correo electrónico" error={errors.usuCorreo}>
                             <input
-                                required
                                 type="email"
-                                className={INPUT_CLS}
-                                value={form.usuCorreo}
-                                onChange={set("usuCorreo")}
+                                className={errors.usuCorreo ? INPUT_ERROR_CLS : INPUT_CLS}
+                                {...register("usuCorreo", {
+                                    required: "El correo es obligatorio",
+                                    pattern: {
+                                        value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                                        message: "Ingresa un correo válido (ej: nombre@dominio.com)",
+                                    },
+                                })}
                             />
                         </Campo>
-                        <Campo label="Dirección">
+
+                        {/* Dirección — editable con validación */}
+                        <Campo label="Dirección" error={errors.usuDireccion}>
                             <input
-                                className={INPUT_CLS}
-                                value={form.usuDireccion}
-                                onChange={set("usuDireccion")}
+                                className={errors.usuDireccion ? INPUT_ERROR_CLS : INPUT_CLS}
+                                {...register("usuDireccion", {
+                                    required: "La dirección es obligatoria",
+                                    minLength: { value: 5, message: "Mínimo 5 caracteres" },
+                                })}
                             />
                         </Campo>
                     </div>
@@ -176,14 +213,11 @@ export default function ConfiguracionPage() {
                                         type={mostrarPass ? "text" : "password"}
                                         className={INPUT_CLS + " pr-10"}
                                         placeholder="Mínimo 8 caracteres"
-                                        value={form.usuPassword}
-                                        onChange={set("usuPassword")}
+                                        value={passValue}
+                                        onChange={e => setPassValue(e.target.value)}
                                     />
-                                    <button
-                                        type="button"
-                                        onClick={() => setMostrarPass(v => !v)}
-                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition"
-                                    >
+                                    <button type="button" onClick={() => setMostrarPass(v => !v)}
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition">
                                         {mostrarPass ? <FaEyeSlash /> : <FaEye />}
                                     </button>
                                 </div>
@@ -194,14 +228,11 @@ export default function ConfiguracionPage() {
                                         type={mostrarConfirm ? "text" : "password"}
                                         className={INPUT_CLS + " pr-10"}
                                         placeholder="Repetir contraseña"
-                                        value={form.confirmar}
-                                        onChange={set("confirmar")}
+                                        value={confirmValue}
+                                        onChange={e => setConfirmValue(e.target.value)}
                                     />
-                                    <button
-                                        type="button"
-                                        onClick={() => setMostrarConfirm(v => !v)}
-                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition"
-                                    >
+                                    <button type="button" onClick={() => setMostrarConfirm(v => !v)}
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition">
                                         {mostrarConfirm ? <FaEyeSlash /> : <FaEye />}
                                     </button>
                                 </div>
@@ -209,10 +240,10 @@ export default function ConfiguracionPage() {
                         </div>
 
                         {/* Indicador de coincidencia */}
-                        {hayPassword && form.confirmar.length > 0 && (
-                            <div className={`mt-3 flex items-center gap-2 text-xs font-semibold ${form.usuPassword === form.confirmar ? "text-emerald-600" : "text-red-500"}`}>
+                        {hayPassword && confirmValue.length > 0 && (
+                            <div className={`mt-3 flex items-center gap-2 text-xs font-semibold ${passValue === confirmValue ? "text-emerald-600" : "text-red-500"}`}>
                                 <FaCheckCircle />
-                                {form.usuPassword === form.confirmar ? "Las contraseñas coinciden" : "Las contraseñas no coinciden"}
+                                {passValue === confirmValue ? "Las contraseñas coinciden" : "Las contraseñas no coinciden"}
                             </div>
                         )}
                     </div>

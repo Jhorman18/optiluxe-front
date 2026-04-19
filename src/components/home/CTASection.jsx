@@ -26,7 +26,7 @@ export default function CtaSection() {
             onClick={handleClick}
             className="cursor-pointer inline-flex items-center gap-2 bg-white text-blue-600 font-medium px-6 py-3 rounded-lg hover:bg-gray-100 transition shadow-md"
           >
-            Comenzar Ahora
+            Iniciar sesión
             <FaArrowRight size={14} />
           </button>
 

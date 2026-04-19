@@ -124,9 +124,9 @@ export default function ContactoFormSection() {
                 className={inputCls(errors.telefono)}
                 {...register("telefono", {
                   pattern: {
-                    value: /^\+?[\d\s-]{7,15}$/,
-                    message: "Número de teléfono inválido"
-                  }
+                    value: /^(\+?57\s?)?[1-9]\d{9}$|^\d{10}$/,
+                    message: "Ingresa un teléfono válido (ej: 3101234567)",
+                  },
                 })}
               />
               <ErrorMsg error={errors.telefono} />

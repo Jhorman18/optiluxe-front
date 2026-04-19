@@ -32,7 +32,7 @@ const ESTADOS = [
 ];
 
 const TRANSICIONES = {
-    PENDIENTE:   ["CONFIRMADA", "EN_ATENCION", "CANCELADA", "NO_ASISTIO"],
+    PENDIENTE:   ["CONFIRMADA", "CANCELADA", "NO_ASISTIO"],
     CONFIRMADA:  ["EN_ATENCION", "CANCELADA", "NO_ASISTIO"],
     EN_ATENCION: ["COMPLETADA"],
     COMPLETADA:  [],
@@ -297,6 +297,11 @@ export default function GestionCitas() {
             setPagoMonto("");
             setPagoMetodo("EFECTIVO");
             return;
+        }
+        if (nuevoEstado === "CANCELADA" || nuevoEstado === "NO_ASISTIO") {
+            const label = nuevoEstado === "CANCELADA" ? "cancelar" : "marcar como No Asistió";
+            const confirmado = window.confirm(`¿Estás seguro de ${label} esta cita? Esta acción no se puede deshacer.`);
+            if (!confirmado) return;
         }
         try {
             setUpdatingId(idCita);

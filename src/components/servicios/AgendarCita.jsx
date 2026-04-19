@@ -27,10 +27,10 @@ const toMin = (hhmm) => {
 const getSlotsForDuration = (durationMinutes) =>
   ALL_SLOTS.filter((slot) => toMin(slot) + durationMinutes <= 17 * 60);
 
-/** Verifica si un slot ya pasó (para el día de hoy en UTC) */
+/** Verifica si un slot ya pasó (comparando en hora local) */
 const isSlotPast = (slot, fecha) => {
   if (!fecha) return false;
-  return new Date(`${fecha}T${slot}:00.000Z`) <= new Date();
+  return new Date(`${fecha}T${slot}:00`) <= new Date();
 };
 
 /** Verifica si un slot se superpone con alguna cita existente.

@@ -12,5 +12,8 @@ export const toggleUsuarioEstado = (id, estado) =>
 export const editarUsuario = (id, data) =>
     api.put(`/usuario/${id}`, data).then(res => res.data);
 
+export const editarPerfilPropio = (data) =>
+    api.put("/usuario/me", data).then(res => res.data);
+
 export const crearUsuario = (data) =>
     api.post("/usuario", data).then(res => res.data);

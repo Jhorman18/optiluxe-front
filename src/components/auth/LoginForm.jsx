@@ -54,6 +54,10 @@ export default function LoginForm() {
         error={errors.correo?.message}
         {...register("correo", {
           required: "El correo es obligatorio",
+          pattern: {
+            value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+            message: "Ingresa un correo válido (ej: nombre@dominio.com)",
+          },
         })}
       />
 

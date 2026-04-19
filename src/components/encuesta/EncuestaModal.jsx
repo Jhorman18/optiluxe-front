@@ -146,9 +146,7 @@ export default function EncuestaModal({ categoria, fkIdCita, fkIdFactura, onClos
       toast.success("¡Gracias por tu opinión!");
     } catch (error) {
       console.error("Error enviando encuesta:", error);
-      // Even if it errors (e.g. they already answered), close gracefully assuming success.
-      setEnviado(true);
-      toast.success("¡Gracias por tu opinión!");
+      toast.error(error?.response?.data?.message || "Error al enviar la encuesta. Inténtalo nuevamente.");
     } finally {
       setEnviando(false);
     }

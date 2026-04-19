@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import {
   FaCalendarAlt,
+  FaCog,
   FaEllipsisV,
   FaEye,
   FaFileMedical,
@@ -24,6 +25,7 @@ const MENU_BASE = [
   { label: "Mis citas", icon: FaCalendarAlt, to: "/citas" },
   { label: "Historia clínica", icon: FaFileMedical, to: "/historia" },
   { label: "Mis pedidos", icon: FaShoppingBag, to: "/pedidos" },
+  { label: "Configuración", icon: FaCog, to: "/configuracion" },
 ];
 
 const MENU_STAFF = { label: "Facturas", icon: FaFileInvoice, to: "/facturas" };
