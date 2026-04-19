@@ -90,31 +90,61 @@ export function CartProvider({ children }) {
   }, [isAuthenticated, authCargando, syncOfflineCartToDB, fetchCarritoAPI, loadLocalCart]);
 
 
-  const addToCart = async (idProducto, cantidad = 1) => {
-    setCargando(true);
-
+  const addToCart = async (idProducto, cantidad = 1, productoInfo = null) => {
     if (isAuthenticated) {
-      try {
-        const data = await carritoService.agregarAlCarrito(idProducto, cantidad);
-        setCarrito(data);
+      // Actualización optimista: si tenemos info del producto, actualizamos la UI de inmediato
+      const prevCarrito = carrito;
+      if (productoInfo) {
+        const items = [...carrito.items];
+        const existingIdx = items.findIndex(i => String(i.producto?.id) === String(idProducto));
+        if (existingIdx >= 0) {
+          const newQty = Math.min(items[existingIdx].cantidad + cantidad, productoInfo.stock);
+          items[existingIdx] = { ...items[existingIdx], cantidad: newQty, subtotal: newQty * productoInfo.precio };
+        } else {
+          const qty = Math.min(cantidad, productoInfo.stock);
+          items.push({
+            idCarritoProducto: `optimistic_${Date.now()}`,
+            idProducto,
+            cantidad: qty,
+            subtotal: qty * productoInfo.precio,
+            producto: productoInfo,
+          });
+        }
+        const totals = calculateLocalCartTotals(items);
+        setCarrito({ ...carrito, items, ...totals });
         setPanelOpen(true);
         toast.success("Producto agregado al carrito");
+      }
+
+      // Petición al servidor en background (o en foreground si no hay info optimista)
+      try {
+        if (!productoInfo) setCargando(true);
+        const data = await carritoService.agregarAlCarrito(idProducto, cantidad);
+        setCarrito(data);
+        if (!productoInfo) {
+          setPanelOpen(true);
+          toast.success("Producto agregado al carrito");
+        }
       } catch (err) {
+        if (productoInfo) setCarrito(prevCarrito); // revertir optimista
         toast.error(err?.response?.data?.message ?? "Error al agregar al carrito");
       } finally {
-        setCargando(false);
+        if (!productoInfo) setCargando(false);
       }
       return;
     }
 
+    // Usuario no autenticado: offline cart
     try {
-      let prodInfo;
-      try {
-        prodInfo = await getProductoById(idProducto);
-      } catch {
-        const allProds = await getProductos();
-        prodInfo = allProds.find(p => String(p.id) === String(idProducto));
-        if (!prodInfo) throw new Error("Producto no encontrado en el catálogo");
+      let prodInfo = productoInfo;
+      if (!prodInfo) {
+        try {
+          prodInfo = await getProductoById(idProducto);
+        } catch {
+          const allProds = await getProductos();
+          prodInfo = allProds.find(p => String(p.id) === String(idProducto));
+          if (!prodInfo) throw new Error("Producto no encontrado en el catálogo");
+        }
       }
 
       let items = [...carrito.items];
@@ -123,27 +153,25 @@ export function CartProvider({ children }) {
       if (existingItemIndex >= 0) {
         let newQty = items[existingItemIndex].cantidad + cantidad;
         if (newQty > prodInfo.stock) newQty = prodInfo.stock;
-
         items[existingItemIndex].cantidad = newQty;
         items[existingItemIndex].subtotal = newQty * (prodInfo.precio || 0);
       } else {
+        const qty = Math.min(cantidad, prodInfo.stock);
         items.push({
           idCarritoProducto: `offline_${Date.now()}_${idProducto}`,
-          idProducto: idProducto,
-          cantidad: cantidad > prodInfo.stock ? prodInfo.stock : cantidad,
-          subtotal: (cantidad > prodInfo.stock ? prodInfo.stock : cantidad) * (prodInfo.precio || 0),
-          producto: prodInfo
+          idProducto,
+          cantidad: qty,
+          subtotal: qty * (prodInfo.precio || 0),
+          producto: prodInfo,
         });
       }
 
       const { subtotal, iva, total, totalItems } = calculateLocalCartTotals(items);
       saveLocalCart({ idCarrito: "offline", items, subtotal, iva, total, totalItems });
       setPanelOpen(true);
-      toast.success("Producto agregado (Offline)");
+      toast.success("Producto agregado");
     } catch (err) {
       toast.error("Error al buscar producto: " + err.message);
-    } finally {
-      setCargando(false);
     }
   };
 
