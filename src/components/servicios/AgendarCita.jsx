@@ -54,6 +54,8 @@ const AgendarCita = ({ onCitaAgendada, refreshKey = 0 }) => {
   const [occupiedRanges, setOccupiedRanges] = useState([]);
   const [citaActiva, setCitaActiva] = useState(null);
   const [loadingCitaActiva, setLoadingCitaActiva] = useState(false);
+  const [serviciosDB, setServiciosDB] = useState([]);
+  const [loadingServicios, setLoadingServicios] = useState(false);
   const [formData, setFormData] = useState({
     citMotivo: "",
     citFecha: "",
@@ -79,6 +81,15 @@ const AgendarCita = ({ onCitaAgendada, refreshKey = 0 }) => {
       .finally(() => setLoadingCitaActiva(false));
   }, [isAuthenticated, refreshKey]);
 
+  // Carga de servicios
+  useEffect(() => {
+    setLoadingServicios(true);
+    getServicios()
+      .then(data => setServiciosDB(data.filter(s => s.serEstado === "ACTIVO")))
+      .catch(() => toast.error("Error al cargar los servicios"))
+      .finally(() => setLoadingServicios(false));
+  }, []);
+
   // Carga los horarios ocupados del backend cada vez que cambia la fecha
   // y estamos en el paso 2
   useEffect(() => {
@@ -90,7 +101,6 @@ const AgendarCita = ({ onCitaAgendada, refreshKey = 0 }) => {
     getHorariosOcupados(formData.citFecha)
       .then((data) => setOccupiedRanges(Array.isArray(data) ? data : []))
       .catch(() => {
-        // Si el endpoint aún no está disponible, continúa sin bloquear slots
         setOccupiedRanges([]);
       })
       .finally(() => setLoadingSlots(false));
@@ -103,10 +113,8 @@ const AgendarCita = ({ onCitaAgendada, refreshKey = 0 }) => {
       return navigate("/login");
     }
 
-    if (
-      formData.totalAPagar !== "Servicio gratuito" &&
-      formData.totalAPagar !== "0"
-    ) {
+    const priceNum = parseFloat(formData.totalAPagar);
+    if (priceNum > 0) {
       setShowPago(true);
     } else {
       procesarCitaBackend("Gratuito");
@@ -129,7 +137,7 @@ const AgendarCita = ({ onCitaAgendada, refreshKey = 0 }) => {
       };
 
       if (metodoPago && metodoPago !== "Gratuito") {
-        const valorNumerico = parseInt(formData.totalAPagar.replace(/\D/g, ''), 10);
+        const valorNumerico = parseInt(formData.totalAPagar, 10);
         payload.pago = {
           metodo: metodoPago,
           estado: "Aprobado",
@@ -142,11 +150,9 @@ const AgendarCita = ({ onCitaAgendada, refreshKey = 0 }) => {
       if (idCita) setCitaIdCreada(idCita);
 
       toast.success("¡Cita agendada con éxito!");
-      // Actualiza el estado de cita activa y notifica al panel MisCitas
       getTieneCitaActiva().then(({ cita }) => setCitaActiva(cita ?? null)).catch(() => { });
       onCitaAgendada?.();
       setStep(4);
-      // El usuario podrá elegir responder la encuesta en el Paso 4 (Opcional)
       setShowPago(false);
       return idCita;
     } catch (error) {
@@ -159,7 +165,6 @@ const AgendarCita = ({ onCitaAgendada, refreshKey = 0 }) => {
 
   // ─── RENDER ──────────────────────────────────────────────────────────────────
 
-  // Skeleton mientras se verifica cita activa
   if (loadingCitaActiva) {
     return (
       <div className="rounded-2xl bg-white border border-slate-100 shadow-sm p-8 space-y-4 animate-pulse">
@@ -170,7 +175,6 @@ const AgendarCita = ({ onCitaAgendada, refreshKey = 0 }) => {
     );
   }
 
-  // Bloqueo: usuario autenticado con cita activa (solo si no estamos en el paso de éxito)
   if (isAuthenticated && citaActiva && step !== 4) {
     return (
       <div className="rounded-2xl bg-white border border-amber-200 shadow-sm overflow-hidden">
@@ -182,7 +186,6 @@ const AgendarCita = ({ onCitaAgendada, refreshKey = 0 }) => {
             <h3 className="font-bold text-amber-900">Ya tienes una cita activa</h3>
             <p className="text-sm text-amber-700 mt-0.5">
               No puedes agendar una nueva cita hasta que la actual sea completada o cancelada.
-              Puedes cancelarla o reprogramarla desde el panel <strong>Mis Citas</strong>.
             </p>
           </div>
         </div>
@@ -192,7 +195,6 @@ const AgendarCita = ({ onCitaAgendada, refreshKey = 0 }) => {
 
   return (
     <div>
-      {/* Título y descripción */}
       <div className="mb-6">
         <h2 className="text-2xl font-bold text-slate-900">Programa tu Cita</h2>
         <p className="mt-1 text-slate-500 text-sm">
@@ -200,7 +202,6 @@ const AgendarCita = ({ onCitaAgendada, refreshKey = 0 }) => {
         </p>
       </div>
 
-      {/* Progreso visual */}
       {step < 4 && (
         <div className="mb-6 flex items-center justify-center gap-2">
           {[1, 2, 3].map((num) => (
@@ -222,46 +223,52 @@ const AgendarCita = ({ onCitaAgendada, refreshKey = 0 }) => {
         </div>
       )}
 
-      <div className="rounded-2xl bg-white p-6 shadow-sm sm:p-8 border border-slate-100">
+      <div className="rounded-2xl bg-white p-6 shadow-sm sm:p-8 border border-slate-100 min-h-[400px]">
         {step === 1 && (
           <div className="space-y-6 animate-in slide-in-from-right-4">
             <h2 className="text-2xl font-semibold text-slate-800">1. Selecciona un Servicio</h2>
-            <div className="grid gap-4 md:grid-cols-2">
-              {services.map((service, idx) => (
-                <button
-                  key={idx}
-                  type="button"
-                  onClick={() => {
-                    setFormData({
-                      ...formData,
-                      citMotivo: service.title,
-                      totalAPagar: service.price,
-                      durationMinutes: service.durationMinutes,
-                      citHora: "",
-                    });
-                    handleNext();
-                  }}
-                  className={`flex flex-col items-start rounded-xl border p-5 text-left transition-all ${formData.citMotivo === service.title
-                    ? "border-blue-600 bg-blue-50/50 shadow-sm ring-1 ring-blue-600"
-                    : "border-slate-200 bg-white hover:border-slate-300 hover:shadow-sm"
-                    }`}
-                >
-                  <div className="flex w-full items-center justify-between">
-                    <span className="font-medium text-slate-900">{service.title}</span>
-                    {formData.citMotivo === service.title && <FaCheckCircle className="text-blue-600" />}
-                  </div>
-                  <p className="mt-1 text-sm text-slate-500 line-clamp-2">{service.description}</p>
-                  <div className="mt-4 flex items-center justify-between w-full">
-                    <span className="inline-flex rounded-md bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600">
-                      <FaClock className="mr-1.5 inline h-3 w-3" /> {service.duration}
-                    </span>
-                    <span className={`text-sm font-semibold ${service.price === "Servicio gratuito" ? "text-green-600" : "text-blue-700"}`}>
-                      {service.price}
-                    </span>
-                  </div>
-                </button>
-              ))}
-            </div>
+            {loadingServicios ? (
+              <div className="grid gap-4 md:grid-cols-2">
+                {[1, 2, 3, 4].map(i => <div key={i} className="h-32 bg-slate-50 border border-slate-100 rounded-xl animate-pulse" />)}
+              </div>
+            ) : (
+              <div className="grid gap-4 md:grid-cols-2">
+                {serviciosDB.map((service, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => {
+                      setFormData({
+                        ...formData,
+                        citMotivo: service.serNombre,
+                        totalAPagar: service.serPrecio,
+                        durationMinutes: service.serDuracion,
+                        citHora: "",
+                      });
+                      handleNext();
+                    }}
+                    className={`flex flex-col items-start rounded-xl border p-5 text-left transition-all ${formData.citMotivo === service.serNombre
+                      ? "border-blue-600 bg-blue-50/50 shadow-sm ring-1 ring-blue-600"
+                      : "border-slate-200 bg-white hover:border-slate-300 hover:shadow-sm"
+                      }`}
+                  >
+                    <div className="flex w-full items-center justify-between">
+                      <span className="font-bold text-slate-900">{service.serNombre}</span>
+                      {formData.citMotivo === service.serNombre && <FaCheckCircle className="text-blue-600" />}
+                    </div>
+                    <p className="mt-1 text-sm text-slate-500 line-clamp-2">{service.serDescripcion || "Evaluación profesional"}</p>
+                    <div className="mt-4 flex items-center justify-between w-full">
+                      <span className="inline-flex items-center rounded-md bg-slate-100 px-2.5 py-1 text-[10px] font-bold text-slate-600 uppercase tracking-wide">
+                        <FaClock className="mr-1.5 h-3 w-3" /> {service.serDuracion} min
+                      </span>
+                      <span className={`text-sm font-black ${parseFloat(service.serPrecio) === 0 ? "text-green-600" : "text-blue-700"}`}>
+                        {parseFloat(service.serPrecio) === 0 ? "Gratis" : `$${parseInt(service.serPrecio).toLocaleString()}`}
+                      </span>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         )}
 

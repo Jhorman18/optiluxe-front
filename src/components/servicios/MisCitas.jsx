@@ -41,12 +41,12 @@ const formatMoneda = (val) =>
 // ─── estado config ────────────────────────────────────────────────────────────
 
 const ESTADO_CONFIG = {
-  pendiente:   { label: "Pendiente",   Icon: FaHourglassHalf, bg: "bg-amber-50",  text: "text-amber-700",  border: "border-amber-200"  },
-  confirmada:  { label: "Confirmada",  Icon: FaCheckCircle,   bg: "bg-green-50",  text: "text-green-700",  border: "border-green-200"  },
-  cancelada:   { label: "Cancelada",   Icon: FaTimesCircle,   bg: "bg-red-50",    text: "text-red-700",    border: "border-red-200"    },
-  completada:  { label: "Completada",  Icon: FaStar,          bg: "bg-slate-50",  text: "text-slate-500",  border: "border-slate-200"  },
-  en_atencion: { label: "En Atención", Icon: FaCheckCircle,   bg: "bg-blue-50",   text: "text-blue-700",   border: "border-blue-200"   },
-  no_asistio:  { label: "No asistió",  Icon: FaTimesCircle,   bg: "bg-orange-50", text: "text-orange-700", border: "border-orange-200" },
+  pendiente:   { label: "Pendiente",   Icon: FaHourglassHalf, bg: "bg-amber-50",   text: "text-amber-700",   border: "border-amber-100"   },
+  confirmada:  { label: "Confirmada",  Icon: FaCheckCircle,   bg: "bg-indigo-50",  text: "text-indigo-700",  border: "border-indigo-100"  },
+  cancelada:   { label: "Cancelada",   Icon: FaTimesCircle,   bg: "bg-red-50",     text: "text-red-700",     border: "border-red-100"     },
+  completada:  { label: "Completada",  Icon: FaStar,          bg: "bg-emerald-50", text: "text-emerald-700", border: "border-emerald-100" },
+  en_atencion: { label: "En Atención", Icon: FaCheckCircle,   bg: "bg-blue-50",    text: "text-blue-700",    border: "border-blue-100"    },
+  no_asistio:  { label: "No asistió",  Icon: FaTimesCircle,   bg: "bg-slate-50",   text: "text-slate-600",   border: "border-slate-200"   },
 };
 const getEstadoCfg = (estado) =>
   ESTADO_CONFIG[(estado ?? "").toLowerCase()] ?? ESTADO_CONFIG.pendiente;
@@ -64,13 +64,61 @@ const canAct = (cita) => {
   return ["PENDIENTE", "CONFIRMADA"].includes(e) && new Date(cita.citFecha) >= new Date();
 };
 
+const detectarMetodoPago = (cita) => {
+  // 1. Relación directa (Nuevo flujo)
+  let fac = cita.factura?.[0];
+
+  // 2. Relación indirecta (Antiguo flujo vía encuesta)
+  if (!fac) {
+    fac = cita.encuesta?.[0]?.factura;
+  }
+
+  if (fac) {
+    const condiciones = fac.facCondiciones || "";
+    if (condiciones.includes("EFECTIVO")) return { metodo: "Efectivo", virtual: false };
+    if (condiciones.includes("PSE") || condiciones.includes("TARJETA")) return { metodo: "PSE", virtual: true };
+    return { metodo: "Procesado", virtual: true };
+  }
+
+  // 3. "Quemado" / Fallback para citas ya gestionadas
+  const estado = (cita.citEstado ?? "").toUpperCase();
+  if (["COMPLETADA", "EN_ATENCION", "CONFIRMADA"].includes(estado)) {
+    return { metodo: "Procesado", virtual: false, fallback: true };
+  }
+
+  return null;
+};
+
+// ─── PagoBadge ────────────────────────────────────────────────────────────────
+
+function PagoBadge({ cita }) {
+  const pago = detectarMetodoPago(cita);
+  
+  if (!pago) {
+    return (
+      <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-100 bg-amber-50 px-3 py-1 text-[10px] font-bold text-amber-700 uppercase tracking-wider shadow-sm">
+        <FaHourglassHalf className="text-[11px]" /> PAGO: Pendiente
+      </span>
+    );
+  }
+
+  return (
+    <span className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[10px] font-bold uppercase tracking-wider shadow-sm ${
+      pago.virtual ? "bg-emerald-50 text-emerald-700 border-emerald-100" : "bg-blue-50 text-blue-700 border-blue-100"
+    }`}>
+      {pago.virtual ? <FaFileInvoiceDollar className="text-[11px]" /> : <FaCheckCircle className="text-[11px]" />}
+      PAGO: {pago.metodo}
+    </span>
+  );
+}
+
 // ─── CitaBadge ────────────────────────────────────────────────────────────────
 
 function CitaBadge({ estado }) {
   const { label, Icon, bg, text, border } = getEstadoCfg(estado);
   return (
-    <span className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-semibold whitespace-nowrap ${bg} ${text} ${border}`}>
-      <Icon className="text-[10px]" />{label}
+    <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full border text-[10px] font-bold uppercase tracking-wider shadow-sm ${bg} ${text} ${border}`}>
+      <Icon className="text-[11px]" />{label}
     </span>
   );
 }
@@ -281,7 +329,10 @@ function CitaCardUpcoming({ cita, onCancel, onReprogramar }) {
   return (
     <div className="rounded-xl border border-blue-200 bg-linear-to-br from-blue-50 to-blue-100/50 p-4 space-y-3">
       <div className="flex items-start justify-between gap-2">
-        <p className="font-semibold text-blue-900 leading-tight">{cita.citMotivo}</p>
+        <div className="space-y-1">
+          <p className="font-semibold text-blue-900 leading-tight">{cita.citMotivo}</p>
+          <PagoBadge cita={cita} />
+        </div>
         <CitaBadge estado={cita.citEstado} />
       </div>
       <div className="flex flex-col gap-1.5 text-sm text-blue-800">
@@ -303,13 +354,13 @@ function CitaCardUpcoming({ cita, onCancel, onReprogramar }) {
         <div className="flex gap-2 pt-1 border-t border-blue-200">
           <button
             onClick={() => onReprogramar(cita)}
-            className="flex-1 rounded-lg border border-blue-300 bg-white px-3 py-1.5 text-xs font-medium text-blue-700 hover:bg-blue-50 transition"
+            className="flex-1 rounded-lg border border-blue-300 bg-white px-3 py-1.5 text-xs font-medium text-blue-700 hover:bg-blue-50 transition cursor-pointer"
           >
             Reprogramar
           </button>
           <button
             onClick={() => onCancel(cita)}
-            className="flex-1 rounded-lg border border-red-200 bg-white px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 transition"
+            className="flex-1 rounded-lg border border-red-200 bg-white px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 transition cursor-pointer"
           >
             Cancelar
           </button>
@@ -324,20 +375,23 @@ function CitaCardUpcoming({ cita, onCancel, onReprogramar }) {
 function CitaRowHistory({ cita, onVerFactura }) {
   const factura = cita.factura?.[0];
   return (
-    <div className="flex items-center justify-between gap-3 py-3 border-b border-slate-100 last:border-0">
+    <div className="flex items-center justify-between gap-3 py-3 border-b border-slate-100 last:border-0 overflow-hidden">
       <div className="min-w-0 flex-1">
         <p className="text-sm font-medium text-slate-800 truncate">{cita.citMotivo}</p>
-        <p className="text-xs text-slate-400 mt-0.5 capitalize">
-          {formatFecha(cita.citFecha)} &middot; {formatHora(cita.citFecha)}
-        </p>
+        <div className="flex flex-wrap items-center gap-2 mt-1">
+          <p className="text-[10px] text-slate-400 font-bold capitalize">
+            {formatFecha(cita.citFecha)} &middot; {formatHora(cita.citFecha)}
+          </p>
+          <PagoBadge cita={cita} />
+        </div>
       </div>
       <div className="flex items-center gap-2 shrink-0">
         {factura && (
           <button
             onClick={() => onVerFactura(factura, cita.citMotivo)}
-            className="flex items-center gap-1 rounded-md border border-slate-200 bg-slate-50 px-2 py-1 text-xs text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition"
+            className="flex items-center gap-1 rounded-md border border-slate-200 bg-slate-50 px-2 py-1 text-[10px] font-bold text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition cursor-pointer"
           >
-            <FaFileInvoiceDollar className="text-[10px]" />
+            <FaFileInvoiceDollar className="text-[9px]" />
             Factura
           </button>
         )}

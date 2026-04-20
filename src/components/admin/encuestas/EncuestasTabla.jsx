@@ -1,4 +1,5 @@
 import { FaEye, FaTrashAlt, FaClipboardCheck, FaCalendarDay, FaUser } from "react-icons/fa";
+import StatusBadge from "../../ui/StatusBadge";
 
 export default function EncuestasTabla({ encuestas, loading, onVerDetalle, onEliminar, esEmpleado }) {
   if (loading && encuestas.length === 0) {
@@ -57,13 +58,7 @@ export default function EncuestasTabla({ encuestas, loading, onVerDetalle, onEli
                 </div>
               </td>
               <td className="px-6 py-5">
-                <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${
-                  e.enTipo?.toLowerCase().includes("cita") 
-                  ? "bg-purple-50 border-purple-100 text-purple-600" 
-                  : "bg-emerald-50 border-emerald-100 text-emerald-600"
-                }`}>
-                  {e.enTipo?.toLowerCase().includes("cita") ? "Consulta" : "Venta"}
-                </span>
+                <StatusBadge status={e.enTipo?.toLowerCase().includes("cita") ? "Consulta" : "Venta"} />
               </td>
               <td className="px-6 py-5">
                 <p className="text-xs font-mono font-bold text-slate-500">

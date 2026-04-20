@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { FaSearch, FaFilter, FaUserPlus } from "react-icons/fa";
+import { FaSearch, FaFilter, FaUserPlus, FaUsers } from "react-icons/fa";
 import * as usuarioService from "../../services/usuarioService";
 import toast from "react-hot-toast";
 import UsuariosTabla from "./usuarios/UsuariosTabla";
@@ -134,26 +134,31 @@ export default function GestionUsuarios() {
         <div className="p-8 max-w-7xl mx-auto w-full">
 
             {/* Header */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-                <div>
-                    <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Usuarios</h1>
-                    <p className="text-sm font-medium text-slate-500 mt-1">Consulta y gestiona el estado de todos los usuarios registrados</p>
-                </div>
-                <div className="flex items-center gap-3">
-                    {!esEmpleado && (
-                        <button
-                            onClick={() => setModalCrear(true)}
-                            className="flex items-center gap-2 px-5 py-3 bg-blue-600 text-white font-bold rounded-2xl hover:bg-blue-700 transition shadow-lg shadow-blue-600/20"
-                        >
-                            <FaUserPlus /> Crear usuario
-                        </button>
-                    )}
-                    <div className="bg-white border border-slate-200 rounded-2xl px-5 py-3 text-center shadow-sm">
-                        <p className="text-2xl font-extrabold text-blue-600">{usuarios.length}</p>
-                        <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Total</p>
+            <header className="mb-8">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div className="flex items-center gap-3">
+                        <div className="bg-blue-600 p-2.5 rounded-xl shadow-lg shadow-blue-200">
+                            <FaUsers className="text-white text-xl" />
+                        </div>
+                        <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Usuarios</h1>
+                    </div>
+                    <div className="flex items-center gap-3">
+                        {!esEmpleado && (
+                            <button
+                                onClick={() => setModalCrear(true)}
+                                className="flex items-center gap-2 px-5 py-3 bg-blue-600 text-white font-bold rounded-2xl hover:bg-blue-700 transition shadow-lg shadow-blue-600/20"
+                            >
+                                <FaUserPlus /> Crear usuario
+                            </button>
+                        )}
+                        <div className="bg-white border border-slate-200 rounded-2xl px-5 py-3 text-center shadow-sm">
+                            <p className="text-2xl font-extrabold text-blue-600">{usuarios.length}</p>
+                            <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Total</p>
+                        </div>
                     </div>
                 </div>
-            </div>
+                <p className="text-sm font-medium text-slate-500 mt-2">Consulta y gestiona el estado de todos los usuarios registrados en la plataforma.</p>
+            </header>
 
             {/* Filtros */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">

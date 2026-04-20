@@ -2,21 +2,15 @@ import { useEffect, useState, useMemo } from "react";
 import { getMisFacturas } from "../../services/facturaService";
 import HeaderHome from "../../components/home/HeaderHome";
 import Footer from "../../components/layout/Footer";
-import { FaShoppingBag, FaCalendarAlt, FaEye, FaFileInvoiceDollar, FaCheckCircle, FaTimesCircle, FaHourglassHalf, FaSearch, FaTimes } from "react-icons/fa";
+import StatusBadge from "../../components/ui/StatusBadge";
+import { FaShoppingBag, FaCalendarAlt, FaEye, FaFileInvoiceDollar, FaSearch, FaTimes } from "react-icons/fa";
 import toast from "react-hot-toast";
 
 const formatFecha = (iso) =>
     new Date(iso).toLocaleDateString("es-CO", { year: "numeric", month: "long", day: "numeric", timeZone: "UTC" });
 
-const ESTADO_CFG = {
-    PAGADA:   { label: "Pagada",   cls: "bg-emerald-100 text-emerald-700", Icon: FaCheckCircle },
-    PENDIENTE:{ label: "Pendiente",cls: "bg-amber-100 text-amber-700",    Icon: FaHourglassHalf },
-    ANULADA:  { label: "Anulada",  cls: "bg-red-100 text-red-600",        Icon: FaTimesCircle },
-};
-
 function DetalleModal({ factura, onClose }) {
     if (!factura) return null;
-    const cfg = ESTADO_CFG[factura.facEstado] ?? ESTADO_CFG.PENDIENTE;
     const productos = factura.carrito?.carrito_producto ?? [];
 
     return (
@@ -40,9 +34,7 @@ function DetalleModal({ factura, onClose }) {
 
                 <div className="px-6 py-5 space-y-4 max-h-[70vh] overflow-y-auto">
                     {/* Estado */}
-                    <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider ${cfg.cls}`}>
-                        <cfg.Icon /> {cfg.label}
-                    </span>
+                    <StatusBadge status={factura.facEstado} />
 
                     {/* Concepto */}
                     {factura.facConcepto && (
@@ -128,12 +120,17 @@ export default function PedidosPage() {
             <HeaderHome />
             <main className="min-h-screen bg-slate-50 py-12 px-4">
                 <div className="max-w-3xl mx-auto">
-                    <div className="mb-6">
-                        <h1 className="text-3xl font-extrabold text-slate-900 flex items-center gap-3">
-                            <FaShoppingBag className="text-blue-600" /> Mis Pedidos
-                        </h1>
-                        <p className="text-sm text-slate-500 mt-1">Historial de tus compras y facturas</p>
-                    </div>
+                    <header className="mb-6">
+                        <div className="flex items-center gap-3 mb-2">
+                            <div className="bg-blue-600 p-2.5 rounded-xl shadow-lg shadow-blue-200">
+                                <FaShoppingBag className="text-white text-xl" />
+                            </div>
+                            <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
+                                Mis Pedidos
+                            </h1>
+                        </div>
+                        <p className="text-sm font-medium text-slate-500 mt-2">Consulta el historial de tus compras y facturas detalladas.</p>
+                    </header>
 
                     {/* Filtro por fecha */}
                     <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 mb-6 flex flex-wrap items-end gap-3">
@@ -194,7 +191,6 @@ export default function PedidosPage() {
                     ) : (
                         <div className="space-y-4">
                             {facturasFiltradas.map(f => {
-                                const cfg = ESTADO_CFG[f.facEstado] ?? ESTADO_CFG.PENDIENTE;
                                 return (
                                     <div key={f.idFactura} className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 flex items-center justify-between gap-4">
                                         <div className="flex items-start gap-4">
@@ -207,9 +203,7 @@ export default function PedidosPage() {
                                                     <FaCalendarAlt className="text-xs" /> {formatFecha(f.facFecha)}
                                                 </p>
                                                 <div className="flex items-center gap-2 mt-1.5">
-                                                    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${cfg.cls}`}>
-                                                        <cfg.Icon className="text-[9px]" /> {cfg.label}
-                                                    </span>
+                                                    <StatusBadge status={f.facEstado} />
                                                     <span className="text-sm font-bold text-slate-700">${Number(f.facTotal).toLocaleString()}</span>
                                                 </div>
                                             </div>

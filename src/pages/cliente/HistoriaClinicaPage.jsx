@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { getMisHistorias } from "../../services/historiaClinicaService";
 import HeaderHome from "../../components/home/HeaderHome";
 import Footer from "../../components/layout/Footer";
-import { FaStethoscope, FaCalendarAlt, FaEye, FaTimes } from "react-icons/fa";
+import { FaStethoscope, FaCalendarAlt, FaEye, FaTimes, FaFileMedical } from "react-icons/fa";
 import toast from "react-hot-toast";
 
 const formatFecha = (iso) =>
@@ -74,12 +74,17 @@ export default function HistoriaClinicaPage() {
             <HeaderHome />
             <main className="min-h-screen bg-slate-50 py-12 px-4">
                 <div className="max-w-3xl mx-auto">
-                    <div className="mb-8">
-                        <h1 className="text-3xl font-extrabold text-slate-900 flex items-center gap-3">
-                            <FaStethoscope className="text-blue-600" /> Mi Historial Clínico
-                        </h1>
-                        <p className="text-sm text-slate-500 mt-1">Registro de tus atenciones y fórmulas ópticas</p>
-                    </div>
+                    <header className="mb-8">
+                        <div className="flex items-center gap-3 mb-2">
+                            <div className="bg-blue-600 p-2.5 rounded-xl shadow-lg shadow-blue-200">
+                                <FaFileMedical className="text-white text-xl" />
+                            </div>
+                            <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
+                                Mi Historial Clínico
+                            </h1>
+                        </div>
+                        <p className="text-sm font-medium text-slate-500 mt-2">Consulta el registro de tus atenciones, diagnósticos y fórmulas ópticas.</p>
+                    </header>
 
                     {loading ? (
                         <div className="space-y-4">

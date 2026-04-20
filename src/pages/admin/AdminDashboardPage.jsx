@@ -12,6 +12,7 @@ import CrearCitaModal from "../../components/admin/citas/CrearCitaModal";
 import CrearHistoriaModal from "../../components/admin/citas/CrearHistoriaModal";
 import CrearUsuarioModal from "../../components/admin/usuarios/CrearUsuarioModal";
 import CrearFacturaModal from "../../components/admin/facturas/CrearFacturaModal";
+import StatusBadge from "../../components/ui/StatusBadge";
 
 export default function AdminDashboardPage() {
     const { usuario, rol } = useAuth();
@@ -97,20 +98,26 @@ export default function AdminDashboardPage() {
         <div className="p-8 max-w-7xl mx-auto w-full">
 
             {/* Header Interactivo */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
-                <div>
-                    <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Dashboard</h1>
-                    <p className="text-sm font-medium text-slate-500 mt-1">Bienvenido de nuevo, {nombre}</p>
+            <header className="mb-8">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div className="flex items-center gap-3">
+                        <div className="bg-blue-600 p-2.5 rounded-xl shadow-lg shadow-blue-200">
+                            <FaChartLine className="text-white text-xl" />
+                        </div>
+                        <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Dashboard</h1>
+                    </div>
+                    <Link 
+                        to="/panel-admin/notificaciones"
+                        className="flex items-center gap-2 bg-white border border-slate-200 text-slate-700 px-4 py-2.5 rounded-xl font-bold text-sm shadow-sm hover:bg-slate-50 transition cursor-pointer self-start sm:self-auto"
+                    >
+                        <FaBell className="text-slate-400" />
+                        Notificaciones
+                    </Link>
                 </div>
-                <Link 
-                    to="/panel-admin/notificaciones"
-                    className="flex items-center gap-2 bg-white border border-slate-200 text-slate-700 px-4 py-2.5 rounded-xl font-bold text-sm shadow-sm hover:bg-slate-50 transition cursor-pointer self-start sm:self-auto"
-                >
-                    <FaBell className="text-slate-400" />
-                    Notificaciones
-                </Link>
-            </div>
+                <p className="text-sm font-medium text-slate-500 mt-2">Bienvenido de nuevo, {nombre}. Gestiona tu centro óptico desde un solo lugar.</p>
+            </header>
 
+            {/* Grid de KPIs */}
             {/* Grid de KPIs */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col">
@@ -119,7 +126,7 @@ export default function AdminDashboardPage() {
                     </div>
                     <p className="text-sm font-semibold text-slate-500 mb-1">Citas Pendientes</p>
                     <p className="text-3xl font-extrabold text-slate-900">
-                        {loading ? "..." : stats.citasPendientes}
+                        {loading ? "..." : (stats.citasPendientes || 0)}
                     </p>
                 </div>
                 <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col">
@@ -128,7 +135,7 @@ export default function AdminDashboardPage() {
                     </div>
                     <p className="text-sm font-semibold text-slate-500 mb-1">Pacientes Activos</p>
                     <p className="text-3xl font-extrabold text-slate-900">
-                        {loading ? "..." : stats.pacientesActivos}
+                        {loading ? "..." : (stats.pacientesActivos || 0)}
                     </p>
                 </div>
                 <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col">
@@ -137,7 +144,7 @@ export default function AdminDashboardPage() {
                     </div>
                     <p className="text-sm font-semibold text-slate-500 mb-1">Ventas del Mes</p>
                     <p className="text-3xl font-extrabold text-slate-900">
-                        {loading ? "..." : `$${(stats.ventasMes).toLocaleString()}`}
+                        {loading ? "..." : `$${Number(stats.ventasMes || 0).toLocaleString()}`}
                     </p>
                 </div>
                 <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col">
@@ -146,7 +153,7 @@ export default function AdminDashboardPage() {
                     </div>
                     <p className="text-sm font-semibold text-slate-500 mb-1">Crecimiento</p>
                     <p className="text-3xl font-extrabold text-slate-900">
-                        {loading ? "..." : `+${stats.crecimiento}%`}
+                        {loading ? "..." : `+${stats.crecimiento || 0}%`}
                     </p>
                 </div>
             </div>
@@ -167,7 +174,7 @@ export default function AdminDashboardPage() {
                                     <div key={i} className="h-20 bg-slate-100 rounded-xl w-full"></div>
                                 ))}
                             </div>
-                        ) : stats.proximasCitas.length === 0 ? (
+                        ) : !stats.proximasCitas || stats.proximasCitas.length === 0 ? (
                             <div className="text-center py-6 text-slate-500 font-medium bg-slate-50 rounded-xl border border-slate-100 border-dashed">
                                 No hay citas programadas para pronto.
                             </div>
@@ -175,14 +182,13 @@ export default function AdminDashboardPage() {
                             stats.proximasCitas.map(cita => (
                                 <div key={cita.id} className="flex items-center justify-between p-4 rounded-xl border border-slate-100 hover:border-blue-100 hover:bg-slate-50/50 transition bg-white">
                                     <div>
-                                        <p className="font-bold text-slate-900">{cita.paciente}</p>
-                                        <p className="text-sm text-slate-500">{cita.tipo}</p>
+                                        <p className="font-bold text-slate-900">{String(cita.paciente || "Sin nombre")}</p>
+                                        <p className="text-sm text-slate-500">{String(cita.tipo || "General")}</p>
+                                        <p className="text-[10px] font-bold text-slate-400 uppercase mt-0.5 tracking-wide">PAGO: {String(cita.metodoPago || "N/A")}</p>
                                     </div>
                                     <div className="text-right flex flex-col items-end gap-1.5">
-                                        <span className="font-bold text-slate-900 text-sm">{cita.hora}</span>
-                                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${cita.color}`}>
-                                            {cita.estado}
-                                        </span>
+                                        <span className="font-bold text-slate-900 text-sm">{String(cita.hora || "--:--")}</span>
+                                        <StatusBadge status={cita.estado} />
                                     </div>
                                 </div>
                             ))

@@ -5,19 +5,12 @@ import {
   FaEdit,
   FaBan,
   FaFileInvoiceDollar,
-  FaCheckCircle,
-  FaTimesCircle,
   FaUser,
 } from "react-icons/fa";
 import DataTable from "../../ui/DataTable";
+import StatusBadge from "../../ui/StatusBadge";
 
 const columnHelper = createColumnHelper();
-
-const ESTADO_COLORS = {
-  PAGADA: "bg-green-100 text-green-700",
-  PENDIENTE: "bg-amber-100 text-amber-700",
-  ANULADA: "bg-red-100 text-red-700",
-};
 
 export default function FacturasTabla({
   facturas,
@@ -86,19 +79,7 @@ export default function FacturasTabla({
       }),
       columnHelper.accessor("facEstado", {
         header: "Estado",
-        cell: ({ getValue }) => {
-          const estado = getValue() || "PAGADA";
-          return (
-            <span
-              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest ${
-                ESTADO_COLORS[estado] || "bg-slate-100 text-slate-600"
-              }`}
-            >
-              {estado === "ANULADA" ? <FaTimesCircle className="text-xs" /> : <FaCheckCircle className="text-xs" />}
-              {estado}
-            </span>
-          );
-        },
+        cell: ({ getValue }) => <StatusBadge status={getValue() || "PAGADA"} />,
         meta: { skeletonClass: "h-6 w-20" },
       }),
       columnHelper.display({

@@ -74,41 +74,46 @@ export default function GestionEncuestas() {
   return (
     <div className="p-8 max-w-7xl mx-auto w-full">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-        <div>
-          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Encuestas de Satisfacción</h1>
-          <p className="text-sm font-medium text-slate-500 mt-1">Monitorea y gestiona el feedback de tus clientes</p>
-        </div>
-        <div className="flex items-center gap-3">
-          {!esEmpleado && (
-            <>
-              <button
-                onClick={() => setModalEstadisticas(true)}
-                className="flex items-center gap-2 px-5 py-3 bg-blue-600 text-white font-bold rounded-2xl hover:bg-blue-700 transition shadow-lg shadow-blue-600/20 cursor-pointer"
-              >
-                <FaChartBar /> Ver Estadísticas
-              </button>
-              <button
-                onClick={() => setModalPreguntas(true)}
-                className="flex items-center gap-2 px-5 py-3 bg-blue-600 text-white font-bold rounded-2xl hover:bg-blue-700 transition shadow-lg shadow-blue-600/20 cursor-pointer"
-              >
-                <FaQuestionCircle /> Gestionar Preguntas
-              </button>
-            </>
-          )}
-          <button
-            onClick={fetchEncuestas}
-            className="p-3 bg-white border border-slate-200 text-slate-600 rounded-2xl hover:bg-slate-50 transition shadow-sm cursor-pointer"
-            title="Refrescar datos"
-          >
-            <FaRedo className={loading ? "animate-spin" : ""} />
-          </button>
-          <div className="bg-white border border-slate-200 rounded-2xl px-5 py-3 text-center shadow-sm">
-            <p className="text-2xl font-extrabold text-blue-600">{encuestas.length}</p>
-            <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Registros</p>
+      <header className="mb-8">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="bg-blue-600 p-2.5 rounded-xl shadow-lg shadow-blue-200">
+              <FaClipboardList className="text-white text-xl" />
+            </div>
+            <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Encuestas de Satisfacción</h1>
+          </div>
+          <div className="flex items-center gap-3">
+            {!esEmpleado && (
+              <>
+                <button
+                  onClick={() => setModalEstadisticas(true)}
+                  className="flex items-center gap-2 px-5 py-3 bg-blue-600 text-white font-bold rounded-2xl hover:bg-blue-700 transition shadow-lg shadow-blue-600/20 cursor-pointer text-sm"
+                >
+                  <FaChartBar /> Ver Estadísticas
+                </button>
+                <button
+                  onClick={() => setModalPreguntas(true)}
+                  className="flex items-center gap-2 px-5 py-3 bg-blue-600 text-white font-bold rounded-2xl hover:bg-blue-700 transition shadow-lg shadow-blue-600/20 cursor-pointer text-sm"
+                >
+                  <FaQuestionCircle /> Gestionar Preguntas
+                </button>
+              </>
+            )}
+            <button
+              onClick={fetchEncuestas}
+              className="p-3 bg-white border border-slate-200 text-slate-600 rounded-2xl hover:bg-slate-50 transition shadow-sm cursor-pointer"
+              title="Refrescar datos"
+            >
+              <FaRedo className={loading ? "animate-spin" : ""} />
+            </button>
+            <div className="bg-white border border-slate-200 rounded-2xl px-5 py-3 text-center shadow-sm">
+              <p className="text-2xl font-extrabold text-blue-600">{encuestas.length}</p>
+              <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Registros</p>
+            </div>
           </div>
         </div>
-      </div>
+        <p className="text-sm font-medium text-slate-500 mt-2">Monitorea y gestiona el feedback de tus clientes para mejorar la calidad del servicio.</p>
+      </header>
 
       {/* Filtros */}
       <div className="grid grid-cols-1 md:grid-cols-12 gap-4 mb-8">

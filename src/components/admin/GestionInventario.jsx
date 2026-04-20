@@ -2,12 +2,13 @@ import { useState, useEffect, useMemo } from "react";
 import { createColumnHelper } from "@tanstack/react-table";
 import {
     FaPlus, FaSearch, FaFilter, FaEdit, FaToggleOn, FaToggleOff,
-    FaBox, FaImage, FaTimesCircle, FaCheckCircle,
+    FaBoxOpen, FaBox, FaImage, FaTimesCircle, FaCheckCircle,
 } from "react-icons/fa";
 import * as productoService from "../../services/productoService";
 import { getCategoriasAdmin } from "../../services/categoriaService";
 import toast from "react-hot-toast";
 import DataTable from "../ui/DataTable";
+import StatusBadge from "../ui/StatusBadge";
 import CustomSelect from "../ui/CustomSelect";
 
 import { useAuth } from "../../context/auth/AuthContext";
@@ -198,15 +199,7 @@ export default function GestionInventario() {
         }),
         columnHelper.accessor("estado", {
             header: "Estado",
-            cell: ({ getValue }) => {
-                const estado = getValue();
-                return (
-                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${estado === "ACTIVO" ? "bg-green-100 text-green-700" : "bg-slate-100 text-slate-600"}`}>
-                        {estado === "ACTIVO" ? <FaCheckCircle /> : <FaTimesCircle />}
-                        {estado}
-                    </span>
-                );
-            },
+            cell: ({ getValue }) => <StatusBadge status={getValue()} />,
             meta: { skeletonClass: "h-6 w-20" },
         }),
         ...(!esEmpleado ? [columnHelper.display({
@@ -241,21 +234,26 @@ export default function GestionInventario() {
         <div className="p-8 max-w-7xl mx-auto w-full">
 
             {/* Header */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-                <div>
-                    <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Inventario de Productos</h1>
-                    <p className="text-sm font-medium text-slate-500 mt-1">Gestiona el catálogo, stock y visibilidad de tus productos</p>
+            <header className="mb-8">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div className="flex items-center gap-3">
+                        <div className="bg-blue-600 p-2.5 rounded-xl shadow-lg shadow-blue-200">
+                            <FaBoxOpen className="text-white text-xl" />
+                        </div>
+                        <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Inventario de Productos</h1>
+                    </div>
+                    {!esEmpleado && (
+                        <button
+                            onClick={() => handleOpenModal()}
+                            className="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-bold transition shadow-lg shadow-blue-600/20"
+                        >
+                            <FaPlus className="text-sm" />
+                            Nuevo Producto
+                        </button>
+                    )}
                 </div>
-                {!esEmpleado && (
-                    <button
-                        onClick={() => handleOpenModal()}
-                        className="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-bold transition shadow-lg shadow-blue-600/20"
-                    >
-                        <FaPlus className="text-sm" />
-                        Nuevo Producto
-                    </button>
-                )}
-            </div>
+                <p className="text-sm font-medium text-slate-500 mt-2">Gestiona el catálogo, stock y visibilidad de tus productos desde un solo panel.</p>
+            </header>
 
             {/* Filtros */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">

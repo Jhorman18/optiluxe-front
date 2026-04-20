@@ -5,6 +5,7 @@ import { obtenerNotificaciones, eliminarNotificacion } from "../../services/noti
 import { useAuth } from "../../context/auth/AuthContext";
 import toast from "react-hot-toast";
 import DataTable from "../ui/DataTable";
+import StatusBadge from "../ui/StatusBadge";
 
 const columnHelper = createColumnHelper();
 
@@ -89,17 +90,8 @@ export default function HistorialNotificaciones({ refreshKey }) {
             header: "Canal / Estado",
             cell: ({ row: { original: notif } }) => (
                 <div className="flex flex-col gap-1.5">
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{notif.notCanal}</span>
-                    <span className={`inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider w-fit ${
-                        notif.notEstado === "Enviada" ? "bg-emerald-100 text-emerald-700" :
-                        notif.notEstado === "Pendiente" ? "bg-blue-100 text-blue-700" :
-                        "bg-red-100 text-red-700"
-                    }`}>
-                        {notif.notEstado === "Enviada" && <FaCheckCircle className="text-[9px]" />}
-                        {notif.notEstado === "Pendiente" && <FaClock className="text-[9px]" />}
-                        {notif.notEstado === "Fallida" && <FaExclamationCircle className="text-[9px]" />}
-                        {notif.notEstado}
-                    </span>
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.1em]">{notif.notCanal}</span>
+                    <StatusBadge status={notif.notEstado} className="w-fit" />
                 </div>
             ),
             meta: { skeletonClass: "h-10 w-24" },

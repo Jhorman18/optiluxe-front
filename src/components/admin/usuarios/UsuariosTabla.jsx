@@ -1,16 +1,10 @@
 import { useMemo } from "react";
 import { createColumnHelper } from "@tanstack/react-table";
 import {
-    FaToggleOn, FaToggleOff, FaCheckCircle, FaTimesCircle,
-    FaUserCircle, FaEdit,
+    FaToggleOn, FaToggleOff, FaUserCircle, FaEdit,
 } from "react-icons/fa";
 import DataTable from "../../ui/DataTable";
-
-const ROL_COLORS = {
-    ADMINISTRADOR: "bg-purple-100 text-purple-700",
-    EMPLEADO: "bg-blue-100 text-blue-700",
-    CLIENTE: "bg-sky-100 text-sky-700",
-};
+import StatusBadge from "../../ui/StatusBadge";
 
 const columnHelper = createColumnHelper();
 
@@ -54,27 +48,12 @@ export default function UsuariosTabla({ usuarios, loading, onEditar, onToggleEst
             columnHelper.accessor(row => row.rol?.rolNombre ?? "", {
                 id: "rol",
                 header: "Rol",
-                cell: ({ getValue }) => {
-                    const rolNombre = getValue() || "—";
-                    return (
-                        <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${ROL_COLORS[rolNombre] ?? "bg-slate-100 text-slate-600"}`}>
-                            {rolNombre}
-                        </span>
-                    );
-                },
+                cell: ({ getValue }) => <StatusBadge status={getValue() || "—"} />,
                 meta: { skeletonClass: "h-6 w-20" },
             }),
             columnHelper.accessor("usuEstado", {
                 header: "Estado",
-                cell: ({ getValue }) => {
-                    const estado = getValue();
-                    return (
-                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${estado === "ACTIVO" ? "bg-green-100 text-green-700" : "bg-slate-100 text-slate-600"}`}>
-                            {estado === "ACTIVO" ? <FaCheckCircle /> : <FaTimesCircle />}
-                            {estado}
-                        </span>
-                    );
-                },
+                cell: ({ getValue }) => <StatusBadge status={getValue()} />,
                 meta: { skeletonClass: "h-6 w-20" },
             })
         ];

@@ -5,6 +5,7 @@ import {
     FaTrashAlt, FaChevronRight, FaAddressBook
 } from "react-icons/fa";
 import toast from "react-hot-toast";
+import StatusBadge from "../../components/ui/StatusBadge";
 import { obtenerMensajes, actualizarEstadoMensaje } from "../../services/contactoService";
 import ResponderMensajeModal from "../../components/admin/contacto/ResponderMensajeModal";
 
@@ -57,19 +58,6 @@ export default function MensajesContactoPage() {
         return matchesSearch && matchesFilter;
     });
 
-    const getStatusBadge = (estado) => {
-        const styles = {
-            PENDIENTE: "bg-amber-100 text-amber-700 border-amber-200",
-            LEIDO: "bg-blue-100 text-blue-700 border-blue-200",
-            RESPONDIDO: "bg-emerald-100 text-emerald-700 border-emerald-200",
-            ARCHIVADO: "bg-slate-100 text-slate-700 border-slate-200"
-        };
-        return (
-            <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold border ${styles[estado] || styles.PENDIENTE}`}>
-                {estado}
-            </span>
-        );
-    };
 
     return (
         <div className="p-8 max-w-7xl mx-auto">
@@ -78,11 +66,11 @@ export default function MensajesContactoPage() {
                     <div className="bg-blue-600 p-2.5 rounded-xl shadow-lg shadow-blue-200">
                         <FaEnvelopeOpenText className="text-white text-xl" />
                     </div>
-                    <h1 className="text-2xl font-bold text-slate-800 tracking-tight">
+                    <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
                         Mensajes de Contacto
                     </h1>
                 </div>
-                <p className="text-slate-500 text-sm">
+                <p className="text-sm font-medium text-slate-500 mt-2">
                     Gestiona las consultas y mensajes recibidos a través del formulario del sitio web.
                 </p>
             </header>
@@ -143,7 +131,7 @@ export default function MensajesContactoPage() {
                                             <h3 className="font-bold text-slate-800 text-sm truncate max-w-[150px]">
                                                 {m.conNombre}
                                             </h3>
-                                            {getStatusBadge(m.conEstado)}
+                                            <StatusBadge status={m.conEstado} />
                                         </div>
                                         <p className="text-xs text-slate-500 line-clamp-2 mb-2">
                                             {m.conMensaje}

@@ -12,23 +12,25 @@ import { getUsuarios } from "../../services/usuarioService";
 import { services as SERVICIOS } from "../../config/servicesData";
 import toast from "react-hot-toast";
 import DataTable from "../ui/DataTable";
+import StatusBadge from "../ui/StatusBadge";
 import EncuestaModal from "../encuesta/EncuestaModal";
 import CustomSelect from "../ui/CustomSelect";
 
 import CrearCitaModal from "./citas/CrearCitaModal";
 import CrearHistoriaModal from "./citas/CrearHistoriaModal";
+import GestionServiciosModal from "./citas/GestionServiciosModal";
 
 import { useAuth } from "../../context/auth/AuthContext";
 
 // ─── Configuración ────────────────────────────────────────────────────────────
 
 const ESTADOS = [
-    { value: "PENDIENTE",   label: "Pendiente",   Icon: FaHourglassHalf, bg: "bg-amber-50",  text: "text-amber-700",  border: "border-amber-200",  dot: "bg-amber-500" },
-    { value: "CONFIRMADA",  label: "Confirmada",  Icon: FaCheckCircle,   bg: "bg-blue-50",   text: "text-blue-700",   border: "border-blue-200",   dot: "bg-blue-500" },
-    { value: "EN_ATENCION", label: "En Atención", Icon: FaStethoscope,   bg: "bg-purple-50", text: "text-purple-700", border: "border-purple-200", dot: "bg-purple-500" },
-    { value: "COMPLETADA",  label: "Completada",  Icon: FaStar,          bg: "bg-green-50",  text: "text-green-700",  border: "border-green-200",  dot: "bg-green-500" },
-    { value: "CANCELADA",   label: "Cancelada",   Icon: FaTimesCircle,   bg: "bg-red-50",    text: "text-red-700",    border: "border-red-200",    dot: "bg-red-500" },
-    { value: "NO_ASISTIO",  label: "No Asistió",  Icon: FaUserSlash,     bg: "bg-slate-100", text: "text-slate-600",  border: "border-slate-300",  dot: "bg-slate-500" },
+    { value: "PENDIENTE",   label: "Pendiente",   Icon: FaHourglassHalf, bg: "bg-amber-50",   text: "text-amber-700",   border: "border-amber-100",   dot: "bg-amber-500" },
+    { value: "CONFIRMADA",  label: "Confirmada",  Icon: FaCheckCircle,   bg: "bg-indigo-50",  text: "text-indigo-700",  border: "border-indigo-100",  dot: "bg-indigo-500" },
+    { value: "EN_ATENCION", label: "En Atención", Icon: FaStethoscope,   bg: "bg-blue-50",    text: "text-blue-700",    border: "border-blue-100",    dot: "bg-blue-500" },
+    { value: "COMPLETADA",  label: "Completada",  Icon: FaStar,          bg: "bg-emerald-50", text: "text-emerald-700", border: "border-emerald-100", dot: "bg-emerald-500" },
+    { value: "CANCELADA",   label: "Cancelada",   Icon: FaTimesCircle,   bg: "bg-red-50",     text: "text-red-700",     border: "border-red-100",     dot: "bg-red-500" },
+    { value: "NO_ASISTIO",  label: "No Asistió",  Icon: FaUserSlash,     bg: "bg-slate-50",   text: "text-slate-600",   border: "border-slate-200",   dot: "bg-slate-500" },
 ];
 
 const TRANSICIONES = {
@@ -73,40 +75,49 @@ const formatHora = (iso) =>
 const formatDuracion = (min) => `${min} min`;
 
 const detectarMetodoPago = (cita) => {
-    const enc = cita.encuesta?.[0];
-    if (enc?.factura) {
-        const condiciones = enc.factura.facCondiciones || "";
-        if (condiciones.includes("EFECTIVO")) return { metodo: "Efectivo", virtual: false };
-        return { metodo: condiciones.replace("Método: ", ""), virtual: true };
+    // 1. Relación directa (Nuevo flujo)
+    let fac = cita.factura?.[0];
+
+    // 2. Relación indirecta (Antiguo flujo vía encuesta)
+    if (!fac) {
+        fac = cita.encuesta?.[0]?.factura;
     }
+
+    if (fac) {
+        const condiciones = fac.facCondiciones || "";
+        if (condiciones.includes("EFECTIVO")) return { metodo: "Efectivo", virtual: false };
+        if (condiciones.includes("PSE") || condiciones.includes("TARJETA")) return { metodo: "PSE", virtual: true };
+        return { metodo: "Procesado", virtual: true };
+    }
+
+    // 3. Fallback para citas ya gestionadas (Quemado)
+    const estado = (cita.citEstado ?? "").toUpperCase();
+    if (["COMPLETADA", "EN_ATENCION", "CONFIRMADA"].includes(estado)) {
+        return { metodo: "Procesado", virtual: false, fallback: true };
+    }
+
     return null;
 };
 
 // ─── Sub-componentes ──────────────────────────────────────────────────────────
 
 function EstadoBadge({ estado }) {
-    const cfg = getEstadoCfg(estado);
-    const IconComp = cfg.Icon;
-    return (
-        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${cfg.bg} ${cfg.text} ${cfg.border} border`}>
-            <IconComp className="text-[9px]" />
-            {cfg.label}
-        </span>
-    );
+    return <StatusBadge status={estado} />;
 }
 
 function PagoBadge({ cita }) {
     const pago = detectarMetodoPago(cita);
-    if (!pago) return <span className="text-xs text-slate-400">—</span>;
-    return (
-        <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider ${pago.virtual
-            ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-            : "bg-orange-50 text-orange-700 border border-orange-200"
-        }`}>
-            {pago.virtual ? <FaCreditCard className="text-[9px]" /> : <FaMoneyBillWave className="text-[9px]" />}
-            {pago.metodo}
-        </span>
-    );
+
+    if (!pago) {
+        return (
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-50 text-amber-700 border border-amber-100 shadow-sm">
+                <FaHourglassHalf className="text-[11px]" /> Pendiente
+            </span>
+        );
+    }
+
+    const { metodo } = pago;
+    return <StatusBadge status={metodo} />;
 }
 
 function KpiCard({ icon: Icon, label, value, color, loading }) {
@@ -252,6 +263,9 @@ export default function GestionCitas() {
 
     // Modal Nueva Cita (admin)
     const [modalNuevaCita, setModalNuevaCita] = useState(false);
+    
+    // Modal Gestionar Servicios (admin only)
+    const [modalServicios, setModalServicios] = useState(false);
     
     // Encuesta post-creación
     const [showEncuesta, setShowEncuesta] = useState(false);
@@ -469,28 +483,42 @@ export default function GestionCitas() {
         <div className="p-8 max-w-7xl mx-auto w-full">
 
             {/* Header */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-                <div>
-                    <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Gestión de Citas</h1>
-                    <p className="text-sm font-medium text-slate-500 mt-1">Visualiza y gestiona todas las citas de la óptica</p>
+            <header className="mb-8">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div className="flex items-center gap-3">
+                        <div className="bg-blue-600 p-2.5 rounded-xl shadow-lg shadow-blue-200">
+                            <FaCalendarAlt className="text-white text-xl" />
+                        </div>
+                        <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Gestión de Citas</h1>
+                    </div>
+                    <div className="flex gap-3 self-start md:self-auto">
+                        <button
+                            onClick={abrirNuevaCita}
+                            className="flex items-center justify-center gap-2 bg-blue-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-sm hover:bg-blue-700 transition cursor-pointer"
+                        >
+                            <FaPlus className="text-xs" />
+                            Nueva Cita
+                        </button>
+                        {!esEmpleado && (
+                            <button
+                                onClick={() => setModalServicios(true)}
+                                className="flex items-center justify-center gap-2 bg-blue-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-sm hover:bg-blue-700 transition cursor-pointer"
+                            >
+                                <FaStethoscope className="text-xs" />
+                                Gestionar Servicios
+                            </button>
+                        )}
+                        <button
+                            onClick={fetchCitas}
+                            className="flex items-center justify-center gap-2 bg-white border border-slate-200 text-slate-700 px-5 py-2.5 rounded-xl font-bold text-sm shadow-sm hover:bg-slate-50 transition cursor-pointer"
+                        >
+                            <FaSyncAlt className={`text-sm ${loading ? "animate-spin" : ""}`} />
+                            Actualizar
+                        </button>
+                    </div>
                 </div>
-                <div className="flex gap-3 self-start md:self-auto">
-                    <button
-                        onClick={abrirNuevaCita}
-                        className="flex items-center justify-center gap-2 bg-blue-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-sm hover:bg-blue-700 transition cursor-pointer"
-                    >
-                        <FaPlus className="text-xs" />
-                        Nueva Cita
-                    </button>
-                    <button
-                        onClick={fetchCitas}
-                        className="flex items-center justify-center gap-2 bg-white border border-slate-200 text-slate-700 px-5 py-2.5 rounded-xl font-bold text-sm shadow-sm hover:bg-slate-50 transition cursor-pointer"
-                    >
-                        <FaSyncAlt className={`text-sm ${loading ? "animate-spin" : ""}`} />
-                        Actualizar
-                    </button>
-                </div>
-            </div>
+                <p className="text-sm font-medium text-slate-500 mt-2">Visualiza y gestiona todas las citas de la óptica desde un solo panel de control.</p>
+            </header>
 
             {/* KPIs */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
@@ -731,6 +759,11 @@ export default function GestionCitas() {
                 abierto={citaParaCompletar}
                 onClose={() => setCitaParaCompletar(false)}
                 onSuccess={fetchCitas}
+            />
+
+            <GestionServiciosModal 
+                abierto={modalServicios}
+                onClose={() => setModalServicios(false)}
             />
 
             {/* Modal Registrar Pago */}

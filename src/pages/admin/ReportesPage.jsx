@@ -117,12 +117,18 @@ export default function ReportesPage() {
 
     return (
         <div className="p-8 max-w-7xl mx-auto w-full min-h-screen bg-slate-50">
-            <div className="mb-8">
-                <h1 className="text-3xl font-extrabold text-slate-900 flex items-center gap-3">
-                    <FaChartBar className="text-blue-600" /> Generación de Reportes
-                </h1>
-                <p className="text-slate-500 mt-2 font-medium">Analiza el rendimiento de OptiLuxe con datos en tiempo real</p>
-            </div>
+            {/* Header */}
+            <header className="mb-8">
+                <div className="flex items-center gap-3 mb-2">
+                    <div className="bg-blue-600 p-2.5 rounded-xl shadow-lg shadow-blue-200">
+                        <FaChartBar className="text-white text-xl" />
+                    </div>
+                    <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
+                        Generación de Reportes
+                    </h1>
+                </div>
+                <p className="text-sm font-medium text-slate-500 mt-2">Analiza el rendimiento de OptiLuxe con datos detallados y reportes en tiempo real.</p>
+            </header>
 
             {/* Panel de Control */}
             <div className="bg-white rounded-3xl shadow-sm border border-slate-200 p-8 mb-8">

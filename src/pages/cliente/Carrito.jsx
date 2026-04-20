@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaTrash, FaMinus, FaPlus, FaShoppingBag, FaArrowLeft } from "react-icons/fa";
+import { FaTrash, FaMinus, FaPlus, FaShoppingBag, FaArrowLeft, FaShoppingCart } from "react-icons/fa";
 import HeaderHome from "../../components/home/HeaderHome.jsx";
 import Footer from "../../components/layout/Footer.jsx";
 import { useCart } from "../../context/cart/CartContext.jsx";
@@ -16,21 +16,32 @@ export default function Carrito() {
       <HeaderHome />
 
       <main className="flex-1 max-w-7xl mx-auto w-full px-4 py-8">
-        {/* Título */}
-        <div className="flex items-center gap-3 mb-6">
-          <button
-            onClick={() => navigate("/productos")}
-            className="text-gray-500 hover:text-blue-600 transition cursor-pointer"
-          >
-            <FaArrowLeft />
-          </button>
-          <h1 className="text-2xl font-bold text-gray-900">Tu Carrito</h1>
-          {carrito.totalItems > 0 && (
-            <span className="bg-blue-100 text-blue-700 text-sm font-semibold px-3 py-0.5 rounded-full">
-              {carrito.totalItems} {carrito.totalItems === 1 ? "producto" : "productos"}
-            </span>
-          )}
-        </div>
+        {/* Header Standardizado */}
+        <header className="mb-8">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                    <button
+                        onClick={() => navigate("/productos")}
+                        className="p-2 bg-white border border-slate-200 text-slate-500 hover:text-blue-600 rounded-xl transition cursor-pointer shadow-sm hover:shadow-md"
+                        title="Volver a productos"
+                    >
+                        <FaArrowLeft />
+                    </button>
+                    <div className="bg-blue-600 p-2.5 rounded-xl shadow-lg shadow-blue-200">
+                        <FaShoppingCart className="text-white text-xl" />
+                    </div>
+                    <div className="flex items-center gap-3">
+                        <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Tu Carrito</h1>
+                        {carrito.totalItems > 0 && (
+                            <span className="bg-blue-100 text-blue-700 text-sm font-bold px-3 py-1 rounded-full border border-blue-200">
+                                {carrito.totalItems} {carrito.totalItems === 1 ? "producto" : "productos"}
+                            </span>
+                        )}
+                    </div>
+                </div>
+            </div>
+            <p className="text-sm font-medium text-slate-500 mt-3">Revisa tus productos seleccionados y procede a completar tu compra de forma segura.</p>
+        </header>
 
         {carrito.items.length === 0 ? (
           /* Estado vacío */

@@ -118,14 +118,17 @@ export default function ConfiguracionPage() {
         <div className="p-8 max-w-3xl mx-auto w-full">
 
             {/* Header */}
-            <div className="mb-8">
-                <h1 className="text-3xl font-extrabold text-slate-900 flex items-center gap-3">
-                    <FaCog className="text-blue-600" /> Configuración
-                </h1>
-                <p className="text-sm font-medium text-slate-500 mt-1">
-                    Actualiza tus datos personales y contraseña
-                </p>
-            </div>
+            <header className="mb-8">
+                <div className="flex items-center gap-3 mb-2">
+                    <div className="bg-blue-600 p-2.5 rounded-xl shadow-lg shadow-blue-200">
+                        <FaCog className="text-white text-xl" />
+                    </div>
+                    <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
+                        Configuración
+                    </h1>
+                </div>
+                <p className="text-sm font-medium text-slate-500 mt-2">Gestiona tus datos personales, preferencias de cuenta y seguridad.</p>
+            </header>
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
 
