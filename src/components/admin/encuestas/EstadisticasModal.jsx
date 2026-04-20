@@ -117,14 +117,14 @@ export default function EstadisticasModal({ abierto, onClose, encuestas, loading
     <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in duration-200">
       <div className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-4xl overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
         {/* Header */}
-        <div className="bg-slate-900 px-8 py-7 text-white flex justify-between items-center shrink-0">
+        <div className="bg-blue-600 px-8 py-7 text-white flex justify-between items-center shrink-0">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center text-xl shadow-inner border border-white/5">
-              <FaChartBar className="text-teal-400" />
+              <FaChartBar className="text-white" />
             </div>
             <div>
               <h2 className="text-xl font-black tracking-tight uppercase">Estadísticas Globales</h2>
-              <p className="text-[10px] text-teal-300 font-mono tracking-[0.2em] opacity-80 uppercase">Consolidado de Satisfacción</p>
+              <p className="text-[10px] text-blue-200 font-mono tracking-[0.2em] opacity-80 uppercase">Consolidado de Satisfacción</p>
             </div>
           </div>
           <button onClick={onClose} className="p-2.5 hover:bg-white/10 rounded-full transition cursor-pointer group">
@@ -136,7 +136,7 @@ export default function EstadisticasModal({ abierto, onClose, encuestas, loading
         <div className="flex-1 overflow-y-auto p-8 bg-slate-50/80">
           <div className="mb-6 flex items-center justify-between">
             <h3 className="text-sm font-black text-slate-800 uppercase tracking-widest flex items-center gap-2">
-              <FaFilter className="text-teal-500" /> Filtro de Origen
+              <FaFilter className="text-blue-500" /> Filtro de Origen
             </h3>
             <div className="w-64 relative z-50">
               <CustomSelect
@@ -171,9 +171,9 @@ export default function EstadisticasModal({ abierto, onClose, encuestas, loading
                         <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Total Muestras</p>
                         <p className="text-5xl font-black text-slate-800">{stats.total}</p>
                     </div>
-                    <div className="md:col-span-2 bg-gradient-to-br from-teal-500 to-indigo-600 rounded-3xl p-6 shadow-lg shadow-teal-500/20 text-white flex items-center justify-between">
+                    <div className="md:col-span-2 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-3xl p-6 shadow-lg shadow-blue-600/20 text-white flex items-center justify-between">
                         <div>
-                            <p className="text-[10px] font-black uppercase tracking-widest text-teal-100 mb-1">Satisfacción Promedio</p>
+                            <p className="text-[10px] font-black uppercase tracking-widest text-blue-100 mb-1">Satisfacción Promedio</p>
                             <h3 className="text-5xl font-black leading-none">{stats.promedioGeneral} <span className="text-2xl opacity-70">/ 5</span></h3>
                         </div>
                         <div className="flex text-4xl text-amber-300 drop-shadow-md">
@@ -189,7 +189,7 @@ export default function EstadisticasModal({ abierto, onClose, encuestas, loading
                     {/* Gráfico de Barras Estrellas */}
                     <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
                         <div className="flex items-center gap-2 text-slate-400 font-black uppercase tracking-widest text-[9px] mb-6">
-                            <FaChartBar className="text-indigo-500" /> Distribución de Estrellas
+                            <FaChartBar className="text-blue-500" /> Distribución de Estrellas
                         </div>
                         <div className="space-y-3">
                             {[5, 4, 3, 2, 1].map(est => {
@@ -202,7 +202,7 @@ export default function EstadisticasModal({ abierto, onClose, encuestas, loading
                                         </div>
                                         <div className="flex-1 bg-slate-100 rounded-full h-3 overflow-hidden flex">
                                             <div 
-                                              className="bg-indigo-500 transition-all duration-1000 ease-out rounded-full" 
+                                              className="bg-blue-600 transition-all duration-1000 ease-out rounded-full" 
                                               style={{ width: `${pct}%` }} 
                                             />
                                         </div>
@@ -285,7 +285,7 @@ export default function EstadisticasModal({ abierto, onClose, encuestas, loading
         <div className="px-8 py-6 bg-slate-50 border-t border-slate-100 flex justify-end items-center shrink-0">
           <button
             onClick={onClose}
-            className="px-8 py-3 bg-slate-900 text-white font-black text-[10px] uppercase tracking-widest rounded-2xl hover:bg-slate-700 transition shadow-xl cursor-pointer active:scale-95"
+            className="px-10 py-3.5 bg-blue-600 text-white font-black text-[10px] uppercase tracking-widest rounded-2xl hover:bg-blue-700 transition shadow-2xl shadow-blue-600/40 cursor-pointer active:scale-95"
           >
             Cerrar Informe
           </button>

@@ -59,154 +59,211 @@ export default function CrearUsuarioModal({ abierto, guardando, onClose, onSubmi
             onClick={handleClose}
         >
             <div
-                className="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden"
+                className="bg-white w-full max-w-2xl rounded-[2.5rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]"
                 onClick={(e) => e.stopPropagation()}
             >
-                <div className="px-8 py-6 border-b border-slate-100 flex items-center justify-between">
-                    <div>
-                        <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
-                            <FaUserPlus className="text-blue-500" /> Crear Usuario
-                        </h2>
-                        <p className="text-sm text-slate-500 mt-0.5">Completa los datos del nuevo usuario</p>
+                {/* Header Premium */}
+                <div className="bg-blue-600 px-8 py-7 text-white flex justify-between items-center shrink-0">
+                    <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center text-xl shadow-inner border border-white/5">
+                            <FaUserPlus />
+                        </div>
+                        <div>
+                            <h2 className="text-xl font-black tracking-tight uppercase">Nuevo Usuario</h2>
+                            <p className="text-[10px] text-blue-200 font-mono tracking-[0.2em] opacity-80 uppercase">Registro Administrativo</p>
+                        </div>
                     </div>
-                    <button onClick={handleClose} className="text-slate-400 hover:text-slate-600 transition">
-                        <FaTimes className="text-xl" />
+                    <button onClick={handleClose} className="p-2.5 hover:bg-white/10 rounded-full transition cursor-pointer group">
+                        <FaTimes className="group-hover:rotate-90 transition-transform duration-300" />
                     </button>
                 </div>
 
-                <form onSubmit={handleSubmit(submit)} className="px-8 py-6 space-y-4 max-h-[70vh] overflow-y-auto">
-                    <div className="grid grid-cols-2 gap-4">
-                        <CAMPO label="Nombre" error={errors.usuNombre}>
-                            <input
-                                className={inputCls(errors.usuNombre)}
-                                {...register("usuNombre", {
-                                    required: "El nombre es obligatorio",
-                                    minLength: { value: 2, message: "Mínimo 2 caracteres" },
-                                })}
-                            />
-                        </CAMPO>
-                        <CAMPO label="Apellido" error={errors.usuApellido}>
-                            <input
-                                className={inputCls(errors.usuApellido)}
-                                {...register("usuApellido", {
-                                    required: "El apellido es obligatorio",
-                                    minLength: { value: 2, message: "Mínimo 2 caracteres" },
-                                })}
-                            />
-                        </CAMPO>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                        <CAMPO label="Cédula" error={errors.usuDocumento}>
-                            <input
-                                className={inputCls(errors.usuDocumento)}
-                                inputMode="numeric"
-                                {...register("usuDocumento", {
-                                    required: "La cédula es obligatoria",
-                                    pattern: { value: /^\d+$/, message: "Solo se permiten números" },
-                                    minLength: { value: 6, message: "Mínimo 6 dígitos" },
-                                    maxLength: { value: 10, message: "Máximo 10 dígitos" },
-                                })}
-                            />
-                        </CAMPO>
-                        <CAMPO label="Teléfono" error={errors.usuTelefono}>
-                            <input
-                                className={inputCls(errors.usuTelefono)}
-                                inputMode="numeric"
-                                {...register("usuTelefono", {
-                                    required: "El teléfono es obligatorio",
-                                    pattern: { value: /^\d{10}$/, message: "Debe tener exactamente 10 dígitos" },
-                                })}
-                            />
-                        </CAMPO>
-                    </div>
-
-                    <CAMPO label="Correo electrónico" error={errors.usuCorreo}>
-                        <input
-                            type="email"
-                            className={inputCls(errors.usuCorreo)}
-                            {...register("usuCorreo", {
-                                required: "El correo es obligatorio",
-                                pattern: {
-                                    value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                                    message: "Ingresa un correo válido (ej: nombre@dominio.com)",
-                                },
-                            })}
-                        />
-                    </CAMPO>
-
-                    <CAMPO label="Dirección" error={errors.usuDireccion}>
-                        <input
-                            className={inputCls(errors.usuDireccion)}
-                            {...register("usuDireccion", {
-                                required: "La dirección es obligatoria",
-                                minLength: { value: 5, message: "Mínimo 5 caracteres" },
-                            })}
-                        />
-                    </CAMPO>
-
-                    <CAMPO label="Rol" error={errors.rolNombre}>
-                        <CustomSelect
-                            value={watch("rolNombre")}
-                            onChange={(val) => setValue("rolNombre", val, { shouldValidate: true })}
-                            options={ROLES.map(r => ({ value: r, label: r }))}
-                            required={true}
-                        />
-                    </CAMPO>
-
-                    <div className="grid grid-cols-2 gap-4">
-                        <CAMPO label="Contraseña" error={errors.usuPassword}>
-                            <div className="relative">
+                <form onSubmit={handleSubmit(submit)} className="flex-1 overflow-y-auto p-8 space-y-8 bg-slate-50/30">
+                    
+                    {/* Sección 1: Datos Personales */}
+                    <div className="space-y-4">
+                        <div className="flex items-center gap-2 text-slate-400 font-black uppercase tracking-widest text-[9px] ml-2">
+                            <span className="w-5 h-5 rounded-md bg-blue-50 text-blue-500 flex items-center justify-center text-[10px]">1</span>
+                            Información de Identidad
+                            <div className="h-[1px] flex-1 bg-slate-200 ml-2" />
+                        </div>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                            <CAMPO label="Nombre" error={errors.usuNombre}>
                                 <input
-                                    type={mostrarPass ? "text" : "password"}
-                                    className={inputCls(errors.usuPassword) + " pr-10"}
-                                    {...register("usuPassword", {
-                                        required: "La contraseña es obligatoria",
-                                        minLength: { value: 8, message: "Mínimo 8 caracteres" },
-                                        validate: {
-                                            tieneMinuscula: (v) => /[a-z]/.test(v) || "Debe contener al menos una minúscula",
-                                            tieneMayuscula: (v) => /[A-Z]/.test(v) || "Debe contener al menos una mayúscula",
-                                            tieneNumero: (v) => /\d/.test(v) || "Debe contener al menos un número",
-                                            tieneSimbolo: (v) => /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(v) || "Debe contener al menos un símbolo (!@#$...)",
+                                    placeholder="Ej: Juan"
+                                    className={inputCls(errors.usuNombre)}
+                                    {...register("usuNombre", {
+                                        required: "El nombre es obligatorio",
+                                        minLength: { value: 2, message: "Mínimo 2 caracteres" },
+                                    })}
+                                />
+                            </CAMPO>
+                            <CAMPO label="Apellido" error={errors.usuApellido}>
+                                <input
+                                    placeholder="Ej: Pérez"
+                                    className={inputCls(errors.usuApellido)}
+                                    {...register("usuApellido", {
+                                        required: "El apellido es obligatorio",
+                                        minLength: { value: 2, message: "Mínimo 2 caracteres" },
+                                    })}
+                                />
+                            </CAMPO>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                            <CAMPO label="Cédula / Documento" error={errors.usuDocumento}>
+                                <input
+                                    maxLength={10}
+                                    placeholder="Ej: 1234567890"
+                                    className={inputCls(errors.usuDocumento)}
+                                    {...register("usuDocumento", {
+                                        required: "La cédula es obligatoria",
+                                        pattern: { value: /^\d+$/, message: "Solo se permiten números" },
+                                        minLength: { value: 6, message: "Mínimo 6 dígitos" },
+                                        onChange: (e) => {
+                                            e.target.value = e.target.value.replace(/\D/g, "");
+                                        }
+                                    })}
+                                />
+                            </CAMPO>
+                            <CAMPO label="Rol de Usuario" error={errors.rolNombre}>
+                                <CustomSelect
+                                    value={watch("rolNombre")}
+                                    onChange={(val) => setValue("rolNombre", val, { shouldValidate: true })}
+                                    options={ROLES.map(r => ({ value: r, label: r }))}
+                                    required={true}
+                                />
+                            </CAMPO>
+                        </div>
+                    </div>
+
+                    {/* Sección 2: Contacto */}
+                    <div className="space-y-4">
+                        <div className="flex items-center gap-2 text-slate-400 font-black uppercase tracking-widest text-[9px] ml-2">
+                            <span className="w-5 h-5 rounded-md bg-blue-50 text-blue-500 flex items-center justify-center text-[10px]">2</span>
+                            Contacto y Ubicación
+                            <div className="h-[1px] flex-1 bg-slate-200 ml-2" />
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                            <CAMPO label="Correo electrónico" error={errors.usuCorreo}>
+                                <input
+                                    type="text"
+                                    placeholder="correo@ejemplo.com"
+                                    className={inputCls(errors.usuCorreo)}
+                                    {...register("usuCorreo", {
+                                        required: "El correo es obligatorio",
+                                        pattern: {
+                                            value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+                                            message: "Formato inválido (debe incluir @ y punto)",
                                         },
                                     })}
                                 />
-                                <button type="button" onClick={() => setMostrarPass((v) => !v)}
-                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
-                                    {mostrarPass ? <FaEyeSlash /> : <FaEye />}
-                                </button>
-                            </div>
-                        </CAMPO>
-                        <CAMPO label="Confirmar contraseña" error={errors.confirmarPassword}>
-                            <div className="relative">
+                            </CAMPO>
+                            <CAMPO label="Teléfono" error={errors.usuTelefono}>
                                 <input
-                                    type={mostrarConfirm ? "text" : "password"}
-                                    className={inputCls(errors.confirmarPassword) + " pr-10"}
-                                    {...register("confirmarPassword", {
-                                        required: "Confirma la contraseña",
-                                        validate: (val) =>
-                                            val === watch("usuPassword") || "Las contraseñas no coinciden",
+                                    maxLength={10}
+                                    placeholder="Ej: 300 000 0000"
+                                    className={inputCls(errors.usuTelefono)}
+                                    {...register("usuTelefono", {
+                                        required: "El teléfono es obligatorio",
+                                        pattern: { value: /^\d{10}$/, message: "Debe tener exactamente 10 dígitos" },
+                                        onChange: (e) => {
+                                            e.target.value = e.target.value.replace(/\D/g, "");
+                                        }
                                     })}
                                 />
-                                <button type="button" onClick={() => setMostrarConfirm((v) => !v)}
-                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
-                                    {mostrarConfirm ? <FaEyeSlash /> : <FaEye />}
-                                </button>
-                            </div>
+                            </CAMPO>
+                        </div>
+
+                        <CAMPO label="Dirección de Residencia" error={errors.usuDireccion}>
+                            <input
+                                placeholder="Ej: Calle 123 #45-67, Ciudad"
+                                className={inputCls(errors.usuDireccion)}
+                                {...register("usuDireccion", {
+                                    required: "La dirección es obligatoria",
+                                    minLength: { value: 5, message: "Mínimo 5 caracteres" },
+                                })}
+                            />
                         </CAMPO>
                     </div>
 
-                    <div className="flex gap-3 pt-2">
-                        <button type="button" onClick={handleClose}
-                            className="flex-1 py-3 border border-slate-200 text-slate-600 font-bold rounded-xl hover:bg-slate-50 transition">
-                            Cancelar
-                        </button>
-                        <button type="submit" disabled={guardando}
-                            className="flex-1 py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition shadow-lg shadow-blue-600/20 disabled:opacity-50">
-                            {guardando ? "Creando..." : "Crear usuario"}
-                        </button>
+                    {/* Sección 3: Seguridad */}
+                    <div className="space-y-4">
+                        <div className="flex items-center gap-2 text-slate-400 font-black uppercase tracking-widest text-[9px] ml-2">
+                            <span className="w-5 h-5 rounded-md bg-blue-50 text-blue-500 flex items-center justify-center text-[10px]">3</span>
+                            Seguridad de la Cuenta
+                            <div className="h-[1px] flex-1 bg-slate-200 ml-2" />
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                            <CAMPO label="Contraseña" error={errors.usuPassword}>
+                                <div className="relative">
+                                    <input
+                                        type={mostrarPass ? "text" : "password"}
+                                        placeholder="••••••••"
+                                        className={inputCls(errors.usuPassword) + " pr-10 font-mono"}
+                                        {...register("usuPassword", {
+                                            required: "La contraseña es obligatoria",
+                                            minLength: { value: 8, message: "Mínimo 8 caracteres" },
+                                            validate: {
+                                                tieneMinuscula: (v) => /[a-z]/.test(v) || "Debe contener al menos una minúscula",
+                                                tieneMayuscula: (v) => /[A-Z]/.test(v) || "Debe contener al menos una mayúscula",
+                                                tieneNumero: (v) => /\d/.test(v) || "Debe contener al menos un número",
+                                                tieneSimbolo: (v) => /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(v) || "Debe contener al menos un símbolo",
+                                            },
+                                        })}
+                                    />
+                                    <button type="button" onClick={() => setMostrarPass((v) => !v)}
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition">
+                                        {mostrarPass ? <FaEyeSlash /> : <FaEye />}
+                                    </button>
+                                </div>
+                            </CAMPO>
+                            <CAMPO label="Confirmar Contraseña" error={errors.confirmarPassword}>
+                                <div className="relative">
+                                    <input
+                                        type={mostrarConfirm ? "text" : "password"}
+                                        placeholder="••••••••"
+                                        className={inputCls(errors.confirmarPassword) + " pr-10 font-mono"}
+                                        {...register("confirmarPassword", {
+                                            required: "Confirma la contraseña",
+                                            validate: (val) =>
+                                                val === watch("usuPassword") || "Las contraseñas no coinciden",
+                                        })}
+                                    />
+                                    <button type="button" onClick={() => setMostrarConfirm((v) => !v)}
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition">
+                                        {mostrarConfirm ? <FaEyeSlash /> : <FaEye />}
+                                    </button>
+                                </div>
+                            </CAMPO>
+                        </div>
                     </div>
                 </form>
+
+                {/* Footer con botones mejorados */}
+                <div className="px-8 py-6 bg-slate-50 border-t border-slate-100 flex gap-4 shrink-0">
+                    <button 
+                        type="button" 
+                        onClick={handleClose}
+                        className="flex-1 py-3.5 bg-white border border-slate-200 text-slate-600 font-black text-[10px] uppercase tracking-widest rounded-2xl hover:bg-slate-50 transition active:scale-95"
+                    >
+                        Cancelar
+                    </button>
+                    <button 
+                        onClick={handleSubmit(submit)} 
+                        disabled={guardando}
+                        className="flex-[2] py-3.5 bg-blue-600 text-white font-black text-[10px] uppercase tracking-widest rounded-2xl hover:bg-blue-700 transition shadow-xl shadow-blue-600/30 disabled:opacity-50 active:scale-95 flex items-center justify-center gap-2"
+                    >
+                        {guardando ? (
+                            <><span className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Creando Usuario...</>
+                        ) : (
+                            <><FaUserPlus /> Crear Usuario</>
+                        )}
+                    </button>
+                </div>
             </div>
         </div>
     );

@@ -52,16 +52,26 @@ export default function GestionUsuarios() {
     }, [searchTerm, selectedRol]);
 
     const handleToggleEstado = async (usuario) => {
-        const nuevoEstado = usuario.usuEstado === "ACTIVO" ? "INACTIVO" : "ACTIVO";
+        const originalEstado = usuario.usuEstado;
+        const nuevoEstado = originalEstado === "ACTIVO" ? "INACTIVO" : "ACTIVO";
+
+        // Actualización optimista: cambiamos el estado en la UI sin esperar al servidor
+        setUsuarios(prev =>
+            prev.map(u =>
+                u.idUsuario === usuario.idUsuario ? { ...u, usuEstado: nuevoEstado } : u
+            )
+        );
+
         try {
             await usuarioService.toggleUsuarioEstado(usuario.idUsuario, nuevoEstado);
-            setUsuarios(prev =>
-                prev.map(u =>
-                    u.idUsuario === usuario.idUsuario ? { ...u, usuEstado: nuevoEstado } : u
-                )
-            );
             toast.success(`Usuario ${nuevoEstado === "ACTIVO" ? "activado" : "desactivado"}`);
         } catch {
+            // Revertimos en caso de error
+            setUsuarios(prev =>
+                prev.map(u =>
+                    u.idUsuario === usuario.idUsuario ? { ...u, usuEstado: originalEstado } : u
+                )
+            );
             toast.error("Error al cambiar estado del usuario");
         }
     };

@@ -140,7 +140,7 @@ export default function ConfiguracionPage() {
                             Solo puedes editar tu <strong>teléfono</strong>, <strong>correo electrónico</strong> y <strong>dirección</strong>. Para cambiar otros datos contáctanos.
                         </p>
 
-                        {/* Readonly */}
+                        {/* Datos de solo lectura */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <Campo label="Nombre">
                                 <input readOnly tabIndex={-1} className={INPUT_READONLY_CLS} value={nombre} />
@@ -149,45 +149,52 @@ export default function ConfiguracionPage() {
                                 <input readOnly tabIndex={-1} className={INPUT_READONLY_CLS} value={apellido} />
                             </Campo>
                         </div>
+                        <Campo label="Documento">
+                            <input readOnly tabIndex={-1} className={INPUT_READONLY_CLS} value={documento} />
+                        </Campo>
+
+                        <div className="h-px bg-slate-100 my-2" />
+
+                        {/* Datos Editables */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <Campo label="Documento">
-                                <input readOnly tabIndex={-1} className={INPUT_READONLY_CLS} value={documento} />
+                            <Campo label="Correo electrónico" error={errors.usuCorreo}>
+                                <input
+                                    type="text"
+                                    placeholder="correo@ejemplo.com"
+                                    className={errors.usuCorreo ? INPUT_ERROR_CLS : INPUT_CLS}
+                                    {...register("usuCorreo", {
+                                        required: "El correo es obligatorio",
+                                        pattern: {
+                                            value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+                                            message: "Formato inválido (debe incluir @ y punto)",
+                                        },
+                                    })}
+                                />
                             </Campo>
 
-                            {/* Teléfono — editable con validación */}
                             <Campo label="Teléfono" error={errors.usuTelefono}>
                                 <input
-                                    inputMode="numeric"
+                                    type="text"
+                                    maxLength={10}
+                                    placeholder="300 000 0000"
                                     className={errors.usuTelefono ? INPUT_ERROR_CLS : INPUT_CLS}
                                     {...register("usuTelefono", {
                                         required: "El teléfono es obligatorio",
                                         pattern: {
                                             value: /^\d{10}$/,
-                                            message: "Debe tener exactamente 10 dígitos",
+                                            message: "Debe tener exactamente 10 dígitos numéricos",
                                         },
+                                        onChange: (e) => {
+                                            e.target.value = e.target.value.replace(/\D/g, "");
+                                        }
                                     })}
                                 />
                             </Campo>
                         </div>
 
-                        {/* Correo — editable con validación */}
-                        <Campo label="Correo electrónico" error={errors.usuCorreo}>
-                            <input
-                                type="email"
-                                className={errors.usuCorreo ? INPUT_ERROR_CLS : INPUT_CLS}
-                                {...register("usuCorreo", {
-                                    required: "El correo es obligatorio",
-                                    pattern: {
-                                        value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                                        message: "Ingresa un correo válido (ej: nombre@dominio.com)",
-                                    },
-                                })}
-                            />
-                        </Campo>
-
-                        {/* Dirección — editable con validación */}
                         <Campo label="Dirección" error={errors.usuDireccion}>
                             <input
+                                placeholder="Ej: Calle 123 #45-67"
                                 className={errors.usuDireccion ? INPUT_ERROR_CLS : INPUT_CLS}
                                 {...register("usuDireccion", {
                                     required: "La dirección es obligatoria",

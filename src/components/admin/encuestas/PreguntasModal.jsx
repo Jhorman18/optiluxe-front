@@ -61,14 +61,26 @@ export default function PreguntasModal({ abierto, onClose }) {
   };
 
   const handleToggle = async (id) => {
+    // Buscamos la pregunta para saber su estado actual
+    const preguntaActual = preguntas.find(p => p.idPregunta === id);
+    if (!preguntaActual) return;
+
+    // Actualización optimista
+    setPreguntas(prev => prev.map(p => 
+      p.idPregunta === id ? { ...p, preActiva: !p.preActiva } : p
+    ));
+
     try {
       const actualizada = await encuestaService.togglePregunta(id);
-      setPreguntas((prev) =>
-        prev.map((p) => (p.idPregunta === id ? actualizada : p))
-      );
+      // Sincronizamos con el objeto real del servidor por si hubo otros cambios
+      setPreguntas(prev => prev.map(p => p.idPregunta === id ? actualizada : p));
       toast.success(actualizada.preActiva ? "Pregunta activada" : "Pregunta desactivada");
     } catch {
-      toast.error("Error al cambiar estado");
+      // Rollback en caso de error
+      setPreguntas(prev => prev.map(p => 
+        p.idPregunta === id ? { ...p, preActiva: preguntaActual.preActiva } : p
+      ));
+      toast.error("Error al cambiar estado de la pregunta");
     }
   };
 
