@@ -1,9 +1,9 @@
 import React from "react";
-import { 
-    FaCheckCircle, 
-    FaTimesCircle, 
-    FaClock, 
-    FaExclamationCircle, 
+import {
+    FaCheckCircle,
+    FaTimesCircle,
+    FaClock,
+    FaExclamationCircle,
     FaInfoCircle,
     FaCreditCard,
     FaUserCircle,
@@ -13,26 +13,26 @@ import {
 } from "react-icons/fa";
 
 /**
- * StatusBadge - Unified component for all statuses across the app.
+ * StatusBadge - Componente unificado para todos los estados de la aplicación.
  */
 export default function StatusBadge({ status, type, icon: IconOverride, className = "" }) {
     if (!status) return null;
 
     const s = String(status).toUpperCase();
 
-    // 1. Determine theme based on status or type
+    // 1. Determina el tema basado en el estado o tipo
     let theme = type;
 
     if (!theme) {
-        if (["PAGADA", "ACTIVO", "ENVIADA", "COMPLETADA", "EXITOSO", "VALIDO", "CONFIRMADA", "LEIDO", "RESPONDIDO"].includes(s)) {
+        if (["PAGADA", "ACTIVO", "ENVIADA", "COMPLETADA", "EXITOSO", "VALIDO", "CONFIRMADA", "LEIDO", "RESPONDIDO", "VENTA"].includes(s)) {
             theme = "success";
         } else if (["PENDIENTE", "PROCESANDO", "EN PROCESO", "ESPERA"].includes(s)) {
             theme = "warning";
-        } else if (["ANULADA", "INACTIVO", "CANCELADA", "FALLIDA", "RECHAZADA", "ELIMINADA", "NO_ASISTIO"].includes(s)) {
+        } else if (["ANULADA", "INACTIVO", "CANCELADA", "FALLIDA", "RECHAZADA", "ELIMINADA", "NO_ASISTIO", "NO ASISTIÓ", "NO ASISTIO"].includes(s)) {
             theme = "error";
-        } else if (["EN_ATENCION", "EN CURSO", "PROCESADO", "CONFIRMADA"].includes(s)) {
+        } else if (["EN_ATENCION", "EN ATENCIÓN", "EN ATENCION", "EN CURSO", "PROCESADO", "CONSULTA"].includes(s)) {
             theme = "info";
-        } else if (["CONSULTA", "CONTROL", "URGENCIA", "SERVICIO"].includes(s)) {
+        } else if (["CONTROL", "URGENCIA", "SERVICIO"].includes(s)) {
             theme = "purple";
         } else if (["ADMINISTRADOR", "EMPLEADO", "CLIENTE"].includes(s)) {
             theme = "indigo";
@@ -55,10 +55,15 @@ export default function StatusBadge({ status, type, icon: IconOverride, classNam
         neutral: "bg-slate-50 text-slate-600 border-slate-200"
     };
 
-    // 3. Select icon based on theme/status
+    // 3. Selecciona el icono basado en el tema/estado
     const getIcon = () => {
         if (IconOverride) return IconOverride;
-        
+
+        // Iconos específicos por estado (prioritarios)
+        if (s === "VENTA") return FaCreditCard;
+        if (s === "CONSULTA" || s.includes("EN_ATENCION") || s.includes("EN ATENCIÓN") || s.includes("EN ATENCION")) return FaStethoscope;
+        if (s.includes("COMPLETADA")) return FaStar;
+
         switch (theme) {
             case "success": return FaCheckCircle;
             case "error": return FaTimesCircle;
@@ -67,10 +72,7 @@ export default function StatusBadge({ status, type, icon: IconOverride, classNam
             case "indigo": return FaUserCircle;
             case "purple": return FaStethoscope;
             case "cyan": return FaCreditCard;
-            default:
-                if (s.includes("EN_ATENCION")) return FaStethoscope;
-                if (s.includes("COMPLETADA")) return FaStar;
-                return FaInfoCircle;
+            default: return FaInfoCircle;
         }
     };
 
@@ -79,7 +81,7 @@ export default function StatusBadge({ status, type, icon: IconOverride, classNam
     return (
         <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border shadow-sm transition-all duration-200 hover:scale-[1.02] ${themes[theme] || themes.neutral} ${className}`}>
             <IconComp className="text-[11px]" />
-            {String(status)}
+            {String(status).replace(/_/g, " ")}
         </span>
     );
 }

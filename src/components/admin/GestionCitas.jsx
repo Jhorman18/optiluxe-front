@@ -25,21 +25,21 @@ import { useAuth } from "../../context/auth/AuthContext";
 // ─── Configuración ────────────────────────────────────────────────────────────
 
 const ESTADOS = [
-    { value: "PENDIENTE",   label: "Pendiente",   Icon: FaHourglassHalf, bg: "bg-amber-50",   text: "text-amber-700",   border: "border-amber-100",   dot: "bg-amber-500" },
-    { value: "CONFIRMADA",  label: "Confirmada",  Icon: FaCheckCircle,   bg: "bg-indigo-50",  text: "text-indigo-700",  border: "border-indigo-100",  dot: "bg-indigo-500" },
-    { value: "EN_ATENCION", label: "En Atención", Icon: FaStethoscope,   bg: "bg-blue-50",    text: "text-blue-700",    border: "border-blue-100",    dot: "bg-blue-500" },
-    { value: "COMPLETADA",  label: "Completada",  Icon: FaStar,          bg: "bg-emerald-50", text: "text-emerald-700", border: "border-emerald-100", dot: "bg-emerald-500" },
-    { value: "CANCELADA",   label: "Cancelada",   Icon: FaTimesCircle,   bg: "bg-red-50",     text: "text-red-700",     border: "border-red-100",     dot: "bg-red-500" },
-    { value: "NO_ASISTIO",  label: "No Asistió",  Icon: FaUserSlash,     bg: "bg-slate-50",   text: "text-slate-600",   border: "border-slate-200",   dot: "bg-slate-500" },
+    { value: "PENDIENTE", label: "Pendiente", Icon: FaHourglassHalf, bg: "bg-amber-50", text: "text-amber-700", border: "border-amber-100", dot: "bg-amber-500" },
+    { value: "CONFIRMADA", label: "Confirmada", Icon: FaCheckCircle, bg: "bg-indigo-50", text: "text-indigo-700", border: "border-indigo-100", dot: "bg-indigo-500" },
+    { value: "EN_ATENCION", label: "En Atención", Icon: FaStethoscope, bg: "bg-blue-50", text: "text-blue-700", border: "border-blue-100", dot: "bg-blue-500" },
+    { value: "COMPLETADA", label: "Completada", Icon: FaStar, bg: "bg-emerald-50", text: "text-emerald-700", border: "border-emerald-100", dot: "bg-emerald-500" },
+    { value: "CANCELADA", label: "Cancelada", Icon: FaTimesCircle, bg: "bg-red-50", text: "text-red-700", border: "border-red-100", dot: "bg-red-500" },
+    { value: "NO_ASISTIO", label: "No Asistió", Icon: FaUserSlash, bg: "bg-slate-50", text: "text-slate-600", border: "border-slate-200", dot: "bg-slate-500" },
 ];
 
 const TRANSICIONES = {
-    PENDIENTE:   ["CONFIRMADA", "CANCELADA", "NO_ASISTIO"],
-    CONFIRMADA:  ["EN_ATENCION", "CANCELADA", "NO_ASISTIO"],
+    PENDIENTE: ["CONFIRMADA", "CANCELADA", "NO_ASISTIO"],
+    CONFIRMADA: ["EN_ATENCION", "CANCELADA", "NO_ASISTIO"],
     EN_ATENCION: ["COMPLETADA"],
-    COMPLETADA:  [],
-    CANCELADA:   [],
-    NO_ASISTIO:  [],
+    COMPLETADA: [],
+    CANCELADA: [],
+    NO_ASISTIO: [],
 };
 
 const ESTADOS_REPROGRAMABLES = ["PENDIENTE", "CONFIRMADA", "EN_ATENCION"];
@@ -102,7 +102,8 @@ const detectarMetodoPago = (cita) => {
 // ─── Sub-componentes ──────────────────────────────────────────────────────────
 
 function EstadoBadge({ estado }) {
-    return <StatusBadge status={estado} />;
+    const cfg = getEstadoCfg(estado);
+    return <StatusBadge status={cfg.label} />;
 }
 
 function PagoBadge({ cita }) {
@@ -142,9 +143,9 @@ function AccionesDropdown({ cita, onCambiarEstado, onReprogramar, onCompletarCit
 
     const estadoUpper = cita.citEstado?.toUpperCase();
     const allTransiciones = (TRANSICIONES[estadoUpper] || []).map(v => getEstadoCfg(v));
-    
+
     // Si es empleado, solo permitir transiciones de flujo de atención
-    const transiciones = esEmpleado 
+    const transiciones = esEmpleado
         ? allTransiciones.filter(t => ["EN_ATENCION", "COMPLETADA"].includes(t.value))
         : allTransiciones;
 
@@ -263,10 +264,10 @@ export default function GestionCitas() {
 
     // Modal Nueva Cita (admin)
     const [modalNuevaCita, setModalNuevaCita] = useState(false);
-    
+
     // Modal Gestionar Servicios (admin only)
     const [modalServicios, setModalServicios] = useState(false);
-    
+
     // Encuesta post-creación
     const [showEncuesta, setShowEncuesta] = useState(false);
     const [ncCitaIdCreada, setNcCitaIdCreada] = useState(null);
@@ -522,10 +523,10 @@ export default function GestionCitas() {
 
             {/* KPIs */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
-                <KpiCard icon={FaCalendarAlt}   label="Citas Hoy"              value={kpis.hoy}            color="bg-blue-100 text-blue-600"   loading={loading} />
-                <KpiCard icon={FaHourglassHalf} label="Pendientes (Efectivo)"  value={kpis.pendientes}     color="bg-amber-100 text-amber-600"  loading={loading} />
-                <KpiCard icon={FaCheckCircle}   label="Confirmadas (Virtual)"  value={kpis.confirmadas}    color="bg-indigo-100 text-indigo-600" loading={loading} />
-                <KpiCard icon={FaStar}          label="Completadas Hoy"        value={kpis.completadasHoy} color="bg-green-100 text-green-600"  loading={loading} />
+                <KpiCard icon={FaCalendarAlt} label="Citas Hoy" value={kpis.hoy} color="bg-blue-100 text-blue-600" loading={loading} />
+                <KpiCard icon={FaHourglassHalf} label="Pendientes (Efectivo)" value={kpis.pendientes} color="bg-amber-100 text-amber-600" loading={loading} />
+                <KpiCard icon={FaCheckCircle} label="Confirmadas (Virtual)" value={kpis.confirmadas} color="bg-indigo-100 text-indigo-600" loading={loading} />
+                <KpiCard icon={FaStar} label="Completadas Hoy" value={kpis.completadasHoy} color="bg-green-100 text-green-600" loading={loading} />
             </div>
 
             {/* Filtros */}
@@ -761,7 +762,7 @@ export default function GestionCitas() {
                 onSuccess={fetchCitas}
             />
 
-            <GestionServiciosModal 
+            <GestionServiciosModal
                 abierto={modalServicios}
                 onClose={() => setModalServicios(false)}
             />
@@ -820,11 +821,10 @@ export default function GestionCitas() {
                                         <button
                                             key={value}
                                             onClick={() => setPagoMetodo(value)}
-                                            className={`flex flex-col items-center gap-1 py-3 rounded-xl border-2 text-xs font-semibold transition ${
-                                                pagoMetodo === value
+                                            className={`flex flex-col items-center gap-1 py-3 rounded-xl border-2 text-xs font-semibold transition ${pagoMetodo === value
                                                     ? "border-emerald-500 bg-emerald-50 text-emerald-700"
                                                     : "border-slate-200 text-slate-500 hover:border-slate-300"
-                                            }`}
+                                                }`}
                                         >
                                             <Icon className="text-base" />
                                             {label}

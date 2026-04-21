@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { FaTimes, FaClipboardCheck, FaUser, FaInfoCircle, FaCalendarAlt, FaTrashAlt, FaSpinner, FaCheckCircle, FaStar } from "react-icons/fa";
+import StatusBadge from "../../ui/StatusBadge";
 import * as encuestaService from "../../../services/encuestaService";
 import toast from "react-hot-toast";
 
@@ -70,11 +71,7 @@ export default function EncuestaDetalleModal({ encuestaId, onClose, onEliminar, 
                             <p className="text-xs font-bold text-slate-500 uppercase tracking-tighter">Fecha Registro</p>
                             <p className="text-sm font-black text-slate-800">{new Date(encuesta.enFecha).toLocaleString()}</p>
                         </div>
-                        <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${
-                            encuesta.enTipo?.toLowerCase().includes("cita") ? "bg-purple-100 text-purple-600" : "bg-emerald-100 text-emerald-600"
-                        }`}>
-                            {encuesta.enTipo?.toLowerCase().includes("cita") ? "Cita Médica" : "Venta Directa"}
-                        </span>
+                        <StatusBadge status={(encuesta.enTipo || "").toUpperCase().includes("CITA") ? "Consulta" : "Venta"} />
                     </div>
                 </div>
               </div>

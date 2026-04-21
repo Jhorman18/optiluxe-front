@@ -58,7 +58,7 @@ export default function EncuestasTabla({ encuestas, loading, onVerDetalle, onEli
                 </div>
               </td>
               <td className="px-6 py-5">
-                <StatusBadge status={e.enTipo?.toLowerCase().includes("cita") ? "Consulta" : "Venta"} />
+                <StatusBadge status={(e.enTipo || "").toUpperCase().includes("CITA") ? "Consulta" : "Venta"} />
               </td>
               <td className="px-6 py-5">
                 <p className="text-xs font-mono font-bold text-slate-500">

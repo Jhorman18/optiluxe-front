@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { FaCalendarAlt, FaClock, FaCheckCircle, FaExclamationTriangle, FaSpinner, FaBan, FaLock } from "react-icons/fa";
 import { services } from "../../config/servicesData";
 import { registrarCita, getHorariosOcupados, getTieneCitaActiva } from "../../services/citaService";
+import { getServicios } from "../../services/servicioService";
 import { useAuth } from "../../context/auth/AuthContext";
 import toast from "react-hot-toast";
 import PagoCitaModal from "../cart/PagoCitaModal";
