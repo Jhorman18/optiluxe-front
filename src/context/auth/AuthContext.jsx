@@ -43,8 +43,8 @@ export function AuthProvider({ children }) {
 
   const login = async ({ correo, password }) => {
     const res = await loginService({ correo, password });
+    if (res.data.token) localStorage.setItem("token", res.data.token);
     setUsuario(res.data.usuario);
-    // Suscribir a push tras login exitoso
     registrarServiceWorker().then(() => suscribirPush()).catch(() => {});
     return res.data.usuario;
   };
@@ -77,6 +77,7 @@ export function AuthProvider({ children }) {
     try {
       await logoutService();
     } finally {
+      localStorage.removeItem("token");
       setUsuario(null);
     }
   };
