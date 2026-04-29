@@ -254,7 +254,7 @@ export default function GestionCitas() {
     const [nuevaHora, setNuevaHora] = useState("");
     const [reprogramando, setReprogramando] = useState(false);
 
-    const [citaParaCompletar, setCitaParaCompletar] = useState(false);
+    const [citaParaCompletar, setCitaParaCompletar] = useState(null);
 
     // Modal Registrar Pago (al pasar a EN_ATENCION)
     const [citaPago, setCitaPago] = useState(null);
@@ -388,7 +388,10 @@ export default function GestionCitas() {
         fetchCitas();
     };
 
-    const handleAbrirCompletar = (cita) => setCitaParaCompletar(true);
+    const handleAbrirCompletar = (cita) => {
+        setCitaParaCompletar(cita);
+        setSelectedCita(null);
+    };
 
     const getTransiciones = (estado) =>
         (TRANSICIONES[estado?.toUpperCase()] || []).map(v => getEstadoCfg(v));
@@ -731,7 +734,10 @@ export default function GestionCitas() {
                                         {trans.map(t => (
                                             <button
                                                 key={t.value}
-                                                onClick={() => handleCambiarEstado(selectedCita.idCita, t.value)}
+                                                onClick={() => t.value === "COMPLETADA"
+                                                    ? handleAbrirCompletar(selectedCita)
+                                                    : handleCambiarEstado(selectedCita.idCita, t.value)
+                                                }
                                                 disabled={updatingId === selectedCita.idCita}
                                                 className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition border ${t.bg} ${t.text} ${t.border} hover:opacity-80 disabled:opacity-40`}
                                             >
@@ -757,8 +763,9 @@ export default function GestionCitas() {
             )}
 
             <CrearHistoriaModal
-                abierto={citaParaCompletar}
-                onClose={() => setCitaParaCompletar(false)}
+                abierto={!!citaParaCompletar}
+                citaPreseleccionada={citaParaCompletar}
+                onClose={() => setCitaParaCompletar(null)}
                 onSuccess={fetchCitas}
             />
 
