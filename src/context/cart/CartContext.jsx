@@ -225,25 +225,28 @@ export function CartProvider({ children }) {
     }, 2500);
   };
 
-  const removeItem = async (idCarritoProducto) => {
-    setCargando(true);
+  const removeItem = (idCarritoProducto) => {
+    const prevCarrito = carrito;
+    const newItems = carrito.items.filter(i => i.idCarritoProducto !== idCarritoProducto);
+    const totals = calculateLocalCartTotals(newItems);
+    const newCarrito = { ...carrito, items: newItems, ...totals };
 
-    if (isAuthenticated) {
-      try {
-        const data = await carritoService.eliminarItem(idCarritoProducto);
-        setCarrito(data);
-      } catch {
-        toast.error("Error al eliminar el producto");
-      } finally {
-        setCargando(false);
-      }
+    if (!isAuthenticated) {
+      saveLocalCart(newCarrito);
       return;
     }
 
-    const newItems = carrito.items.filter(i => i.idCarritoProducto !== idCarritoProducto);
-    const totals = calculateLocalCartTotals(newItems);
-    saveLocalCart({ ...carrito, items: newItems, ...totals });
-    setCargando(false);
+    setCarrito(newCarrito);
+
+    // IDs optimistas aún no existen en el servidor — solo quitar de la UI
+    if (String(idCarritoProducto).startsWith("optimistic_")) return;
+
+    carritoService.eliminarItem(idCarritoProducto)
+      .then(data => setCarrito(data))
+      .catch(() => {
+        setCarrito(prevCarrito);
+        toast.error("Error al eliminar el producto");
+      });
   };
 
   const pagarCarrito = async (metodoPago) => {
