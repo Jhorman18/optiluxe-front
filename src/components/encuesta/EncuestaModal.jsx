@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import {
   FaTimes,
   FaStar,
@@ -92,8 +91,6 @@ const TextInput = ({ value, onChange }) => (
  * @param {Function} props.onClose - Callback al cerrar el modal
  */
 export default function EncuestaModal({ categoria, fkIdCita, fkIdFactura, onClose }) {
-  const navigate = useNavigate();
-
   const [preguntas, setPreguntas] = useState([]);
   const [loadingPreguntas, setLoadingPreguntas] = useState(true);
 
@@ -184,12 +181,7 @@ export default function EncuestaModal({ categoria, fkIdCita, fkIdFactura, onClos
         {/* Close Button if we want to cancel */}
         {!enviado && (
           <button
-            onClick={() => {
-              onClose();
-              if (totalPreguntas === 0) {
-                 navigate(categoria === "cita" ? "/productos" : "/servicios");
-              }
-            }}
+            onClick={onClose}
             className="absolute top-4 right-4 text-white/80 hover:text-white transition cursor-pointer disabled:opacity-50"
             disabled={enviando}
           >
@@ -239,10 +231,7 @@ export default function EncuestaModal({ categoria, fkIdCita, fkIdFactura, onClos
               <FaCheckCircle className="text-green-500 text-5xl mx-auto" />
               <p className="text-gray-600 font-medium pb-2">No hay preguntas de encuesta configuradas en este momento.</p>
               <button
-                onClick={() => {
-                  onClose();
-                  navigate(categoria === "cita" ? "/productos" : "/servicios");
-                }}
+                onClick={onClose}
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition cursor-pointer"
               >
                 Continuar
@@ -258,13 +247,10 @@ export default function EncuestaModal({ categoria, fkIdCita, fkIdFactura, onClos
                 </p>
               </div>
               <button
-                onClick={() => {
-                  onClose();
-                  navigate(categoria === "cita" ? "/productos" : "/servicios");
-                }}
+                onClick={onClose}
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition cursor-pointer mt-2"
               >
-                {categoria === "cita" ? "Ir a productos" : "Ir a Servicios"}
+                Cerrar
               </button>
             </div>
           ) : (

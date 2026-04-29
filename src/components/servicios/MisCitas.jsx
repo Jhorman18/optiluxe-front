@@ -12,7 +12,6 @@ import {
 import { useAuth } from "../../context/auth/AuthContext";
 import toast from "react-hot-toast";
 
-// ─── slot helpers ─────────────────────────────────────────────────────────────
 
 const ALL_SLOTS = [];
 for (let min = 8 * 60; min <= 16 * 60 + 30; min += 30) {
@@ -27,7 +26,6 @@ const isSlotOccupied = (slot, dur, occ) => {
   return occ.some(({ inicio, fin }) => toMin(inicio) < e && toMin(fin) > s);
 };
 
-// ─── date helpers ─────────────────────────────────────────────────────────────
 
 const formatFecha = (iso) =>
   new Date(iso).toLocaleDateString("es-CO", { weekday: "long", day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
@@ -38,7 +36,6 @@ const formatHora = (iso) => {
 const formatMoneda = (val) =>
   new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", maximumFractionDigits: 0 }).format(val);
 
-// ─── estado config ────────────────────────────────────────────────────────────
 
 const ESTADO_CONFIG = {
   pendiente:   { label: "Pendiente",   Icon: FaHourglassHalf, bg: "bg-amber-50",   text: "text-amber-700",   border: "border-amber-100"   },
@@ -65,10 +62,8 @@ const canAct = (cita) => {
 };
 
 const detectarMetodoPago = (cita) => {
-  // 1. Relación directa (Nuevo flujo)
   let fac = cita.factura?.[0];
 
-  // 2. Relación indirecta (Antiguo flujo vía encuesta)
   if (!fac) {
     fac = cita.encuesta?.[0]?.factura;
   }
@@ -80,7 +75,6 @@ const detectarMetodoPago = (cita) => {
     return { metodo: "Procesado", virtual: true };
   }
 
-  // 3. "Quemado" / Fallback para citas ya gestionadas
   const estado = (cita.citEstado ?? "").toUpperCase();
   if (["COMPLETADA", "EN_ATENCION", "CONFIRMADA"].includes(estado)) {
     return { metodo: "Procesado", virtual: false, fallback: true };
@@ -89,8 +83,7 @@ const detectarMetodoPago = (cita) => {
   return null;
 };
 
-// ─── PagoBadge ────────────────────────────────────────────────────────────────
-
+//pago 
 function PagoBadge({ cita }) {
   const pago = detectarMetodoPago(cita);
   
@@ -112,7 +105,6 @@ function PagoBadge({ cita }) {
   );
 }
 
-// ─── CitaBadge ────────────────────────────────────────────────────────────────
 
 function CitaBadge({ estado }) {
   const { label, Icon, bg, text, border } = getEstadoCfg(estado);
@@ -123,7 +115,6 @@ function CitaBadge({ estado }) {
   );
 }
 
-// ─── CancelModal ──────────────────────────────────────────────────────────────
 
 function CancelModal({ cita, onClose, onConfirm, loading }) {
   return (
@@ -177,8 +168,7 @@ function CancelModal({ cita, onClose, onConfirm, loading }) {
   );
 }
 
-// ─── ReprogramarModal ─────────────────────────────────────────────────────────
-
+//reprogramar
 function ReprogramarModal({ cita, onClose, onConfirm, loading }) {
   const today = new Date().toISOString().split("T")[0];
   const [fecha, setFecha] = useState("");
@@ -286,8 +276,6 @@ function ReprogramarModal({ cita, onClose, onConfirm, loading }) {
   );
 }
 
-// ─── FacturaModal ─────────────────────────────────────────────────────────────
-
 function FacturaModal({ factura, citMotivo, onClose }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
@@ -322,7 +310,6 @@ function FacturaModal({ factura, citMotivo, onClose }) {
   );
 }
 
-// ─── CitaCardUpcoming ─────────────────────────────────────────────────────────
 
 function CitaCardUpcoming({ cita, onCancel, onReprogramar }) {
   const showActions = canAct(cita);
@@ -370,7 +357,6 @@ function CitaCardUpcoming({ cita, onCancel, onReprogramar }) {
   );
 }
 
-// ─── CitaRowHistory ───────────────────────────────────────────────────────────
 
 function CitaRowHistory({ cita, onVerFactura }) {
   const factura = cita.factura?.[0];
@@ -401,7 +387,6 @@ function CitaRowHistory({ cita, onVerFactura }) {
   );
 }
 
-// ─── SkeletonCard ─────────────────────────────────────────────────────────────
 
 function SkeletonCard() {
   return (
@@ -413,7 +398,6 @@ function SkeletonCard() {
   );
 }
 
-// ─── Main ─────────────────────────────────────────────────────────────────────
 
 export default function MisCitas({ refreshKey = 0, onRefresh }) {
   const { isAuthenticated } = useAuth();

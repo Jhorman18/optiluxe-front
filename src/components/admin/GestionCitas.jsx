@@ -256,7 +256,7 @@ export default function GestionCitas() {
 
     const [citaParaCompletar, setCitaParaCompletar] = useState(null);
 
-    // Modal Registrar Pago (al pasar a EN_ATENCION)
+    // Modal Registrar Pago
     const [citaPago, setCitaPago] = useState(null);
     const [pagoMonto, setPagoMonto] = useState("");
     const [pagoMetodo, setPagoMetodo] = useState("EFECTIVO");
@@ -308,9 +308,25 @@ export default function GestionCitas() {
     const handleCambiarEstado = async (idCita, nuevoEstado) => {
         if (nuevoEstado === "CONFIRMADA") {
             const cita = citas.find(c => c.idCita === idCita);
+            const precio = cita?.serPrecio ?? 0;
+            if (precio <= 0) {
+                // Servicio gratuito: confirmar directamente sin registrar pago
+                try {
+                    setUpdatingId(idCita);
+                    await citaService.actualizarEstadoCita(idCita, "CONFIRMADA");
+                    toast.success("Cita confirmada (servicio sin costo)");
+                    fetchCitas();
+                    if (selectedCita?.idCita === idCita) setSelectedCita(prev => ({ ...prev, citEstado: "CONFIRMADA" }));
+                } catch (error) {
+                    toast.error(error.response?.data?.message || "Error al confirmar la cita");
+                } finally {
+                    setUpdatingId(null);
+                }
+                return;
+            }
             setCitaPago(cita || { idCita });
-            setPagoMonto("");
             setPagoMetodo("EFECTIVO");
+            setPagoMonto(String(precio));
             return;
         }
         if (nuevoEstado === "CANCELADA" || nuevoEstado === "NO_ASISTIO") {
