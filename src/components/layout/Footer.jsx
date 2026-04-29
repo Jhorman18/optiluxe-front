@@ -2,9 +2,6 @@ import {
     FaMapMarkerAlt,
     FaPhoneAlt,
     FaEnvelope,
-    FaFacebookF,
-    FaInstagram,
-    FaTwitter,
     FaEye,
 } from "react-icons/fa";
 import { Link } from "react-router-dom";
@@ -84,12 +81,6 @@ export default function Footer({ currentPage = "" }) {
                             </li>
                         </ul>
 
-                        {/* Redes Sociales */}
-                        <div className="flex gap-4 mt-4">
-                            <FaFacebookF className="hover:text-white cursor-pointer transition" />
-                            <FaInstagram className="hover:text-white cursor-pointer transition" />
-                            <FaTwitter className="hover:text-white cursor-pointer transition" />
-                        </div>
                     </div>
 
                 </div>
