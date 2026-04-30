@@ -29,6 +29,7 @@ import PedidosPage from "../pages/cliente/PedidosPage";
 import CartPanel from "../components/cart/CartPanel.jsx";
 import ScrollToTop from "../components/layout/ScrollToTop.jsx";
 import ClienteConfiguracionPage from "../pages/cliente/ClienteConfiguracionPage.jsx";
+import MisNotificacionesPage from "../pages/cliente/MisNotificacionesPage.jsx";
 
 export default function AppRouter() {
   return (
@@ -75,6 +76,7 @@ export default function AppRouter() {
           <Route path="/historia" element={<HistoriaClinicaPage />} />
           <Route path="/pedidos" element={<PedidosPage />} />
           <Route path="/configuracion" element={<ClienteConfiguracionPage />} />
+          <Route path="/mis-notificaciones" element={<MisNotificacionesPage />} />
         </Route>
 
 

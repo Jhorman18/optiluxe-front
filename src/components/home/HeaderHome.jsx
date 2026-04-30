@@ -10,6 +10,9 @@ import {
   FaShoppingCart,
   FaSignOutAlt,
   FaUserShield,
+  FaBars,
+  FaTimes,
+  FaBell,
 } from "react-icons/fa";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/auth/AuthContext.jsx";
@@ -24,6 +27,7 @@ const ROL_LABELS = {
 const MENU_BASE = [
   { label: "Mis citas", icon: FaCalendarAlt, to: "/citas" },
   { label: "Historia clínica", icon: FaFileMedical, to: "/historia" },
+  { label: "Mis notificaciones", icon: FaBell, to: "/mis-notificaciones" },
   { label: "Mis pedidos", icon: FaShoppingBag, to: "/pedidos" },
   { label: "Configuración", icon: FaCog, to: "/configuracion" },
 ];
@@ -38,6 +42,7 @@ export default function HeaderHome() {
   const { isAuthenticated, cargando, usuario, rol, logout } = useAuth();
   const { carrito, openPanel } = useCart();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [isMenuMobileOpen, setIsMenuMobileOpen] = useState(false);
   const menuRef = useRef(null);
 
   useEffect(() => {
@@ -103,7 +108,7 @@ export default function HeaderHome() {
         </nav>
 
         {/* Acciones */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 md:gap-4">
           <NotificacionBell />
           <button
             onClick={openPanel}
@@ -116,6 +121,15 @@ export default function HeaderHome() {
                 {carrito.totalItems > 9 ? "9+" : carrito.totalItems}
               </span>
             )}
+          </button>
+
+          {/* Menú Mobile Toggle */}
+          <button
+            onClick={() => setIsMenuMobileOpen(!isMenuMobileOpen)}
+            className="md:hidden text-gray-600 hover:text-blue-600 transition p-2 cursor-pointer flex items-center justify-center"
+            aria-label="Abrir menú"
+          >
+            {isMenuMobileOpen ? <FaTimes className="text-xl" /> : <FaBars className="text-xl" />}
           </button>
 
           {cargando ? (
@@ -194,6 +208,19 @@ export default function HeaderHome() {
           )}
         </div>
       </div>
+
+      {/* Menú Móvil Desplegable */}
+      {isMenuMobileOpen && (
+        <div className="md:hidden bg-white border-t border-gray-100 shadow-xl overflow-hidden animate-in fade-in slide-in-from-top duration-300">
+          <nav className="flex flex-col p-4 space-y-1">
+            <NavLink to="/" onClick={() => setIsMenuMobileOpen(false)} className={linkClass}>Inicio</NavLink>
+            <NavLink to="/servicios" onClick={() => setIsMenuMobileOpen(false)} className={linkClass}>Servicios</NavLink>
+            <NavLink to="/conocenos" onClick={() => setIsMenuMobileOpen(false)} className={linkClass}>Conócenos</NavLink>
+            <NavLink to="/productos" onClick={() => setIsMenuMobileOpen(false)} className={linkClass}>Productos</NavLink>
+            <NavLink to="/contacto" onClick={() => setIsMenuMobileOpen(false)} className={linkClass}>Contacto</NavLink>
+          </nav>
+        </div>
+      )}
     </header>
   );
 }

@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { FaBell, FaEnvelopeOpen, FaClock, FaTimes, FaCheck } from "react-icons/fa";
 import { obtenerMisNotificaciones, marcarNotificacionLeida } from "../../services/notificacionService";
 import { useAuth } from "../../context/auth/AuthContext";
@@ -38,8 +39,8 @@ export default function NotificacionBell() {
   const [isOpen, setIsOpen] = useState(false);
   const [notificaciones, setNotificaciones] = useState([]);
   const [selectedNotif, setSelectedNotif] = useState(null);
-  const [showAll, setShowAll] = useState(false);
   const bellRef = useRef(null);
+  const navigate = useNavigate();
 
   const unreadCount = notificaciones.filter(n => !n.notLeida).length;
   const preview = notificaciones.slice(0, PREVIEW_COUNT);
@@ -83,7 +84,6 @@ export default function NotificacionBell() {
   const handleOpenNotif = (notif) => {
     setSelectedNotif(notif);
     setIsOpen(false);
-    setShowAll(false);
   };
 
   const handleCloseDetail = async () => {
@@ -119,7 +119,7 @@ export default function NotificacionBell() {
 
       {/* Dropdown — últimas 5 */}
       {isOpen && (
-        <div className="absolute right-0 mt-3 w-80 bg-white rounded-2xl shadow-2xl border border-slate-100 overflow-hidden z-60 animate-in fade-in zoom-in-95 duration-200 origin-top-right">
+        <div className="fixed inset-x-4 top-20 sm:absolute sm:inset-auto sm:right-0 sm:top-full sm:mt-3 w-[calc(100vw-2rem)] sm:w-80 bg-white rounded-2xl shadow-2xl border border-slate-100 overflow-hidden z-[100] animate-in fade-in zoom-in-95 duration-200 origin-top">
           <div className="px-5 py-4 bg-slate-50 border-b border-slate-100 flex items-center justify-between gap-2">
             <h3 className="font-bold text-slate-800 text-sm">Notificaciones</h3>
             <div className="flex items-center gap-2">
@@ -152,7 +152,7 @@ export default function NotificacionBell() {
                 {hasMore && (
                   <div className="p-3 text-center border-t border-slate-100">
                     <button
-                      onClick={() => { setShowAll(true); setIsOpen(false); }}
+                      onClick={() => { navigate("/mis-notificaciones"); setIsOpen(false); }}
                       className="text-sm text-blue-600 hover:text-blue-800 font-semibold cursor-pointer transition"
                     >
                       Ver más ({notificaciones.length - PREVIEW_COUNT} más)
@@ -165,35 +165,6 @@ export default function NotificacionBell() {
         </div>
       )}
 
-      {/* Modal — todas las notificaciones */}
-      {showAll && (
-        <div className="fixed inset-0 bg-black/50 z-100 flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in duration-300">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden animate-in zoom-in-95 duration-200">
-            <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
-              <h2 className="font-bold text-slate-800">Todas las notificaciones</h2>
-              <div className="flex items-center gap-3">
-                {unreadCount > 0 && (
-                  <button
-                    onClick={handleMarkAllRead}
-                    className="text-[11px] text-blue-600 hover:text-blue-800 font-semibold flex items-center gap-1 cursor-pointer transition"
-                  >
-                    <FaCheck className="text-[9px]" />
-                    Marcar todas leídas
-                  </button>
-                )}
-                <button onClick={() => setShowAll(false)} className="text-slate-400 hover:text-slate-600 cursor-pointer">
-                  <FaTimes />
-                </button>
-              </div>
-            </div>
-            <div className="max-h-[70vh] overflow-y-auto divide-y divide-slate-50">
-              {notificaciones.map(n => (
-                <NotifRow key={n.idNotificacion} n={n} onClick={handleOpenNotif} />
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Modal — detalle de una notificación */}
       {selectedNotif && (
