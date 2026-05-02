@@ -49,6 +49,8 @@ export default function ReportesPage() {
         }
     };
 
+    const fmtFecha = (iso) => new Date(iso).toLocaleDateString("es-CO");
+
     const handleExportPDF = () => {
         if (!data) return;
 
@@ -56,12 +58,20 @@ export default function ReportesPage() {
             const columnas = ["Número", "Fecha", "Cliente", "Total", "Estado"];
             const filas = [...data.efectivas, ...data.anuladas].map(f => [
                 f.facNumero,
-                new Date(f.facFecha).toLocaleDateString(),
+                fmtFecha(f.facFecha),
                 `${f.usuario?.usuNombre} ${f.usuario?.usuApellido}`,
                 `$${Number(f.facTotal).toLocaleString()}`,
-                f.facEstado
+                f.facEstado,
             ]);
-            generatePDF("Reporte de Ventas", columnas, filas, `ventas_${fechaInicio}_${fechaFin}.pdf`);
+            generatePDF("Reporte de Ventas", columnas, filas, `ventas_${fechaInicio}_${fechaFin}.pdf`, {
+                periodo: `${fmtFecha(fechaInicio)} — ${fmtFecha(fechaFin)}`,
+                resumen: [
+                    { label: "Ventas Efectivas",  valor: data.resumen.totalEfectivas },
+                    { label: "Monto Efectivo",     valor: `$${data.resumen.montoTotalEfectivas.toLocaleString()}` },
+                    { label: "Ventas Anuladas",    valor: data.resumen.totalAnuladas },
+                    { label: "Monto Anulado",      valor: `$${data.resumen.montoTotalAnuladas.toLocaleString()}` },
+                ],
+            });
         } else if (tipoReporte === "inventario") {
             const columnas = ["Producto", "Categoría", "Stock", "Precio", "Estado"];
             const filas = data.productos.map(p => [
@@ -69,19 +79,33 @@ export default function ReportesPage() {
                 p.categoria?.catNombre,
                 p.proStock,
                 `$${Number(p.proPrecio).toLocaleString()}`,
-                p.proEstado
+                p.proEstado,
             ]);
-            generatePDF("Reporte de Inventario", columnas, filas, "inventario.pdf");
+            generatePDF("Reporte de Inventario", columnas, filas, "inventario.pdf", {
+                resumen: [
+                    { label: "Total Productos",    valor: data.resumen.totalProductos },
+                    { label: "Valor Inventario",   valor: `$${data.resumen.valorTotalInventario.toLocaleString()}` },
+                    { label: "Stock Bajo (<5)",    valor: data.resumen.productosStockBajo },
+                ],
+            });
         } else if (tipoReporte === "citas") {
             const columnas = ["Paciente", "Motivo", "Fecha", "Hora", "Estado"];
             const filas = data.citas.map(c => [
                 `${c.usuario?.usuNombre} ${c.usuario?.usuApellido}`,
                 c.citMotivo,
-                new Date(c.citFecha).toLocaleDateString(),
-                new Date(c.citFecha).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                c.citEstado
+                fmtFecha(c.citFecha),
+                new Date(c.citFecha).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+                c.citEstado,
             ]);
-            generatePDF("Reporte de Citas", columnas, filas, `citas_${fechaInicio}_${fechaFin}.pdf`);
+            generatePDF("Reporte de Citas", columnas, filas, `citas_${fechaInicio}_${fechaFin}.pdf`, {
+                periodo: `${fmtFecha(fechaInicio)} — ${fmtFecha(fechaFin)}`,
+                resumen: [
+                    { label: "Total Citas",     valor: data.resumen.totalCitas },
+                    { label: "Completadas",     valor: data.resumen.COMPLETADA || 0 },
+                    { label: "Pendientes",      valor: (data.resumen.PENDIENTE || 0) + (data.resumen.EN_ATENCION || 0) },
+                    { label: "Canceladas",      valor: data.resumen.CANCELADA || 0 },
+                ],
+            });
         }
     };
 
