@@ -140,14 +140,14 @@ export default function ReportesPage() {
     };
 
     return (
-        <div className="p-8 max-w-7xl mx-auto w-full min-h-screen bg-slate-50">
+        <div className="p-4 sm:p-8 max-w-7xl mx-auto w-full min-h-screen bg-slate-50">
             {/* Header */}
             <header className="mb-8">
                 <div className="flex items-center gap-3 mb-2">
                     <div className="bg-blue-600 p-2.5 rounded-xl shadow-lg shadow-blue-200">
                         <FaChartBar className="text-white text-xl" />
                     </div>
-                    <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
+                    <h1 className="text-xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
                         Generación de Reportes
                     </h1>
                 </div>
@@ -312,29 +312,29 @@ export default function ReportesPage() {
                                     <tr>
                                         {tipoReporte === "ventas" && (
                                             <>
-                                                <th className="px-8 py-4">Número</th>
-                                                <th className="px-8 py-4">Fecha</th>
-                                                <th className="px-8 py-4">Cliente</th>
-                                                <th className="px-8 py-4">Total</th>
-                                                <th className="px-8 py-4">Estado</th>
+                                                <th className="px-4 sm:px-8 py-3 sm:py-4">Número</th>
+                                                <th className="px-4 sm:px-8 py-3 sm:py-4">Fecha</th>
+                                                <th className="px-4 sm:px-8 py-3 sm:py-4">Cliente</th>
+                                                <th className="px-4 sm:px-8 py-3 sm:py-4">Total</th>
+                                                <th className="px-4 sm:px-8 py-3 sm:py-4">Estado</th>
                                             </>
                                         )}
                                         {tipoReporte === "inventario" && (
                                             <>
-                                                <th className="px-8 py-4">Producto</th>
-                                                <th className="px-8 py-4">Categoría</th>
-                                                <th className="px-8 py-4">Stock</th>
-                                                <th className="px-8 py-4">Precio</th>
-                                                <th className="px-8 py-4">Estado</th>
+                                                <th className="px-4 sm:px-8 py-3 sm:py-4">Producto</th>
+                                                <th className="px-4 sm:px-8 py-3 sm:py-4">Categoría</th>
+                                                <th className="px-4 sm:px-8 py-3 sm:py-4">Stock</th>
+                                                <th className="px-4 sm:px-8 py-3 sm:py-4">Precio</th>
+                                                <th className="px-4 sm:px-8 py-3 sm:py-4">Estado</th>
                                             </>
                                         )}
                                         {tipoReporte === "citas" && (
                                             <>
-                                                <th className="px-8 py-4">Paciente</th>
-                                                <th className="px-8 py-4">Motivo</th>
-                                                <th className="px-8 py-4">Fecha</th>
-                                                <th className="px-8 py-4">Hora</th>
-                                                <th className="px-8 py-4">Estado</th>
+                                                <th className="px-4 sm:px-8 py-3 sm:py-4">Paciente</th>
+                                                <th className="px-4 sm:px-8 py-3 sm:py-4">Motivo</th>
+                                                <th className="px-4 sm:px-8 py-3 sm:py-4">Fecha</th>
+                                                <th className="px-4 sm:px-8 py-3 sm:py-4">Hora</th>
+                                                <th className="px-4 sm:px-8 py-3 sm:py-4">Estado</th>
                                             </>
                                         )}
                                     </tr>
@@ -342,11 +342,11 @@ export default function ReportesPage() {
                                 <tbody className="divide-y divide-slate-100 text-sm">
                                     {tipoReporte === "ventas" && [...data.efectivas, ...data.anuladas].map(f => (
                                         <tr key={f.idFactura} className="hover:bg-slate-50 transition">
-                                            <td className="px-8 py-4 font-bold text-slate-900">{f.facNumero}</td>
-                                            <td className="px-8 py-4 text-slate-500">{new Date(f.facFecha).toLocaleDateString()}</td>
-                                            <td className="px-8 py-4 text-slate-700 font-medium">{f.usuario?.usuNombre} {f.usuario?.usuApellido}</td>
-                                            <td className="px-8 py-4 font-bold text-slate-900">${Number(f.facTotal).toLocaleString()}</td>
-                                            <td className="px-8 py-4">
+                                            <td className="px-4 sm:px-8 py-3 sm:py-4 font-bold text-slate-900">{f.facNumero}</td>
+                                            <td className="px-4 sm:px-8 py-3 sm:py-4 text-slate-500">{new Date(f.facFecha).toLocaleDateString()}</td>
+                                            <td className="px-4 sm:px-8 py-3 sm:py-4 text-slate-700 font-medium">{f.usuario?.usuNombre} {f.usuario?.usuApellido}</td>
+                                            <td className="px-4 sm:px-8 py-3 sm:py-4 font-bold text-slate-900">${Number(f.facTotal).toLocaleString()}</td>
+                                            <td className="px-4 sm:px-8 py-3 sm:py-4">
                                                 <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide ${f.facEstado === "PAGADA" ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700"}`}>
                                                     {f.facEstado}
                                                 </span>
@@ -355,15 +355,15 @@ export default function ReportesPage() {
                                     ))}
                                     {tipoReporte === "inventario" && data.productos.map(p => (
                                         <tr key={p.idProducto} className="hover:bg-slate-50 transition">
-                                            <td className="px-8 py-4 font-bold text-slate-900">{p.proNombre}</td>
-                                            <td className="px-8 py-4 text-slate-500">{p.categoria?.catNombre}</td>
-                                            <td className="px-8 py-4">
+                                            <td className="px-4 sm:px-8 py-3 sm:py-4 font-bold text-slate-900">{p.proNombre}</td>
+                                            <td className="px-4 sm:px-8 py-3 sm:py-4 text-slate-500">{p.categoria?.catNombre}</td>
+                                            <td className="px-4 sm:px-8 py-3 sm:py-4">
                                                 <span className={`font-bold ${p.proStock < 5 ? "text-red-600" : "text-slate-900"}`}>
                                                     {p.proStock}
                                                 </span>
                                             </td>
-                                            <td className="px-8 py-4 font-bold text-slate-900">${Number(p.proPrecio).toLocaleString()}</td>
-                                            <td className="px-8 py-4">
+                                            <td className="px-4 sm:px-8 py-3 sm:py-4 font-bold text-slate-900">${Number(p.proPrecio).toLocaleString()}</td>
+                                            <td className="px-4 sm:px-8 py-3 sm:py-4">
                                                 <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide ${p.proEstado === "ACTIVO" ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-700"}`}>
                                                     {p.proEstado}
                                                 </span>
@@ -372,11 +372,11 @@ export default function ReportesPage() {
                                     ))}
                                     {tipoReporte === "citas" && data.citas.map(c => (
                                         <tr key={c.idCita} className="hover:bg-slate-50 transition">
-                                            <td className="px-8 py-4 font-bold text-slate-900">{c.usuario?.usuNombre} {c.usuario?.usuApellido}</td>
-                                            <td className="px-8 py-4 text-slate-500">{c.citMotivo}</td>
-                                            <td className="px-8 py-4 text-slate-700 font-medium">{new Date(c.citFecha).toLocaleDateString()}</td>
-                                            <td className="px-8 py-4 text-slate-500">{new Date(c.citFecha).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</td>
-                                            <td className="px-8 py-4">
+                                            <td className="px-4 sm:px-8 py-3 sm:py-4 font-bold text-slate-900">{c.usuario?.usuNombre} {c.usuario?.usuApellido}</td>
+                                            <td className="px-4 sm:px-8 py-3 sm:py-4 text-slate-500">{c.citMotivo}</td>
+                                            <td className="px-4 sm:px-8 py-3 sm:py-4 text-slate-700 font-medium">{new Date(c.citFecha).toLocaleDateString()}</td>
+                                            <td className="px-4 sm:px-8 py-3 sm:py-4 text-slate-500">{new Date(c.citFecha).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</td>
+                                            <td className="px-4 sm:px-8 py-3 sm:py-4">
                                                 <span className="px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide bg-slate-100 text-slate-700">
                                                     {c.citEstado}
                                                 </span>

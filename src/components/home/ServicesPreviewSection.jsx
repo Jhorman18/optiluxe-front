@@ -17,7 +17,7 @@ export default function ServicesPreviewSection() {
         </div>
 
         {/* Grid */}
-        <div className="grid md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 md:gap-8">
 
           {/* Card 1 */}
           <div className="group border border-gray-200 rounded-xl p-8 hover:shadow-lg transition duration-300">

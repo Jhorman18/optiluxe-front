@@ -165,7 +165,7 @@ export default function GestionHistorialClinico() {
     ], [esAdmin, abrirEditar, handleEliminar]);
 
     return (
-        <div className="p-8 max-w-7xl mx-auto w-full">
+        <div className="p-4 sm:p-8 max-w-7xl mx-auto w-full">
 
             {/* Header */}
             <header className="mb-8">
@@ -174,7 +174,7 @@ export default function GestionHistorialClinico() {
                         <div className="bg-blue-600 p-2.5 rounded-xl shadow-lg shadow-blue-200">
                             <FaFileMedical className="text-white text-xl" />
                         </div>
-                        <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Historial Clínico</h1>
+                        <h1 className="text-xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Historial Clínico</h1>
                     </div>
                     <div className="bg-white border border-slate-200 rounded-2xl px-5 py-3 text-center shadow-sm">
                         <p className="text-2xl font-extrabold text-blue-600">{historias.length}</p>

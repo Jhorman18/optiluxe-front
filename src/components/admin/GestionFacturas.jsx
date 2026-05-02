@@ -94,7 +94,7 @@ export default function GestionFacturas() {
   };
 
   return (
-    <div className="p-8 max-w-7xl mx-auto w-full">
+    <div className="p-4 sm:p-8 max-w-7xl mx-auto w-full">
       {/* Header */}
       <header className="mb-8">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -102,12 +102,12 @@ export default function GestionFacturas() {
             <div className="bg-blue-600 p-2.5 rounded-xl shadow-lg shadow-blue-200">
               <FaFileInvoiceDollar className="text-white text-xl" />
             </div>
-            <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Gestionar Facturas</h1>
+            <h1 className="text-xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Gestionar Facturas</h1>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2">
             <button
               onClick={() => setModalCrear(true)}
-              className="flex items-center gap-2 px-5 py-3 bg-blue-600 text-white font-bold rounded-2xl hover:bg-blue-700 transition shadow-lg shadow-blue-600/20 cursor-pointer text-sm"
+              className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white font-bold rounded-2xl hover:bg-blue-700 transition shadow-lg shadow-blue-600/20 cursor-pointer text-sm"
             >
               <FaPlus /> Nueva Factura
             </button>

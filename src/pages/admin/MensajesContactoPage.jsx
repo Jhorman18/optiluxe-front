@@ -60,13 +60,13 @@ export default function MensajesContactoPage() {
 
 
     return (
-        <div className="p-8 max-w-7xl mx-auto">
+        <div className="p-4 sm:p-8 max-w-7xl mx-auto">
             <header className="mb-8">
                 <div className="flex items-center gap-3 mb-2">
                     <div className="bg-blue-600 p-2.5 rounded-xl shadow-lg shadow-blue-200">
                         <FaEnvelopeOpenText className="text-white text-xl" />
                     </div>
-                    <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
+                    <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
                         Mensajes de Contacto
                     </h1>
                 </div>
@@ -75,9 +75,9 @@ export default function MensajesContactoPage() {
                 </p>
             </header>
 
-            <div className="grid lg:grid-cols-12 gap-8">
+            <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 sm:gap-8">
                 {/* Listado de Mensajes */}
-                <div className="lg:col-span-12 xl:col-span-5 flex flex-col gap-4">
+                <div className="xl:col-span-5 flex flex-col gap-4">
                     <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-4 space-y-4">
                         <div className="flex flex-col md:flex-row gap-3">
                             <div className="relative flex-1">
@@ -162,7 +162,7 @@ export default function MensajesContactoPage() {
                 </div>
 
                 {/* Detalle del Mensaje */}
-                <div className="lg:col-span-12 xl:col-span-7">
+                <div className="xl:col-span-7">
                     {selectedMensaje ? (
                         <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden sticky top-8">
                             <div className="p-6 border-b border-slate-100 bg-slate-50/50">
@@ -206,7 +206,7 @@ export default function MensajesContactoPage() {
                                 </div>
                             </div>
 
-                            <div className="p-8">
+                            <div className="p-4 sm:p-8">
                                 <div className="grid md:grid-cols-2 gap-6 mb-8">
                                     <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 flex items-center gap-4">
                                         <div className="bg-white p-2.5 rounded-xl shadow-sm border border-slate-100 text-blue-600 leading-none">

@@ -63,7 +63,7 @@ export default function CrearUsuarioModal({ abierto, guardando, onClose, onSubmi
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* Header Premium */}
-                <div className="bg-blue-600 px-8 py-7 text-white flex justify-between items-center shrink-0">
+                <div className="bg-blue-600 px-4 sm:px-8 py-5 sm:py-7 text-white flex justify-between items-center shrink-0">
                     <div className="flex items-center gap-4">
                         <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center text-xl shadow-inner border border-white/5">
                             <FaUserPlus />
@@ -78,7 +78,7 @@ export default function CrearUsuarioModal({ abierto, guardando, onClose, onSubmi
                     </button>
                 </div>
 
-                <form onSubmit={handleSubmit(submit)} className="flex-1 overflow-y-auto p-8 space-y-8 bg-slate-50/30">
+                <form onSubmit={handleSubmit(submit)} className="flex-1 overflow-y-auto p-4 sm:p-8 space-y-6 sm:space-y-8 bg-slate-50/30">
                     
                     {/* Sección 1: Datos Personales */}
                     <div className="space-y-4">
@@ -244,7 +244,7 @@ export default function CrearUsuarioModal({ abierto, guardando, onClose, onSubmi
                 </form>
 
                 {/* Footer con botones mejorados */}
-                <div className="px-8 py-6 bg-slate-50 border-t border-slate-100 flex gap-4 shrink-0">
+                <div className="px-4 sm:px-8 py-4 sm:py-6 bg-slate-50 border-t border-slate-100 flex gap-4 shrink-0">
                     <button 
                         type="button" 
                         onClick={handleClose}

@@ -16,7 +16,7 @@ export default function FacturaDetalleModal({ factura, onClose }) {
       {/* Modal widened to max-w-4xl to ensure nothing is 'squeezed' */}
       <div className="bg-white rounded-3xl shadow-2xl w-full max-w-4xl overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
         {/* Header */}
-        <div className="bg-blue-600 px-10 py-8 text-white flex justify-between items-center shrink-0">
+        <div className="bg-blue-600 px-4 sm:px-8 py-4 sm:py-7 text-white flex justify-between items-center shrink-0">
           <div className="flex items-center gap-5">
             <div className="w-14 h-14 rounded-2xl bg-white/10 flex items-center justify-center text-2xl shadow-inner border border-white/5">
               <FaFileInvoiceDollar className="text-blue-400" />
@@ -32,7 +32,7 @@ export default function FacturaDetalleModal({ factura, onClose }) {
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto p-10 space-y-10">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-8 space-y-6 sm:space-y-10">
           {/* Alerta de Anulación */}
           {factura.facEstado === "ANULADA" && (
             <div className="bg-red-50 border-2 border-red-100 rounded-3xl p-8 flex gap-6 text-red-900 animate-in slide-in-from-top-4 shadow-sm">
@@ -46,14 +46,14 @@ export default function FacturaDetalleModal({ factura, onClose }) {
             </div>
           )}
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-start">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-10 items-start">
             {/* Info Cliente Profesional */}
             <div className="space-y-5">
               <div className="flex items-center gap-2 text-slate-400 font-black uppercase tracking-[0.2em] text-[10px] ml-1">
                 <FaUser className="text-blue-500" /> Datos del Titular
                 <div className="h-[1px] flex-1 bg-slate-100 ml-2"></div>
               </div>
-              <div className="bg-blue-50/20 rounded-[2rem] p-8 border border-blue-100/50 shadow-sm relative overflow-hidden min-h-[220px]">
+              <div className="bg-blue-50/20 rounded-[2rem] p-4 sm:p-8 border border-blue-100/50 shadow-sm relative overflow-hidden">
                 <h3 className="font-black text-slate-900 text-2xl mb-8 border-b border-blue-100/50 pb-4 tracking-tight">
                   {cliente.nombreCompleto}
                 </h3>
@@ -90,7 +90,7 @@ export default function FacturaDetalleModal({ factura, onClose }) {
                 <FaInfoCircle className="text-blue-500" /> Información General
                 <div className="h-[1px] flex-1 bg-slate-100 ml-2"></div>
               </div>
-              <div className="bg-slate-50 rounded-[2rem] p-8 border border-slate-100 space-y-6 shadow-inner">
+              <div className="bg-slate-50 rounded-[2rem] p-4 sm:p-8 border border-slate-100 space-y-4 sm:space-y-6 shadow-inner">
                 <div className="flex justify-between items-center">
                   <span className="text-slate-500 font-black uppercase tracking-widest text-[10px]">Fecha de Emisión</span>
                   <span className="text-slate-900 font-black flex items-center gap-3 bg-white px-5 py-2.5 rounded-2xl border border-slate-200 shadow-sm text-sm">
@@ -120,13 +120,13 @@ export default function FacturaDetalleModal({ factura, onClose }) {
           {/* Concepto */}
           <div className="space-y-4">
             <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] px-2 ml-1">Concepto o Descripción de Cobro</p>
-            <div className="bg-slate-50 rounded-[2rem] p-8 border border-slate-100 text-lg text-slate-800 shadow-inner font-black leading-relaxed tracking-tight">
+            <div className="bg-slate-50 rounded-[2rem] p-4 sm:p-8 border border-slate-100 text-base sm:text-lg text-slate-800 shadow-inner font-black leading-relaxed tracking-tight">
               {factura.facConcepto || "—"}
             </div>
           </div>
 
           {/* Totales Profesional */}
-          <div className="bg-blue-700 rounded-[3rem] p-12 space-y-6 relative overflow-hidden group border border-white/5">
+          <div className="bg-blue-700 rounded-[2rem] sm:rounded-[3rem] p-5 sm:p-10 space-y-4 sm:space-y-6 relative overflow-hidden group border border-white/5">
             <div className="absolute top-0 right-0 w-80 h-80 bg-blue-500/5 blur-3xl rounded-full -mr-20 -mt-20 group-hover:bg-blue-500/10 transition-colors duration-500"></div>
             <div className="flex justify-between text-lg text-slate-400">
               <span className="font-black border-l-4 border-blue-500/40 pl-6 uppercase tracking-[0.2em] text-[11px] h-fit">Subtotal Liquidado</span>
@@ -145,7 +145,7 @@ export default function FacturaDetalleModal({ factura, onClose }) {
               </div>
               <div className="text-right">
                 <span className="text-blue-500 text-lg font-black mr-2 opacity-50">$</span>
-                <span className="text-white text-5xl font-black font-mono tracking-tighter drop-shadow-2xl shadow-blue-500/40">
+                <span className="text-white text-3xl sm:text-5xl font-black font-mono tracking-tighter drop-shadow-2xl shadow-blue-500/40">
                   {Math.round(factura.facTotal).toLocaleString("es-CO")}
                 </span>
               </div>
@@ -154,10 +154,10 @@ export default function FacturaDetalleModal({ factura, onClose }) {
         </div>
 
         {/* Footer */}
-        <div className="px-10 py-8 bg-slate-50 border-t border-slate-100 flex justify-end shrink-0">
+        <div className="px-4 sm:px-8 py-4 sm:py-6 bg-slate-50 border-t border-slate-100 flex justify-end shrink-0">
           <button
             onClick={onClose}
-            className="px-16 py-5 bg-blue-600 text-white font-black text-sm uppercase tracking-[0.25em] rounded-2xl hover:bg-blue-700 transition shadow-2xl shadow-blue-600/40 cursor-pointer active:scale-95 ring-4 ring-blue-600/5"
+            className="px-8 sm:px-12 py-3 sm:py-4 bg-blue-600 text-white font-black text-sm uppercase tracking-[0.25em] rounded-2xl hover:bg-blue-700 transition shadow-2xl shadow-blue-600/40 cursor-pointer active:scale-95"
           >
             Cerrar Consulta
           </button>

@@ -72,7 +72,7 @@ export default function GestionEncuestas() {
   };
 
   return (
-    <div className="p-8 max-w-7xl mx-auto w-full">
+    <div className="p-4 sm:p-8 max-w-7xl mx-auto w-full">
       {/* Header */}
       <header className="mb-8">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -80,20 +80,20 @@ export default function GestionEncuestas() {
             <div className="bg-blue-600 p-2.5 rounded-xl shadow-lg shadow-blue-200">
               <FaClipboardList className="text-white text-xl" />
             </div>
-            <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Encuestas de Satisfacción</h1>
+            <h1 className="text-xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Encuestas de Satisfacción</h1>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2">
             {!esEmpleado && (
               <>
                 <button
                   onClick={() => setModalEstadisticas(true)}
-                  className="flex items-center gap-2 px-5 py-3 bg-blue-600 text-white font-bold rounded-2xl hover:bg-blue-700 transition shadow-lg shadow-blue-600/20 cursor-pointer text-sm"
+                  className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white font-bold rounded-2xl hover:bg-blue-700 transition shadow-lg shadow-blue-600/20 cursor-pointer text-sm"
                 >
                   <FaChartBar /> Ver Estadísticas
                 </button>
                 <button
                   onClick={() => setModalPreguntas(true)}
-                  className="flex items-center gap-2 px-5 py-3 bg-blue-600 text-white font-bold rounded-2xl hover:bg-blue-700 transition shadow-lg shadow-blue-600/20 cursor-pointer text-sm"
+                  className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white font-bold rounded-2xl hover:bg-blue-700 transition shadow-lg shadow-blue-600/20 cursor-pointer text-sm"
                 >
                   <FaQuestionCircle /> Gestionar Preguntas
                 </button>
@@ -116,8 +116,8 @@ export default function GestionEncuestas() {
       </header>
 
       {/* Filtros */}
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-4 mb-8">
-        <div className="relative md:col-span-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-4 mb-8">
+        <div className="relative sm:col-span-2 lg:col-span-5">
           <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
             type="text"
@@ -127,7 +127,7 @@ export default function GestionEncuestas() {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-        <div className="relative md:col-span-3">
+        <div className="relative lg:col-span-3">
           <CustomSelect
             value={filtroTipo}
             onChange={setFiltroTipo}
@@ -139,7 +139,7 @@ export default function GestionEncuestas() {
             ]}
           />
         </div>
-        <div className="relative md:col-span-2">
+        <div className="relative lg:col-span-2">
           <input
             type="date"
             className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition font-medium text-slate-500"
@@ -148,7 +148,7 @@ export default function GestionEncuestas() {
             onChange={(e) => setFechaInicio(e.target.value)}
           />
         </div>
-        <div className="relative md:col-span-2">
+        <div className="relative lg:col-span-2">
           <input
             type="date"
             className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition font-medium text-slate-500"

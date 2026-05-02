@@ -231,7 +231,7 @@ export default function GestionInventario() {
     ], [handleOpenModal, handleToggleStatus, esEmpleado]);
 
     return (
-        <div className="p-8 max-w-7xl mx-auto w-full">
+        <div className="p-4 sm:p-8 max-w-7xl mx-auto w-full">
 
             {/* Header */}
             <header className="mb-8">
@@ -240,7 +240,7 @@ export default function GestionInventario() {
                         <div className="bg-blue-600 p-2.5 rounded-xl shadow-lg shadow-blue-200">
                             <FaBoxOpen className="text-white text-xl" />
                         </div>
-                        <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Inventario de Productos</h1>
+                        <h1 className="text-xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Inventario de Productos</h1>
                     </div>
                     {!esEmpleado && (
                         <button

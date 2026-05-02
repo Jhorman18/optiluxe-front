@@ -267,7 +267,7 @@ export default function CrearCitaModal({ abierto, onClose, onSuccess }) {
     const renderStep2 = () => (
         <div className="flex flex-col h-full animate-in slide-in-from-right-4 duration-300">
             {/* Header Mirroring Invoice */}
-            <div className="flex justify-between items-center px-10 py-8 border-b border-slate-100 mb-6">
+            <div className="flex justify-between items-center px-4 sm:px-8 py-4 sm:py-6 border-b border-slate-100 mb-4 sm:mb-6">
                 <div className="flex items-center gap-3">
                     <div className="p-3 bg-blue-50 rounded-2xl text-blue-600">
                         <FaMoneyBillWave className="text-xl" />
@@ -284,7 +284,7 @@ export default function CrearCitaModal({ abierto, onClose, onSuccess }) {
                 </button>
             </div>
 
-            <form onSubmit={handleFinalSubmit} className="px-10 pb-10 space-y-6">
+            <form onSubmit={handleFinalSubmit} className="px-4 sm:px-8 pb-6 sm:pb-10 space-y-6">
                 <div className="flex items-center gap-2 mb-2">
                     <button type="button" onClick={() => setStep(1)} className="p-2 bg-slate-100 text-slate-500 rounded-xl hover:bg-slate-200 transition cursor-pointer">
                         <FaChevronLeft className="text-xs" />
@@ -292,7 +292,7 @@ export default function CrearCitaModal({ abierto, onClose, onSuccess }) {
                     <span className="text-[10px] font-black uppercase text-slate-400 tracking-widest px-2">Volver a datos de cita</span>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {[
                         { id: "EFECTIVO", label: "Efectivo", icon: FaMoneyBillWave, desc: "Pago en sede", color: "emerald" },
                         { id: "PSE", label: "PSE / Banco", icon: FaUniversity, desc: "Débito en línea", color: "blue" }

@@ -18,7 +18,7 @@ export default function WhyChooseUsSection() {
         </div>
 
         {/* Grid */}
-        <div className="grid md:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
 
           {/* Card 1 */}
           <div className="bg-white rounded-xl p-8 text-center shadow-sm hover:shadow-md transition">

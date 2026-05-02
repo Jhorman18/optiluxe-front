@@ -19,7 +19,7 @@ export default function Footer({ currentPage = "" }) {
         <footer className="bg-gradient-to-r from-blue-700 to-blue-500 text-white">
             {/* Footer Principal */}
             <div className="bg-blue-800/40">
-                <div className="max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 sm:py-12 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-10">
 
                     {/* Columna 1 */}
                     <div>

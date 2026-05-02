@@ -97,7 +97,7 @@ export default function GestionServiciosModal({ abierto, onClose }) {
         <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-md" onClick={onClose}>
             <div className="bg-white w-full max-w-3xl h-[85vh] rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col" onClick={e => e.stopPropagation()}>
                 {/* Header */}
-                <div className="px-8 py-6 border-b border-slate-100 flex items-center justify-between bg-gradient-to-r from-white to-slate-50">
+                <div className="px-4 sm:px-8 py-4 sm:py-6 border-b border-slate-100 flex items-center justify-between bg-gradient-to-r from-white to-slate-50">
                     <div>
                         <h2 className="text-2xl font-black text-slate-900 flex items-center gap-3">
                             <div className="w-10 h-10 rounded-2xl bg-blue-500 flex items-center justify-center text-white shadow-lg shadow-blue-200">
@@ -112,9 +112,9 @@ export default function GestionServiciosModal({ abierto, onClose }) {
                     </button>
                 </div>
 
-                <div className="flex-1 overflow-hidden flex">
+                <div className="flex-1 overflow-hidden flex flex-col md:flex-row">
                     {/* Lista Izquierda */}
-                    <div className="w-1/2 border-r border-slate-100 overflow-y-auto p-6 custom-scrollbar bg-white">
+                    <div className="w-full md:w-1/2 border-b md:border-b-0 md:border-r border-slate-100 overflow-y-auto p-4 sm:p-6 custom-scrollbar bg-white">
                         <div className="flex items-center justify-between mb-6">
                             <h3 className="font-bold text-slate-800 uppercase tracking-widest text-xs">Catálogo</h3>
                             <button 
@@ -186,7 +186,7 @@ export default function GestionServiciosModal({ abierto, onClose }) {
                     </div>
 
                     {/* Formulario Derecha */}
-                    <div className="w-1/2 bg-slate-50/50 p-8 flex flex-col">
+                    <div className="w-full md:w-1/2 bg-slate-50/50 p-4 sm:p-8 flex flex-col">
                         {modoNuevo || editando ? (
                             <form onSubmit={handleSave} className="space-y-6 animate-in slide-in-from-right-4 duration-300">
                                 <h3 className="text-lg font-black text-slate-900 border-l-4 border-blue-500 pl-4">

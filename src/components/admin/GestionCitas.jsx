@@ -500,7 +500,7 @@ export default function GestionCitas() {
     ], [updatingId, handleCambiarEstado, abrirReprogramar, handleAbrirCompletar, esEmpleado]);
 
     return (
-        <div className="p-8 max-w-7xl mx-auto w-full">
+        <div className="p-4 sm:p-8 max-w-7xl mx-auto w-full">
 
             {/* Header */}
             <header className="mb-8">
@@ -509,12 +509,12 @@ export default function GestionCitas() {
                         <div className="bg-blue-600 p-2.5 rounded-xl shadow-lg shadow-blue-200">
                             <FaCalendarAlt className="text-white text-xl" />
                         </div>
-                        <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Gestión de Citas</h1>
+                        <h1 className="text-xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Gestión de Citas</h1>
                     </div>
-                    <div className="flex gap-3 self-start md:self-auto">
+                    <div className="flex flex-wrap gap-2 self-start md:self-auto">
                         <button
                             onClick={abrirNuevaCita}
-                            className="flex items-center justify-center gap-2 bg-blue-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-sm hover:bg-blue-700 transition cursor-pointer"
+                            className="flex items-center justify-center gap-2 bg-blue-600 text-white px-4 py-2.5 rounded-xl font-bold text-sm shadow-sm hover:bg-blue-700 transition cursor-pointer"
                         >
                             <FaPlus className="text-xs" />
                             Nueva Cita
@@ -522,7 +522,7 @@ export default function GestionCitas() {
                         {!esEmpleado && (
                             <button
                                 onClick={() => setModalServicios(true)}
-                                className="flex items-center justify-center gap-2 bg-blue-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-sm hover:bg-blue-700 transition cursor-pointer"
+                                className="flex items-center justify-center gap-2 bg-blue-600 text-white px-4 py-2.5 rounded-xl font-bold text-sm shadow-sm hover:bg-blue-700 transition cursor-pointer"
                             >
                                 <FaStethoscope className="text-xs" />
                                 Gestionar Servicios
@@ -530,7 +530,7 @@ export default function GestionCitas() {
                         )}
                         <button
                             onClick={fetchCitas}
-                            className="flex items-center justify-center gap-2 bg-white border border-slate-200 text-slate-700 px-5 py-2.5 rounded-xl font-bold text-sm shadow-sm hover:bg-slate-50 transition cursor-pointer"
+                            className="flex items-center justify-center gap-2 bg-white border border-slate-200 text-slate-700 px-4 py-2.5 rounded-xl font-bold text-sm shadow-sm hover:bg-slate-50 transition cursor-pointer"
                         >
                             <FaSyncAlt className={`text-sm ${loading ? "animate-spin" : ""}`} />
                             Actualizar
@@ -549,8 +549,8 @@ export default function GestionCitas() {
             </div>
 
             {/* Filtros */}
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-4 mb-8">
-                <div className="relative md:col-span-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-4 mb-8">
+                <div className="relative sm:col-span-2 lg:col-span-4">
                     <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
                     <input
                         type="text"
@@ -560,7 +560,7 @@ export default function GestionCitas() {
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
                 </div>
-                <div className="relative md:col-span-2">
+                <div className="relative lg:col-span-2">
                     <CustomSelect
                         value={selectedEstado}
                         onChange={setSelectedEstado}
@@ -571,7 +571,7 @@ export default function GestionCitas() {
                         ]}
                     />
                 </div>
-                <div className="md:col-span-3">
+                <div className="lg:col-span-3">
                     <input
                         type="date"
                         className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition"
@@ -579,7 +579,7 @@ export default function GestionCitas() {
                         onChange={(e) => setFechaDesde(e.target.value)}
                     />
                 </div>
-                <div className="md:col-span-3">
+                <div className="lg:col-span-3">
                     <input
                         type="date"
                         className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition"

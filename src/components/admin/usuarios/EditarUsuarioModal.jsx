@@ -40,7 +40,7 @@ export default function EditarUsuarioModal({
                 className="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden"
                 onClick={e => e.stopPropagation()}
             >
-                <div className="px-8 py-6 border-b border-slate-100 flex items-center justify-between">
+                <div className="px-4 sm:px-8 py-4 sm:py-6 border-b border-slate-100 flex items-center justify-between">
                     <div>
                         <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
                             <FaEdit className="text-blue-500" /> Editar Usuario
@@ -52,8 +52,8 @@ export default function EditarUsuarioModal({
                     </button>
                 </div>
 
-                <form onSubmit={onSubmit} className="px-8 py-6 space-y-4 max-h-[70vh] overflow-y-auto">
-                    <div className="grid grid-cols-2 gap-4">
+                <form onSubmit={onSubmit} className="px-4 sm:px-8 py-4 sm:py-6 space-y-4 max-h-[70vh] overflow-y-auto">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <CAMPO label="Nombre *">
                             <input required className={INPUT_CLS} value={editForm.usuNombre}
                                 onChange={e => setEditForm(p => ({ ...p, usuNombre: e.target.value }))} />
@@ -64,7 +64,7 @@ export default function EditarUsuarioModal({
                         </CAMPO>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <CAMPO label="Documento *">
                             <input required className={INPUT_CLS} value={editForm.usuDocumento}
                                 onChange={e => setEditForm(p => ({ ...p, usuDocumento: e.target.value }))} />
@@ -98,7 +98,7 @@ export default function EditarUsuarioModal({
                         <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
                             Cambiar contraseña (opcional)
                         </p>
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <CAMPO label="Nueva contraseña">
                                 <div className="relative">
                                     <input

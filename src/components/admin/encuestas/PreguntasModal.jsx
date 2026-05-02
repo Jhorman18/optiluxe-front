@@ -97,7 +97,7 @@ export default function PreguntasModal({ abierto, onClose }) {
     <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in duration-200">
       <div className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-4xl overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
         {/* Header */}
-        <div className="bg-blue-600 px-8 py-7 text-white flex justify-between items-center shrink-0">
+        <div className="bg-blue-600 px-4 sm:px-8 py-5 sm:py-7 text-white flex justify-between items-center shrink-0">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center text-xl shadow-inner border border-white/5">
               <FaQuestionCircle />
@@ -113,7 +113,7 @@ export default function PreguntasModal({ abierto, onClose }) {
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto p-8 space-y-6 bg-slate-50/30">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-8 space-y-6 bg-slate-50/30">
           {loading ? (
             <div className="flex flex-col items-center justify-center py-20 text-slate-400">
               <FaSpinner className="text-4xl animate-spin mb-4" />
@@ -153,7 +153,7 @@ export default function PreguntasModal({ abierto, onClose }) {
                       onChange={(e) => setForm({ ...form, preTexto: e.target.value })}
                     />
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label className="text-xs font-bold text-slate-500 block mb-1.5">Tipo de respuesta</label>
                       <CustomSelect
@@ -195,7 +195,7 @@ export default function PreguntasModal({ abierto, onClose }) {
         </div>
 
         {/* Footer */}
-        <div className="px-8 py-6 bg-slate-50 border-t border-slate-100 flex justify-between items-center shrink-0">
+        <div className="px-4 sm:px-8 py-4 sm:py-6 bg-slate-50 border-t border-slate-100 flex flex-wrap justify-between items-center gap-3 shrink-0">
           {!mostrarForm && (
             <button
               onClick={() => setMostrarForm(true)}
