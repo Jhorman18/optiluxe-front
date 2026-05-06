@@ -12,3 +12,14 @@ api.interceptors.request.use((config) => {
   }
   return config;
 });
+
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    const status = error.response?.status;
+    if (status === 500) {
+      window.location.replace("/500");
+    }
+    return Promise.reject(error);
+  }
+);

@@ -4,7 +4,7 @@ import { useAuth } from "../context/auth/AuthContext.jsx";
 export default function ProtectedRoute({
   redirectTo = "/login",
   allowedRoles,
-  unauthorizedTo = "/",
+  unauthorizedTo = "/403",
 }) {
   const { usuario, cargando } = useAuth();
 

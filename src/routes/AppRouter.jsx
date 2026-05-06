@@ -30,6 +30,9 @@ import CartPanel from "../components/cart/CartPanel.jsx";
 import ScrollToTop from "../components/layout/ScrollToTop.jsx";
 import ClienteConfiguracionPage from "../pages/cliente/ClienteConfiguracionPage.jsx";
 import MisNotificacionesPage from "../pages/cliente/MisNotificacionesPage.jsx";
+import Error404Page from "../pages/error/Error404Page.jsx";
+import Error403Page from "../pages/error/Error403Page.jsx";
+import Error500Page from "../pages/error/Error500Page.jsx";
 
 export default function AppRouter() {
   return (
@@ -48,7 +51,6 @@ export default function AppRouter() {
         <Route path="/productos" element={<Productos />} />
         <Route path="/productos/:id" element={<ProductDetailPage />} />
         <Route path="/contacto" element={<Contacto />} />
-
 
         <Route element={<ProtectedRoute allowedRoles={["ADMINISTRADOR", "EMPLEADO"]} />}>
           <Route path="/test" element={<TestPage />} />
@@ -79,7 +81,9 @@ export default function AppRouter() {
           <Route path="/mis-notificaciones" element={<MisNotificacionesPage />} />
         </Route>
 
-
+        <Route path="/403" element={<Error403Page />} />
+        <Route path="/500" element={<Error500Page />} />
+        <Route path="*" element={<Error404Page />} />
 
       </Routes>
     </BrowserRouter>
