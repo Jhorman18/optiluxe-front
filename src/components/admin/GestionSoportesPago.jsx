@@ -1,32 +1,32 @@
 import { useState, useEffect } from "react";
 import { FaSearch, FaFileInvoiceDollar, FaPlus, FaCalendarAlt } from "react-icons/fa";
-import * as facturaService from "../../services/facturaService";
+import * as soportePagoService from "../../services/soportePagoService";
 import toast from "react-hot-toast";
-import FacturasTabla from "./facturas/FacturasTabla";
-import FacturaDetalleModal from "./facturas/FacturaDetalleModal";
-import CrearFacturaModal from "./facturas/CrearFacturaModal";
-import EditarFacturaModal from "./facturas/EditarFacturaModal";
-import AnularFacturaModal from "./facturas/AnularFacturaModal";
+import SoportesPagoTabla from "./soportesPago/SoportesPagoTabla";
+import SoportePagoDetalleModal from "./soportesPago/SoportePagoDetalleModal";
+import CrearSoportePagoModal from "./soportesPago/CrearSoportePagoModal";
+import EditarSoportePagoModal from "./soportesPago/EditarSoportePagoModal";
+import AnularSoportePagoModal from "./soportesPago/AnularSoportePagoModal";
 
 import { useAuth } from "../../context/auth/AuthContext";
 
-export default function GestionFacturas() {
+export default function GestionSoportesPago() {
   const { rol } = useAuth();
   const esEmpleado = rol === "EMPLEADO";
 
-  const [facturas, setFacturas] = useState([]);
+  const [soportes, setSoportes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [fechaInicio, setFechaInicio] = useState("");
   const [fechaFin, setFechaFin] = useState("");
 
-  const [detalleFactura, setDetalleFactura] = useState(null);
+  const [detalleSoporte, setDetalleSoporte] = useState(null);
   const [editando, setEditando] = useState(null);
   const [modalCrear, setModalCrear] = useState(false);
   const [anulando, setAnulando] = useState(null);
   const [guardando, setGuardando] = useState(false);
 
-  const fetchFacturas = async () => {
+  const fetchSoportes = async () => {
     try {
       setLoading(true);
       const params = {
@@ -34,10 +34,10 @@ export default function GestionFacturas() {
         ...(fechaInicio && { fechaInicio }),
         ...(fechaFin && { fechaFin }),
       };
-      const data = await facturaService.getTodasFacturasAdmin(params);
-      setFacturas(data);
+      const data = await soportePagoService.getTodasSoportesPagoAdmin(params);
+      setSoportes(data);
     } catch (error) {
-      toast.error("Error al cargar las facturas");
+      toast.error("Error al cargar los soportes de pago");
     } finally {
       setLoading(false);
     }
@@ -45,7 +45,7 @@ export default function GestionFacturas() {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      fetchFacturas();
+      fetchSoportes();
     }, 500);
     return () => clearTimeout(timer);
   }, [searchTerm, fechaInicio, fechaFin]);
@@ -53,13 +53,13 @@ export default function GestionFacturas() {
   const handleCrear = async (payload, resetForm) => {
     try {
       setGuardando(true);
-      const nueva = await facturaService.crearFactura(payload);
-      setFacturas((prev) => [nueva, ...prev]);
-      toast.success("Factura creada correctamente");
+      const nuevo = await soportePagoService.crearSoportePago(payload);
+      setSoportes((prev) => [nuevo, ...prev]);
+      toast.success("Soporte de pago creado correctamente");
       setModalCrear(false);
       resetForm();
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Error al crear la factura");
+      toast.error(error?.response?.data?.message || "Error al crear el soporte de pago");
     } finally {
       setGuardando(false);
     }
@@ -68,12 +68,12 @@ export default function GestionFacturas() {
   const handleActualizar = async (id, payload) => {
     try {
       setGuardando(true);
-      const actualizada = await facturaService.actualizarFactura(id, payload);
-      setFacturas((prev) => prev.map((f) => f.idFactura === id ? actualizada : f));
-      toast.success("Factura actualizada correctamente");
+      const actualizado = await soportePagoService.actualizarSoportePago(id, payload);
+      setSoportes((prev) => prev.map((f) => f.idSoporte === id ? actualizado : f));
+      toast.success("Soporte de pago actualizado correctamente");
       setEditando(null);
     } catch (error) {
-      toast.error("Error al actualizar la factura");
+      toast.error("Error al actualizar el soporte de pago");
     } finally {
       setGuardando(false);
     }
@@ -82,12 +82,12 @@ export default function GestionFacturas() {
   const handleAnular = async (id, motivo) => {
     try {
       setGuardando(true);
-      const anulada = await facturaService.anularFactura(id, motivo);
-      setFacturas((prev) => prev.map((f) => f.idFactura === id ? anulada : f));
-      toast.success("Factura anulada correctamente");
+      const anulado = await soportePagoService.anularSoportePago(id, motivo);
+      setSoportes((prev) => prev.map((f) => f.idSoporte === id ? anulado : f));
+      toast.success("Soporte de pago anulado correctamente");
       setAnulando(null);
     } catch (error) {
-      toast.error("Error al anular la factura");
+      toast.error("Error al anular el soporte de pago");
     } finally {
       setGuardando(false);
     }
@@ -102,22 +102,22 @@ export default function GestionFacturas() {
             <div className="bg-blue-600 p-2.5 rounded-xl shadow-lg shadow-blue-200">
               <FaFileInvoiceDollar className="text-white text-xl" />
             </div>
-            <h1 className="text-xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Gestionar Facturas</h1>
+            <h1 className="text-xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Gestionar Soportes de Pago</h1>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <button
               onClick={() => setModalCrear(true)}
               className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white font-bold rounded-2xl hover:bg-blue-700 transition shadow-lg shadow-blue-600/20 cursor-pointer text-sm"
             >
-              <FaPlus /> Nueva Factura
+              <FaPlus /> Nuevo Soporte de Pago
             </button>
             <div className="bg-white border border-slate-200 rounded-2xl px-5 py-3 text-center shadow-sm">
-              <p className="text-2xl font-extrabold text-blue-600">{facturas.length}</p>
+              <p className="text-2xl font-extrabold text-blue-600">{soportes.length}</p>
               <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Total</p>
             </div>
           </div>
         </div>
-        <p className="text-sm font-medium text-slate-500 mt-2">Administra el registro contable y de ventas de la óptica desde un solo panel.</p>
+        <p className="text-sm font-medium text-slate-500 mt-2">Administra los soportes de pago y registro de ventas de la óptica desde un solo panel.</p>
       </header>
 
       {/* Filtros */}
@@ -126,7 +126,7 @@ export default function GestionFacturas() {
           <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
             type="text"
-            placeholder="Buscar por N° Factura o nombre del cliente..."
+            placeholder="Buscar por N° Soporte o nombre del cliente..."
             className="w-full pl-12 pr-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -154,38 +154,38 @@ export default function GestionFacturas() {
         </div>
       </div>
 
-      <FacturasTabla
-        facturas={facturas}
+      <SoportesPagoTabla
+        soportes={soportes}
         loading={loading}
-        onVerDetalle={(f) => setDetalleFactura(f)}
+        onVerDetalle={(f) => setDetalleSoporte(f)}
         onEditar={(f) => setEditando(f)}
         onAnular={(f) => setAnulando(f)}
         esEmpleado={esEmpleado}
       />
 
-      <FacturaDetalleModal
-        factura={detalleFactura}
-        onClose={() => setDetalleFactura(null)}
+      <SoportePagoDetalleModal
+        soporte={detalleSoporte}
+        onClose={() => setDetalleSoporte(null)}
       />
 
-      <CrearFacturaModal
+      <CrearSoportePagoModal
         abierto={modalCrear}
         guardando={guardando}
         onClose={() => setModalCrear(false)}
         onSubmit={handleCrear}
       />
 
-      <EditarFacturaModal
+      <EditarSoportePagoModal
         abierto={!!editando}
-        factura={editando}
+        soporte={editando}
         guardando={guardando}
         onClose={() => setEditando(null)}
         onSubmit={handleActualizar}
       />
 
-      <AnularFacturaModal
+      <AnularSoportePagoModal
         abierto={!!anulando}
-        factura={anulando}
+        soporte={anulando}
         guardando={guardando}
         onAnular={handleAnular}
         onClose={() => setAnulando(null)}

@@ -32,7 +32,7 @@ const MENU_BASE = [
   { label: "Configuración", icon: FaCog, to: "/configuracion" },
 ];
 
-const MENU_STAFF = { label: "Facturas", icon: FaFileInvoice, to: "/facturas" };
+const MENU_STAFF = { label: "Soportes de Pago", icon: FaFileInvoice, to: "/facturas" };
 const MENU_ADMIN = { label: "Panel de administración", icon: FaUserShield, to: "/panel-admin" };
 
 import NotificacionBell from "../layout/NotificacionBell";

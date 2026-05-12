@@ -194,10 +194,7 @@ export default function Carrito() {
                     <span>Subtotal ({carrito.totalItems} {carrito.totalItems === 1 ? "producto" : "productos"})</span>
                     <span className="font-medium text-gray-900">${carrito.subtotal.toLocaleString()}</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span>IVA (19%)</span>
-                    <span className="font-medium text-gray-900">${Math.round(carrito.iva).toLocaleString()}</span>
-                  </div>
+
                   <div className="flex justify-between">
                     <span>Envío</span>
                     <span className="text-green-600 font-medium">Gratis</span>

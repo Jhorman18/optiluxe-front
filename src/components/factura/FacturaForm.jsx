@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { toast } from "react-hot-toast";
-import { crearFactura } from "../../services/facturaService";
+import { crearSoportePago } from "../../services/soportePagoService";
 import { getProductos } from "../../services/productoService";
 import { getUsuarios } from "../../services/usuarioService";
 import { FaPlus, FaTrash, FaUser, FaBox, FaCalculator } from "react-icons/fa";
@@ -45,13 +45,12 @@ function FacturaForm() {
       return acc + (precio * parseInt(item.cantidad || 0));
     }, 0);
 
-    const iva = subtotal * 0.19;
-    const total = subtotal + iva;
+    const total = subtotal;
 
     setFormData(prev => ({
       ...prev,
       facSubtotal: subtotal.toFixed(2),
-      facIva: iva.toFixed(2),
+      facIva: 0,
       facTotal: total.toFixed(2)
     }));
   }, [formData.items]);
@@ -65,7 +64,7 @@ function FacturaForm() {
 
   const handleRemoveItem = (index) => {
     if (formData.items.length === 1) {
-      toast.error("La factura debe tener al menos un producto");
+      toast.error("El soporte de pago debe tener al menos un producto");
       return;
     }
     const newItems = formData.items.filter((_, i) => i !== index);
@@ -107,8 +106,8 @@ function FacturaForm() {
     }
 
     try {
-      await crearFactura(formData);
-      toast.success("Factura creada correctamente");
+      await crearSoportePago(formData);
+      toast.success("Soporte de pago creado correctamente");
       setFormData({
         fkIdUsuario: "",
         facConcepto: "Venta de productos",
@@ -119,7 +118,7 @@ function FacturaForm() {
         items: [{ idProducto: "", cantidad: 1, precio: 0 }]
       });
     } catch (error) {
-      toast.error(error.response?.data?.message || "Error al crear factura");
+      toast.error(error.response?.data?.message || "Error al crear soporte de pago");
     }
   };
 
@@ -128,7 +127,7 @@ function FacturaForm() {
   return (
     <form onSubmit={handleSubmit} className="bg-white p-6 rounded-xl shadow-lg border border-gray-100 space-y-6 max-w-4xl mx-auto">
       <div className="flex items-center gap-2 text-indigo-600 font-bold text-xl border-b pb-4">
-        <FaPlus className="text-sm" /> Registrar Nueva Factura
+        <FaPlus className="text-sm" /> Registrar Nuevo Soporte de Pago
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -249,10 +248,7 @@ function FacturaForm() {
           <span>Subtotal:</span>
           <span>${parseFloat(formData.facSubtotal).toLocaleString()}</span>
         </div>
-        <div className="flex justify-between w-full md:w-64 text-sm text-gray-600 border-b pb-2">
-          <span>IVA (19%):</span>
-          <span>${parseFloat(formData.facIva).toLocaleString()}</span>
-        </div>
+
         <div className="flex justify-between w-full md:w-64 text-xl font-bold text-indigo-700 pt-1">
           <span className="flex items-center gap-1"><FaCalculator className="text-sm opacity-50" /> Total:</span>
           <span>${parseFloat(formData.facTotal).toLocaleString()}</span>
@@ -263,7 +259,7 @@ function FacturaForm() {
         type="submit"
         className="w-full bg-indigo-600 text-white py-3 rounded-xl font-bold text-lg hover:bg-indigo-700 shadow-lg shadow-indigo-200 transition-all flex items-center justify-center gap-2"
       >
-        Registrar Factura
+        Registrar Soporte de Pago
       </button>
     </form>
   );

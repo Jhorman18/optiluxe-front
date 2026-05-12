@@ -57,11 +57,11 @@ export default function ReportesPage() {
         if (tipoReporte === "ventas") {
             const columnas = ["Número", "Fecha", "Cliente", "Total", "Estado"];
             const filas = [...data.efectivas, ...data.anuladas].map(f => [
-                f.facNumero,
-                fmtFecha(f.facFecha),
+                f.sopNumero,
+                fmtFecha(f.sopFecha),
                 `${f.usuario?.usuNombre} ${f.usuario?.usuApellido}`,
-                `$${Number(f.facTotal).toLocaleString()}`,
-                f.facEstado,
+                `$${Number(f.sopTotal).toLocaleString()}`,
+                f.sopEstado,
             ]);
             generatePDF("Reporte de Ventas", columnas, filas, `ventas_${fechaInicio}_${fechaFin}.pdf`, {
                 periodo: `${fmtFecha(fechaInicio)} — ${fmtFecha(fechaFin)}`,
@@ -114,11 +114,11 @@ export default function ReportesPage() {
         let exportData = [];
         if (tipoReporte === "ventas") {
             exportData = [...data.efectivas, ...data.anuladas].map(f => ({
-                Numero: f.facNumero,
-                Fecha: new Date(f.facFecha).toLocaleDateString(),
+                Numero: f.sopNumero,
+                Fecha: new Date(f.sopFecha).toLocaleDateString(),
                 Cliente: `${f.usuario?.usuNombre} ${f.usuario?.usuApellido}`,
-                Total: f.facTotal,
-                Estado: f.facEstado
+                Total: f.sopTotal,
+                Estado: f.sopEstado
             }));
         } else if (tipoReporte === "inventario") {
             exportData = data.productos.map(p => ({
@@ -341,14 +341,14 @@ export default function ReportesPage() {
                                 </thead>
                                 <tbody className="divide-y divide-slate-100 text-sm">
                                     {tipoReporte === "ventas" && [...data.efectivas, ...data.anuladas].map(f => (
-                                        <tr key={f.idFactura} className="hover:bg-slate-50 transition">
-                                            <td className="px-4 sm:px-8 py-3 sm:py-4 font-bold text-slate-900">{f.facNumero}</td>
-                                            <td className="px-4 sm:px-8 py-3 sm:py-4 text-slate-500">{new Date(f.facFecha).toLocaleDateString()}</td>
+                                        <tr key={f.idSoporte} className="hover:bg-slate-50 transition">
+                                            <td className="px-4 sm:px-8 py-3 sm:py-4 font-bold text-slate-900">{f.sopNumero}</td>
+                                            <td className="px-4 sm:px-8 py-3 sm:py-4 text-slate-500">{new Date(f.sopFecha).toLocaleDateString()}</td>
                                             <td className="px-4 sm:px-8 py-3 sm:py-4 text-slate-700 font-medium">{f.usuario?.usuNombre} {f.usuario?.usuApellido}</td>
-                                            <td className="px-4 sm:px-8 py-3 sm:py-4 font-bold text-slate-900">${Number(f.facTotal).toLocaleString()}</td>
+                                            <td className="px-4 sm:px-8 py-3 sm:py-4 font-bold text-slate-900">${Number(f.sopTotal).toLocaleString()}</td>
                                             <td className="px-4 sm:px-8 py-3 sm:py-4">
-                                                <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide ${f.facEstado === "PAGADA" ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700"}`}>
-                                                    {f.facEstado}
+                                                <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide ${f.sopEstado === "PAGADA" ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700"}`}>
+                                                    {f.sopEstado}
                                                 </span>
                                             </td>
                                         </tr>

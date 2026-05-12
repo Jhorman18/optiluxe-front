@@ -13,7 +13,7 @@ const MENU_SIDEBAR = [
     { label: "Usuarios", icon: FaUsers, to: "/panel-admin/usuarios" },
     { label: "Citas", icon: FaCalendarAlt, to: "/panel-admin/citas" },
     { label: "Historial Clínico", icon: FaFileMedical, to: "/panel-admin/historial" },
-    { label: "Facturas (Ventas)", icon: FaFileInvoiceDollar, to: "/panel-admin/facturas" },
+    { label: "Soportes de Pago", icon: FaFileInvoiceDollar, to: "/panel-admin/soportes-pago" },
     { label: "Inventario", icon: FaBoxOpen, to: "/panel-admin/inventario" },
     { label: "Reportes", icon: FaChartBar, to: "/panel-admin/reportes" },
     { label: "Mensajes", icon: FaEnvelopeOpenText, to: "/panel-admin/mensajes" },

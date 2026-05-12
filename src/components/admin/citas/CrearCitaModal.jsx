@@ -138,11 +138,11 @@ export default function CrearCitaModal({ abierto, onClose, onSuccess }) {
         try {
             setFinalizando(true);
             await citaService.registrarPagoCita(idCita, { monto, metodoPago: condiciones });
-            toast.success("Cita agendada y facturada correctamente");
+            toast.success("Cita agendada y soporte de pago generado correctamente");
             onSuccess && onSuccess(idCita);
             handleClose();
         } catch (error) {
-            toast.error("Cita creada, pero error al generar factura. Favor revisar en el panel.");
+            toast.error("Cita creada, pero error al generar soporte de pago. Favor revisar en el panel.");
             onClose(); // Cerramos igual porque la cita ya está en la DB
         } finally {
             setFinalizando(false);
@@ -350,7 +350,7 @@ export default function CrearCitaModal({ abierto, onClose, onSuccess }) {
                     </div>
                     <div className="text-right">
                         <p className="text-2xl font-black text-blue-700">${parseFloat(servicioSeleccionado?.serPrecio || 0).toLocaleString()}</p>
-                        <p className="text-[8px] text-blue-400 uppercase font-bold">IVA Incluido</p>
+
                     </div>
                 </div>
 
@@ -359,7 +359,7 @@ export default function CrearCitaModal({ abierto, onClose, onSuccess }) {
                     disabled={finalizando}
                     className="w-full py-5 bg-blue-700 text-white font-black text-[11px] uppercase tracking-widest rounded-3xl hover:bg-black transition shadow-xl shadow-blue-700/20 flex items-center justify-center gap-3 cursor-pointer group"
                 >
-                    {finalizando ? <FaSpinner className="animate-spin" /> : <><FaFileInvoiceDollar className="text-xl" /> Finalizar y Crear Factura</>}
+                    {finalizando ? <FaSpinner className="animate-spin" /> : <><FaFileInvoiceDollar className="text-xl" /> Finalizar y Generar Soporte de Pago</>}
                 </button>
             </form>
         </div>

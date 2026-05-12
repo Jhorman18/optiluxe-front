@@ -12,8 +12,8 @@ import StatusBadge from "../../ui/StatusBadge";
 
 const columnHelper = createColumnHelper();
 
-export default function FacturasTabla({
-  facturas,
+export default function SoportesPagoTabla({
+  soportes,
   loading,
   onVerDetalle,
   onEditar,
@@ -22,8 +22,8 @@ export default function FacturasTabla({
 }) {
   const columns = useMemo(
     () => [
-      columnHelper.accessor("facNumero", {
-        header: "N° Factura",
+      columnHelper.accessor("sopNumero", {
+        header: "N° Soporte",
         cell: ({ getValue }) => (
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
@@ -54,7 +54,7 @@ export default function FacturasTabla({
         ),
         meta: { skeletonClass: "h-6 w-40" },
       }),
-      columnHelper.accessor("facFecha", {
+      columnHelper.accessor("sopFecha", {
         header: "Fecha Emisión",
         cell: ({ getValue }) => (
           <div className="flex flex-col">
@@ -68,7 +68,7 @@ export default function FacturasTabla({
         ),
         meta: { skeletonClass: "h-6 w-24" },
       }),
-      columnHelper.accessor("facTotal", {
+      columnHelper.accessor("sopTotal", {
         header: "Monto Total",
         cell: ({ getValue }) => (
           <span className="font-black text-blue-600">
@@ -77,7 +77,7 @@ export default function FacturasTabla({
         ),
         meta: { skeletonClass: "h-6 w-24" },
       }),
-      columnHelper.accessor("facEstado", {
+      columnHelper.accessor("sopEstado", {
         header: "Estado",
         cell: ({ getValue }) => <StatusBadge status={getValue() || "PAGADA"} />,
         meta: { skeletonClass: "h-6 w-20" },
@@ -94,19 +94,19 @@ export default function FacturasTabla({
             >
               <FaEye className="text-base group-hover:scale-110 transition-transform" />
             </button>
-            {!esEmpleado && f.facEstado !== "ANULADA" && (
+            {!esEmpleado && f.sopEstado !== "ANULADA" && (
               <>
                 <button
                   onClick={() => onEditar(f)}
                   className="p-2.5 rounded-xl text-slate-400 hover:text-amber-600 hover:bg-amber-50 transition cursor-pointer group shadow-sm hover:shadow-md bg-white border border-slate-100"
-                  title="Editar factura"
+                  title="Editar soporte de pago"
                 >
                   <FaEdit className="text-base group-hover:scale-110 transition-transform" />
                 </button>
                 <button
                   onClick={() => onAnular(f)}
                   className="p-2.5 rounded-xl text-slate-400 hover:text-red-600 hover:bg-red-50 transition cursor-pointer group shadow-sm hover:shadow-md bg-white border border-slate-100"
-                  title="Anular factura"
+                  title="Anular soporte de pago"
                 >
                   <FaBan className="text-base group-hover:rotate-12 transition-transform" />
                 </button>
@@ -126,9 +126,9 @@ export default function FacturasTabla({
   return (
     <DataTable
       columns={columns}
-      data={facturas}
+      data={soportes}
       loading={loading}
-      emptyMessage="No se han registrado facturas aún."
+      emptyMessage="No se han registrado soportes de pago aún."
       pageSize={10}
     />
   );

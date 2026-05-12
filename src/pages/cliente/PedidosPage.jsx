@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
-import { getMisFacturas } from "../../services/facturaService";
+import { getMisSoportesPago } from "../../services/soportePagoService";
 import HeaderHome from "../../components/home/HeaderHome";
 import Footer from "../../components/layout/Footer";
 import StatusBadge from "../../components/ui/StatusBadge";
@@ -9,9 +9,9 @@ import toast from "react-hot-toast";
 const formatFecha = (iso) =>
     new Date(iso).toLocaleDateString("es-CO", { year: "numeric", month: "long", day: "numeric", timeZone: "UTC" });
 
-function DetalleModal({ factura, onClose }) {
-    if (!factura) return null;
-    const productos = factura.carrito?.carrito_producto ?? [];
+function DetalleModal({ soporte, onClose }) {
+    if (!soporte) return null;
+    const productos = soporte.carrito?.carrito_producto ?? [];
 
     return (
         <div
@@ -25,21 +25,21 @@ function DetalleModal({ factura, onClose }) {
                 <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between">
                     <div>
                         <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-                            <FaFileInvoiceDollar className="text-blue-500" /> {factura.facNumero}
+                            <FaFileInvoiceDollar className="text-blue-500" /> {soporte.sopNumero}
                         </h2>
-                        <p className="text-sm text-slate-500 mt-0.5">{formatFecha(factura.facFecha)}</p>
+                        <p className="text-sm text-slate-500 mt-0.5">{formatFecha(soporte.sopFecha)}</p>
                     </div>
                     <button onClick={onClose} className="text-slate-400 hover:text-slate-600 transition text-xl">×</button>
                 </div>
 
                 <div className="px-6 py-5 space-y-4 max-h-[70vh] overflow-y-auto">
                     {/* Estado */}
-                    <StatusBadge status={factura.facEstado} />
+                    <StatusBadge status={soporte.sopEstado} />
 
                     {/* Concepto */}
-                    {factura.facConcepto && (
+                    {soporte.sopConcepto && (
                         <p className="text-sm text-slate-600 bg-slate-50 border border-slate-100 rounded-xl px-4 py-3">
-                            {factura.facConcepto}
+                            {soporte.sopConcepto}
                         </p>
                     )}
 
@@ -62,21 +62,18 @@ function DetalleModal({ factura, onClose }) {
                     <div className="bg-slate-50 rounded-xl border border-slate-100 divide-y divide-slate-100">
                         <div className="flex justify-between px-4 py-2.5 text-sm">
                             <span className="text-slate-500">Subtotal</span>
-                            <span className="font-medium text-slate-800">${Number(factura.facSubtotal).toLocaleString()}</span>
+                            <span className="font-medium text-slate-800">${Number(soporte.sopSubtotal).toLocaleString()}</span>
                         </div>
-                        <div className="flex justify-between px-4 py-2.5 text-sm">
-                            <span className="text-slate-500">IVA (19%)</span>
-                            <span className="font-medium text-slate-800">${Number(factura.facIva).toLocaleString()}</span>
-                        </div>
+
                         <div className="flex justify-between px-4 py-2.5 text-sm font-bold">
                             <span className="text-slate-900">Total</span>
-                            <span className="text-blue-600 text-base">${Number(factura.facTotal).toLocaleString()}</span>
+                            <span className="text-blue-600 text-base">${Number(soporte.sopTotal).toLocaleString()}</span>
                         </div>
                     </div>
 
-                    {factura.facEstado === "ANULADA" && factura.facMotivoAnulacion && (
+                    {soporte.sopEstado === "ANULADA" && soporte.sopMotivoAnulacion && (
                         <div className="bg-red-50 border border-red-100 rounded-xl px-4 py-3 text-sm text-red-700">
-                            <span className="font-bold">Motivo de anulación: </span>{factura.facMotivoAnulacion}
+                            <span className="font-bold">Motivo de anulación: </span>{soporte.sopMotivoAnulacion}
                         </div>
                     )}
                 </div>
@@ -86,22 +83,22 @@ function DetalleModal({ factura, onClose }) {
 }
 
 export default function PedidosPage() {
-    const [facturas, setFacturas] = useState([]);
+    const [soportes, setSoportes] = useState([]);
     const [loading, setLoading]   = useState(true);
     const [detalle, setDetalle]   = useState(null);
     const [fechaDesde, setFechaDesde] = useState("");
     const [fechaHasta, setFechaHasta] = useState("");
 
     useEffect(() => {
-        getMisFacturas()
-            .then(setFacturas)
+        getMisSoportesPago()
+            .then(setSoportes)
             .catch(() => toast.error("Error al cargar tus pedidos"))
             .finally(() => setLoading(false));
     }, []);
 
-    const facturasFiltradas = useMemo(() => {
-        return facturas.filter(f => {
-            const fecha = new Date(f.facFecha);
+    const soportesFiltrados = useMemo(() => {
+        return soportes.filter(s => {
+            const fecha = new Date(s.sopFecha);
             if (fechaDesde && fecha < new Date(fechaDesde)) return false;
             if (fechaHasta) {
                 const hasta = new Date(fechaHasta);
@@ -110,7 +107,7 @@ export default function PedidosPage() {
             }
             return true;
         });
-    }, [facturas, fechaDesde, fechaHasta]);
+    }, [soportes, fechaDesde, fechaHasta]);
 
     const limpiarFiltros = () => { setFechaDesde(""); setFechaHasta(""); };
     const hayFiltros = fechaDesde || fechaHasta;
@@ -129,7 +126,7 @@ export default function PedidosPage() {
                                 Mis Pedidos
                             </h1>
                         </div>
-                        <p className="text-sm font-medium text-slate-500 mt-2">Consulta el historial de tus compras y facturas detalladas.</p>
+                        <p className="text-sm font-medium text-slate-500 mt-2">Consulta el historial de tus compras y soportes de pago detallados.</p>
                     </header>
 
                     {/* Filtro por fecha */}
@@ -163,7 +160,7 @@ export default function PedidosPage() {
                         )}
                         {hayFiltros && (
                             <span className="ml-auto text-xs text-slate-400 self-end mb-2">
-                                {facturasFiltradas.length} resultado{facturasFiltradas.length !== 1 ? "s" : ""}
+                                {soportesFiltrados.length} resultado{soportesFiltrados.length !== 1 ? "s" : ""}
                             </span>
                         )}
                     </div>
@@ -177,12 +174,12 @@ export default function PedidosPage() {
                                 </div>
                             ))}
                         </div>
-                    ) : facturas.length === 0 ? (
+                    ) : soportes.length === 0 ? (
                         <div className="bg-white rounded-2xl border border-dashed border-slate-200 py-20 text-center">
                             <FaShoppingBag className="text-slate-200 text-5xl mx-auto mb-4" />
                             <p className="text-slate-500 font-medium">Aún no tienes pedidos registrados.</p>
                         </div>
-                    ) : facturasFiltradas.length === 0 ? (
+                    ) : soportesFiltrados.length === 0 ? (
                         <div className="bg-white rounded-2xl border border-dashed border-slate-200 py-20 text-center">
                             <FaSearch className="text-slate-200 text-5xl mx-auto mb-4" />
                             <p className="text-slate-500 font-medium">No hay pedidos en ese rango de fechas.</p>
@@ -190,26 +187,26 @@ export default function PedidosPage() {
                         </div>
                     ) : (
                         <div className="space-y-4">
-                            {facturasFiltradas.map(f => {
+                            {soportesFiltrados.map(s => {
                                 return (
-                                    <div key={f.idFactura} className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 flex items-center justify-between gap-4">
+                                    <div key={s.idSoporte} className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 flex items-center justify-between gap-4">
                                         <div className="flex items-start gap-4">
                                             <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center shrink-0">
                                                 <FaFileInvoiceDollar />
                                             </div>
                                             <div>
-                                                <p className="font-bold text-slate-900">{f.facNumero}</p>
+                                                <p className="font-bold text-slate-900">{s.sopNumero}</p>
                                                 <p className="text-sm text-slate-500 flex items-center gap-1.5 mt-0.5">
-                                                    <FaCalendarAlt className="text-xs" /> {formatFecha(f.facFecha)}
+                                                    <FaCalendarAlt className="text-xs" /> {formatFecha(s.sopFecha)}
                                                 </p>
                                                 <div className="flex items-center gap-2 mt-1.5">
-                                                    <StatusBadge status={f.facEstado} />
-                                                    <span className="text-sm font-bold text-slate-700">${Number(f.facTotal).toLocaleString()}</span>
+                                                    <StatusBadge status={s.sopEstado} />
+                                                    <span className="text-sm font-bold text-slate-700">${Number(s.sopTotal).toLocaleString()}</span>
                                                 </div>
                                             </div>
                                         </div>
                                         <button
-                                            onClick={() => setDetalle(f)}
+                                            onClick={() => setDetalle(s)}
                                             className="flex items-center gap-2 px-4 py-2 bg-blue-50 hover:bg-blue-100 text-blue-600 font-semibold text-sm rounded-xl transition shrink-0"
                                         >
                                             <FaEye /> Ver
@@ -222,7 +219,7 @@ export default function PedidosPage() {
                 </div>
             </main>
             <Footer />
-            <DetalleModal factura={detalle} onClose={() => setDetalle(null)} />
+            <DetalleModal soporte={detalle} onClose={() => setDetalle(null)} />
         </>
     );
 }

@@ -693,27 +693,23 @@ export default function GestionCitas() {
                                 </div>
                             )}
 
-                            {selectedCita.encuesta?.[0]?.factura && (
+                            {selectedCita.encuesta?.[0]?.soporte_pago && (
                                 <div className="bg-emerald-50 border border-emerald-100 rounded-2xl p-5">
                                     <h3 className="text-sm font-bold text-emerald-700 mb-3 flex items-center gap-2">
-                                        <FaFileInvoiceDollar /> Factura Vinculada
+                                        <FaFileInvoiceDollar /> Soporte de Pago Vinculado
                                     </h3>
-                                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
+                                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-sm">
                                         <div>
                                             <p className="text-[10px] text-emerald-500 font-bold uppercase">Número</p>
-                                            <p className="font-bold text-emerald-900">{selectedCita.encuesta[0].factura.facNumero}</p>
+                                            <p className="font-bold text-emerald-900">{selectedCita.encuesta[0].soporte_pago.facNumero}</p>
                                         </div>
                                         <div>
                                             <p className="text-[10px] text-emerald-500 font-bold uppercase">Subtotal</p>
-                                            <p className="font-bold text-emerald-900">${parseFloat(selectedCita.encuesta[0].factura.facSubtotal).toLocaleString()}</p>
-                                        </div>
-                                        <div>
-                                            <p className="text-[10px] text-emerald-500 font-bold uppercase">IVA</p>
-                                            <p className="font-bold text-emerald-900">${parseFloat(selectedCita.encuesta[0].factura.facIva).toLocaleString()}</p>
+                                            <p className="font-bold text-emerald-900">${parseFloat(selectedCita.encuesta[0].soporte_pago.facSubtotal).toLocaleString()}</p>
                                         </div>
                                         <div>
                                             <p className="text-[10px] text-emerald-500 font-bold uppercase">Total</p>
-                                            <p className="font-bold text-emerald-900 text-base">${parseFloat(selectedCita.encuesta[0].factura.facTotal).toLocaleString()}</p>
+                                            <p className="font-bold text-emerald-900 text-base">${parseFloat(selectedCita.encuesta[0].soporte_pago.facTotal).toLocaleString()}</p>
                                         </div>
                                     </div>
                                 </div>

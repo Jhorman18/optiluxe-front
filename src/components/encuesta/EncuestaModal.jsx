@@ -87,10 +87,10 @@ const TextInput = ({ value, onChange }) => (
  * @param {Object} props
  * @param {"cita"|"compra"} props.categoria - Tipo de encuesta
  * @param {number|null} props.fkIdCita - ID de la cita asociada
- * @param {number|null} props.fkIdFactura - ID de la factura asociada
+ * @param {number|null} props.fkIdSoporte - ID del soporte asociado
  * @param {Function} props.onClose - Callback al cerrar el modal
  */
-export default function EncuestaModal({ categoria, fkIdCita, fkIdFactura, onClose }) {
+export default function EncuestaModal({ categoria, fkIdCita, fkIdSoporte, onClose }) {
   const [preguntas, setPreguntas] = useState([]);
   const [loadingPreguntas, setLoadingPreguntas] = useState(true);
 
@@ -131,7 +131,7 @@ export default function EncuestaModal({ categoria, fkIdCita, fkIdFactura, onClos
       const payload = {
         enTipo: categoria === "cita" ? "CITA" : "VENTA",
         fkIdCita: fkIdCita || null,
-        fkIdFactura: fkIdFactura || null,
+        fkIdSoporte: fkIdSoporte || null,
         respuestas: Object.entries(respuestas).map(([idPregunta, resValor]) => ({
           fkIdPregunta: Number(idPregunta),
           resValor: String(resValor),

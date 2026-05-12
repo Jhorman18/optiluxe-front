@@ -17,7 +17,7 @@ import NotificacionesPage from "../pages/admin/NotificacionesPage";
 import UsuariosPage from "../pages/admin/UsuariosPage";
 import AdminCitasPage from "../pages/admin/AdminCitasPage";
 import HistorialClinicoPage from "../pages/admin/HistorialClinicoPage";
-import FacturasPage from "../pages/admin/FacturasPage";
+import SoportesPagoPage from "../pages/admin/SoportesPagoPage";
 import EncuestasPage from "../pages/admin/EncuestasPage";
 import MensajesContactoPage from "../pages/admin/MensajesContactoPage";
 import ReportesPage from "../pages/admin/ReportesPage";
@@ -61,7 +61,7 @@ export default function AppRouter() {
             <Route path="historial" element={<HistorialClinicoPage />} />
             <Route path="notificaciones" element={<NotificacionesPage />} />
             <Route path="usuarios" element={<UsuariosPage />} />
-            <Route path="facturas" element={<FacturasPage />} />
+            <Route path="soportes-pago" element={<SoportesPagoPage />} />
             <Route path="encuestas" element={<EncuestasPage />} />
             <Route path="mensajes" element={<MensajesContactoPage />} />
             <Route path="reportes" element={<ReportesPage />} />

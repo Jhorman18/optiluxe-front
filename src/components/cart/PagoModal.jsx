@@ -24,7 +24,7 @@ export default function PagoModal({ onClose }) {
   const [step, setStep] = useState("select");
   const [metodo, setMetodo] = useState(null);
   const [procesando, setProcesando] = useState(false);
-  const [factura, setFactura] = useState(null);
+  const [soporte, setSoporte] = useState(null);
   const [error, setError] = useState("");
   const [showEncuesta, setShowEncuesta] = useState(false);
 
@@ -68,7 +68,7 @@ export default function PagoModal({ onClose }) {
     setProcesando(true);
     try {
       const resultado = await pagarCarrito(metodo);
-      setFactura(resultado);
+      setSoporte(resultado);
       setStep("success");
     } catch (err) {
       setError(err?.response?.data?.message || "Error al procesar el pago. Inténtalo de nuevo.");
@@ -208,7 +208,7 @@ export default function PagoModal({ onClose }) {
 
   // ── RENDER: Éxito ─────────────────────────────────────────────
   const renderSuccess = () => {
-    if (!factura) return null;
+    if (!soporte) return null;
     return (
       <div className="text-center space-y-4 py-2">
         <FaCheckCircle className="text-green-500 text-5xl mx-auto" />
@@ -219,18 +219,18 @@ export default function PagoModal({ onClose }) {
 
         <div className="bg-gray-50 rounded-xl p-4 text-left space-y-2 text-sm">
           <div className="flex justify-between">
-            <span className="text-gray-500">Número de factura</span>
-            <span className="font-bold text-blue-700">{factura.facNumero}</span>
+            <span className="text-gray-500">Número de soporte</span>
+            <span className="font-bold text-blue-700">{soporte.sopNumero}</span>
           </div>
           <div className="flex justify-between">
             <span className="text-gray-500">Método</span>
             <span className="font-medium text-gray-900">
-              {factura.metodoPago === "PSE" ? "PSE" : "Efectivo"}
+              {soporte.metodoPago === "PSE" ? "PSE" : "Efectivo"}
             </span>
           </div>
           <div className="flex justify-between font-bold text-gray-900 pt-2 border-t border-gray-200">
             <span>Total pagado</span>
-            <span className="text-green-600">${Math.round(factura.total).toLocaleString()}</span>
+            <span className="text-green-600">${Math.round(soporte.total).toLocaleString()}</span>
           </div>
         </div>
 
@@ -293,7 +293,7 @@ export default function PagoModal({ onClose }) {
         <EncuestaModal
           categoria="compra"
           fkIdCita={null}
-          fkIdFactura={factura?.idFactura || null}
+          fkIdSoporte={soporte?.idSoporte || null}
           onClose={() => setShowEncuesta(false)}
         />
       )}

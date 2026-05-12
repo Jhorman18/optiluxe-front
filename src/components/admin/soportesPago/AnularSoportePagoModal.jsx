@@ -1,15 +1,15 @@
 import { useState } from "react";
 import { FaBan, FaTimes, FaExclamationTriangle, FaSpinner } from "react-icons/fa";
 
-export default function AnularFacturaModal({ abierto, factura, onAnular, onClose, guardando }) {
+export default function AnularSoportePagoModal({ abierto, soporte, onAnular, onClose, guardando }) {
   const [motivo, setMotivo] = useState("");
 
-  if (!abierto || !factura) return null;
+  if (!abierto || !soporte) return null;
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (motivo.length < 10) return;
-    onAnular(factura.idFactura, motivo);
+    onAnular(soporte.idSoporte, motivo);
   };
 
   return (
@@ -18,7 +18,7 @@ export default function AnularFacturaModal({ abierto, factura, onAnular, onClose
         <div className="flex justify-between items-center px-6 py-4 border-b border-slate-100">
           <div className="flex items-center gap-2 text-red-600">
             <FaBan />
-            <h2 className="font-bold text-slate-800">Anular Factura</h2>
+            <h2 className="font-bold text-slate-800">Anular Soporte de Pago</h2>
           </div>
           <button onClick={onClose} className="p-1 text-slate-400 hover:text-slate-600 cursor-pointer">
             <FaTimes />
@@ -29,7 +29,7 @@ export default function AnularFacturaModal({ abierto, factura, onAnular, onClose
           <div className="bg-red-50 border border-red-100 rounded-xl p-4 flex gap-3 text-red-800 text-sm">
             <FaExclamationTriangle className="shrink-0 mt-0.5" />
             <p>
-              Estás a punto de anular la factura <strong>{factura.facNumero}</strong>. 
+              Estás a punto de anular el soporte de pago <strong>{soporte.sopNumero}</strong>. 
               Esta acción no se puede deshacer y el estado cambiará permanentemente a <strong>ANULADA</strong>.
             </p>
           </div>

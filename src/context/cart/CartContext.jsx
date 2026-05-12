@@ -13,10 +13,10 @@ const LOCAL_STORAGE_KEY = "optiluxe_cart_offline";
 // Helpers para Math del Carrito Local
 const calculateLocalCartTotals = (items) => {
   const subtotal = items.reduce((acc, item) => acc + item.subtotal, 0);
-  const iva = subtotal * 0.19;
-  const total = subtotal + iva;
+  const iva = 0; // IVA eliminado del sistema
+  const total = subtotal;
   const totalItems = items.reduce((acc, item) => acc + item.cantidad, 0);
-  return { subtotal, iva: Math.round(iva), total: Math.round(total), totalItems };
+  return { subtotal, iva: 0, total: Math.round(total), totalItems };
 };
 
 export function CartProvider({ children }) {

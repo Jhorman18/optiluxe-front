@@ -4,14 +4,14 @@ import { useAuth } from "../../context/auth/AuthContext";
 import { useEffect, useState } from "react";
 import * as citaService from "../../services/citaService";
 import * as usuarioService from "../../services/usuarioService";
-import * as facturaService from "../../services/facturaService";
+import * as soportePagoService from "../../services/soportePagoService";
 import toast from "react-hot-toast";
 
 // Modales para Acciones Rápidas
 import CrearCitaModal from "../../components/admin/citas/CrearCitaModal";
 import CrearHistoriaModal from "../../components/admin/citas/CrearHistoriaModal";
 import CrearUsuarioModal from "../../components/admin/usuarios/CrearUsuarioModal";
-import CrearFacturaModal from "../../components/admin/facturas/CrearFacturaModal";
+import CrearSoportePagoModal from "../../components/admin/soportesPago/CrearSoportePagoModal";
 import StatusBadge from "../../components/ui/StatusBadge";
 
 export default function AdminDashboardPage() {
@@ -40,7 +40,7 @@ export default function AdminDashboardPage() {
             const [citasPendientes, pacientesActivos, ventasMes, proximasCitas] = await Promise.all([
                 citaService.getEstadisticasCitas(),
                 usuarioService.getEstadisticasPacientes(),
-                facturaService.getEstadisticasVentas(),
+                soportePagoService.getEstadisticasVentas(),
                 citaService.getProximasCitas()
             ]);
 
@@ -82,7 +82,7 @@ export default function AdminDashboardPage() {
     const handleCrearVenta = async (payload, resetForm) => {
         try {
             setGuardando(true);
-            await facturaService.crearFactura(payload);
+            await soportePagoService.crearSoportePago(payload);
             toast.success("Venta registrada correctamente");
             setModalVenta(false);
             resetForm();
@@ -276,7 +276,7 @@ export default function AdminDashboardPage() {
                 onClose={() => setModalPaciente(false)} 
                 onSubmit={handleCrearPaciente} 
             />
-            <CrearFacturaModal 
+            <CrearSoportePagoModal 
                 abierto={modalVenta} 
                 guardando={guardando} 
                 onClose={() => setModalVenta(false)} 

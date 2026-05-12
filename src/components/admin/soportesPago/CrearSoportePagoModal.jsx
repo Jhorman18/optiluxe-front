@@ -21,12 +21,12 @@ const BANCOS = [
   "Bancolombia", "Davivienda", "Banco de Bogotá", "BBVA Colombia", "Nequi", "Banco Popular",
 ];
 
-export default function CrearFacturaModal({ abierto, guardando, onClose, onSubmit }) {
+export default function CrearSoportePagoModal({ abierto, guardando, onClose, onSubmit }) {
   const [step, setStep] = useState(1); // 1: Datos, 2: Pago
   const [formData, setFormData] = useState({
-    facTotal: "",
-    facConcepto: "",
-    facCondiciones: "Efectivo",
+    sopTotal: "",
+    sopConcepto: "",
+    sopCondiciones: "Efectivo",
     fkIdUsuario: "",
     tipoVenta: "producto",
     idReferencia: "",
@@ -77,11 +77,11 @@ export default function CrearFacturaModal({ abierto, guardando, onClose, onSubmi
   useEffect(() => {
     if (formData.tipoVenta === "producto" && formData.items.length > 0) {
       const subtotal = formData.items.reduce((acc, item) => acc + (item.precio * item.cantidad), 0);
-      const total = subtotal * 1.19;
+      const total = subtotal; // Sin IVA
       setFormData(prev => ({ 
         ...prev, 
-        facTotal: Math.round(total).toString(),
-        facConcepto: `Venta de ${formData.items.length} producto(s)`
+        sopTotal: Math.round(total).toString(),
+        sopConcepto: `Venta de ${formData.items.length} producto(s)`
       }));
     }
   }, [formData.items, formData.tipoVenta]);
@@ -119,13 +119,13 @@ export default function CrearFacturaModal({ abierto, guardando, onClose, onSubmi
       if (formData.subTipo === "catalogo") {
         const serv = SERVICIOS_CATALOGO.find(s => s.id === value);
         if (serv) {
-          setFormData(prev => ({ ...prev, idReferencia: value, facTotal: serv.precio, facConcepto: serv.nombre }));
+          setFormData(prev => ({ ...prev, idReferencia: value, sopTotal: serv.precio, sopConcepto: serv.nombre }));
           return;
         }
       } else {
         const cita = citasUsuario.find(c => String(c.idCita) === String(value));
         if (cita) {
-          setFormData(prev => ({ ...prev, idReferencia: value, facTotal: 50000, facConcepto: `Cita: ${cita.citMotivo}` }));
+          setFormData(prev => ({ ...prev, idReferencia: value, sopTotal: 50000, sopConcepto: `Cita: ${cita.citMotivo}` }));
           return;
         }
       }
@@ -139,7 +139,7 @@ export default function CrearFacturaModal({ abierto, guardando, onClose, onSubmi
       if (formData.items.length === 0) { toast.error("Agrega productos"); return false; }
       if (formData.items.some(i => !i.idProducto)) { toast.error("Completa la selección"); return false; }
     } else {
-      if (!formData.facTotal) { toast.error("Ingresa el monto"); return false; }
+      if (!formData.sopTotal) { toast.error("Ingresa el monto"); return false; }
     }
     return true;
   };
@@ -162,9 +162,7 @@ export default function CrearFacturaModal({ abierto, guardando, onClose, onSubmi
     e.preventDefault();
     if (!validarPago()) return;
 
-    const total = parseFloat(formData.facTotal);
-    const subtotal = total / 1.19;
-    const iva = total - subtotal;
+    const total = parseFloat(formData.sopTotal);
 
     // Generar condiciones de pago descriptivas
     let condiciones = formData.metodoPago;
@@ -173,14 +171,13 @@ export default function CrearFacturaModal({ abierto, guardando, onClose, onSubmi
     }
 
     const payload = {
-      facTotal: total,
-      facSubtotal: subtotal,
-      facIva: iva,
-      facConcepto: formData.facConcepto,
-      facCondiciones: condiciones,
+      sopTotal: total,
+      sopSubtotal: total, // Sin IVA, subtotal = total
+      sopConcepto: formData.sopConcepto,
+      sopCondiciones: condiciones,
       fkIdUsuario: parseInt(formData.fkIdUsuario),
-      facFecha: new Date().toISOString(),
-      facEstado: "PAGADA",
+      sopFecha: new Date().toISOString(),
+      sopEstado: "PAGADA",
     };
 
     if (formData.tipoVenta === "producto") {
@@ -191,7 +188,7 @@ export default function CrearFacturaModal({ abierto, guardando, onClose, onSubmi
 
     onSubmit(payload, () => {
       setFormData({
-        facTotal: "", facConcepto: "", facCondiciones: "Efectivo", fkIdUsuario: "",
+        sopTotal: "", sopConcepto: "", sopCondiciones: "Efectivo", fkIdUsuario: "",
         tipoVenta: "producto", idReferencia: "", subTipo: "cita", items: [],
         metodoPago: "EFECTIVO", banco: "", tipoCuenta: "ahorros", numeroCuenta: ""
       });
@@ -284,11 +281,10 @@ export default function CrearFacturaModal({ abierto, guardando, onClose, onSubmi
       <div className="p-5 bg-blue-50/50 rounded-3xl border border-blue-100/50 flex justify-between items-center mt-4">
         <div>
           <p className="text-[10px] font-black text-blue-400 uppercase tracking-widest mb-0.5">Resumen Total</p>
-          <p className="text-sm font-bold text-slate-600 truncate max-w-[200px]">{formData.facConcepto || "Esperando datos..."}</p>
+          <p className="text-sm font-bold text-slate-600 truncate max-w-[200px]">{formData.sopConcepto || "Esperando datos..."}</p>
         </div>
         <div className="text-right">
-          <p className="text-2xl font-black text-blue-700">${Math.round(Number(formData.facTotal) || 0).toLocaleString()}</p>
-          <p className="text-[8px] text-blue-400 uppercase font-bold">IVA Incluido</p>
+          <p className="text-2xl font-black text-blue-700">${Math.round(Number(formData.sopTotal) || 0).toLocaleString()}</p>
         </div>
       </div>
 
@@ -377,7 +373,7 @@ export default function CrearFacturaModal({ abierto, guardando, onClose, onSubmi
         disabled={guardando}
         className="w-full py-5 bg-blue-700 text-white font-black text-[11px] uppercase tracking-widest rounded-3xl hover:bg-black transition shadow-xl shadow-blue-700/20 flex items-center justify-center gap-3 cursor-pointer group"
       >
-        {guardando ? <FaSpinner className="animate-spin" /> : <><FaFileInvoiceDollar className="text-xl" /> Finalizar y Crear Factura</>}
+        {guardando ? <FaSpinner className="animate-spin" /> : <><FaFileInvoiceDollar className="text-xl" /> Finalizar y Crear Soporte de Pago</>}
       </button>
     </div>
   );
@@ -391,7 +387,7 @@ export default function CrearFacturaModal({ abierto, guardando, onClose, onSubmi
               <FaPlusCircle className="text-xl" />
             </div>
             <div>
-              <h2 className="font-black text-slate-800 text-lg">Nueva Factura</h2>
+              <h2 className="font-black text-slate-800 text-lg">Nuevo Soporte de Pago</h2>
               <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">
                 Paso {step} de 2 — {step === 1 ? "Insumos y Cliente" : "Selección de Pago"}
               </p>

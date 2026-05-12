@@ -1,14 +1,14 @@
 import { FaTimes, FaFileInvoiceDollar, FaCalendarAlt, FaUser, FaInfoCircle, FaBan, FaIdCard, FaEnvelope, FaPhone, FaMapMarkerAlt } from "react-icons/fa";
 
-export default function FacturaDetalleModal({ factura, onClose }) {
-  if (!factura) return null;
+export default function SoportePagoDetalleModal({ soporte, onClose }) {
+  if (!soporte) return null;
 
-  const cliente = factura.cliente || {
-    nombreCompleto: factura.usuario ? `${factura.usuario.usuNombre} ${factura.usuario.usuApellido}` : "Consumidor Final",
-    documento: factura.usuario?.usuDocumento || "N/A",
-    correo: factura.usuario?.usuCorreo || "N/A",
-    telefono: factura.usuario?.usuTelefono || "N/A",
-    direccion: factura.usuario?.usuDireccion || "N/A"
+  const cliente = soporte.cliente || {
+    nombreCompleto: soporte.usuario ? `${soporte.usuario.usuNombre} ${soporte.usuario.usuApellido}` : "Consumidor Final",
+    documento: soporte.usuario?.usuDocumento || "N/A",
+    correo: soporte.usuario?.usuCorreo || "N/A",
+    telefono: soporte.usuario?.usuTelefono || "N/A",
+    direccion: soporte.usuario?.usuDireccion || "N/A"
   };
 
   return (
@@ -22,8 +22,8 @@ export default function FacturaDetalleModal({ factura, onClose }) {
               <FaFileInvoiceDollar className="text-blue-400" />
             </div>
             <div>
-              <h2 className="text-2xl font-black tracking-tight uppercase">Detalle de Factura</h2>
-              <p className="text-sm text-blue-200 font-mono tracking-widest opacity-80">{factura.facNumero}</p>
+              <h2 className="text-2xl font-black tracking-tight uppercase">Detalle de Soporte de Pago</h2>
+              <p className="text-sm text-blue-200 font-mono tracking-widest opacity-80">{soporte.sopNumero}</p>
             </div>
           </div>
           <button onClick={onClose} className="p-3 hover:bg-white/10 rounded-full transition cursor-pointer group">
@@ -34,13 +34,13 @@ export default function FacturaDetalleModal({ factura, onClose }) {
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-4 sm:p-8 space-y-6 sm:space-y-10">
           {/* Alerta de Anulación */}
-          {factura.facEstado === "ANULADA" && (
+          {soporte.sopEstado === "ANULADA" && (
             <div className="bg-red-50 border-2 border-red-100 rounded-3xl p-8 flex gap-6 text-red-900 animate-in slide-in-from-top-4 shadow-sm">
               <FaBan className="text-3xl shrink-0 mt-1" />
               <div>
-                <p className="font-black text-xl leading-tight uppercase tracking-tight">Comprobante Anulado</p>
+                <p className="font-black text-xl leading-tight uppercase tracking-tight">Soporte Anulado</p>
                 <p className="text-base mt-3 font-semibold opacity-90 leading-relaxed italic border-l-4 border-red-200 pl-4 py-1">
-                  "{factura.facMotivoAnulacion || "Sin descripción de motivo registrado"}"
+                  "{soporte.sopMotivoAnulacion || "Sin descripción de motivo registrado"}"
                 </p>
               </div>
             </div>
@@ -84,7 +84,7 @@ export default function FacturaDetalleModal({ factura, onClose }) {
               </div>
             </div>
 
-            {/* Info Factura */}
+            {/* Info Soporte */}
             <div className="space-y-5">
               <div className="flex items-center gap-2 text-slate-400 font-black uppercase tracking-[0.2em] text-[10px] ml-1">
                 <FaInfoCircle className="text-blue-500" /> Información General
@@ -95,22 +95,22 @@ export default function FacturaDetalleModal({ factura, onClose }) {
                   <span className="text-slate-500 font-black uppercase tracking-widest text-[10px]">Fecha de Emisión</span>
                   <span className="text-slate-900 font-black flex items-center gap-3 bg-white px-5 py-2.5 rounded-2xl border border-slate-200 shadow-sm text-sm">
                     <FaCalendarAlt className="text-blue-500" />
-                    {new Date(factura.facFecha).toLocaleString()}
+                    {new Date(soporte.sopFecha).toLocaleString()}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-slate-500 font-black uppercase tracking-widest text-[10px]">Estado Actual</span>
-                  <span className={`font-black px-6 py-2.5 rounded-2xl text-[11px] uppercase tracking-[0.15em] shadow-sm border ${factura.facEstado === "ANULADA"
+                  <span className={`font-black px-6 py-2.5 rounded-2xl text-[11px] uppercase tracking-[0.15em] shadow-sm border ${soporte.sopEstado === "ANULADA"
                       ? "bg-red-50 border-red-200 text-red-600"
                       : "bg-green-50 border-green-200 text-green-600"
                     }`}>
-                    {factura.facEstado}
+                    {soporte.sopEstado}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-slate-500 font-black uppercase tracking-widest text-[10px]">Método de Pago</span>
                   <span className="text-slate-900 font-black bg-white px-5 py-2.5 rounded-2xl border border-slate-200 uppercase tracking-tighter text-sm shadow-sm">
-                    {factura.facCondiciones || "EFECTIVO"}
+                    {soporte.sopCondiciones || "EFECTIVO"}
                   </span>
                 </div>
               </div>
@@ -121,32 +121,28 @@ export default function FacturaDetalleModal({ factura, onClose }) {
           <div className="space-y-4">
             <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] px-2 ml-1">Concepto o Descripción de Cobro</p>
             <div className="bg-slate-50 rounded-[2rem] p-4 sm:p-8 border border-slate-100 text-base sm:text-lg text-slate-800 shadow-inner font-black leading-relaxed tracking-tight">
-              {factura.facConcepto || "—"}
+              {soporte.sopConcepto || "—"}
             </div>
           </div>
 
-          {/* Totales Profesional */}
+          {/* Totales Profesional - Sin IVA */}
           <div className="bg-blue-700 rounded-[2rem] sm:rounded-[3rem] p-5 sm:p-10 space-y-4 sm:space-y-6 relative overflow-hidden group border border-white/5">
             <div className="absolute top-0 right-0 w-80 h-80 bg-blue-500/5 blur-3xl rounded-full -mr-20 -mt-20 group-hover:bg-blue-500/10 transition-colors duration-500"></div>
             <div className="flex justify-between text-lg text-slate-400">
               <span className="font-black border-l-4 border-blue-500/40 pl-6 uppercase tracking-[0.2em] text-[11px] h-fit">Subtotal Liquidado</span>
-              <span className="text-white font-mono font-black tracking-widest text-xl">${Math.round(factura.facSubtotal).toLocaleString("es-CO")}</span>
-            </div>
-            <div className="flex justify-between text-lg text-slate-400">
-              <span className="font-black border-l-4 border-blue-500/40 pl-6 uppercase tracking-[0.2em] text-[11px] h-fit">Monto IVA (19%)</span>
-              <span className="text-white font-mono font-black tracking-widest text-xl">${Math.round(factura.facIva).toLocaleString("es-CO")}</span>
+              <span className="text-white font-mono font-black tracking-widest text-xl">${Math.round(soporte.sopSubtotal).toLocaleString("es-CO")}</span>
             </div>
             <div className="pt-10 mt-8 border-t border-blue-600 flex justify-between items-end">
               <div>
                 <p className="text-[11px] text-blue-400 font-black uppercase tracking-[0.4em] mb-3 px-1">Importe Total Neto</p>
                 <div className="flex items-baseline gap-2">
-                  <span className="text-white text-3xl font-black tracking-tighter underline underline-offset-[8px] decoration-blue-500 decoration-4">FACTURA</span>
+                  <span className="text-white text-3xl font-black tracking-tighter underline underline-offset-[8px] decoration-blue-500 decoration-4">SOPORTE DE PAGO</span>
                 </div>
               </div>
               <div className="text-right">
                 <span className="text-blue-500 text-lg font-black mr-2 opacity-50">$</span>
                 <span className="text-white text-3xl sm:text-5xl font-black font-mono tracking-tighter drop-shadow-2xl shadow-blue-500/40">
-                  {Math.round(factura.facTotal).toLocaleString("es-CO")}
+                  {Math.round(soporte.sopTotal).toLocaleString("es-CO")}
                 </span>
               </div>
             </div>

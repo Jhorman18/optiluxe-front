@@ -2,26 +2,26 @@ import { useState, useEffect } from "react";
 import { FaEdit, FaTimes, FaSpinner, FaSave } from "react-icons/fa";
 import CustomSelect from "../../ui/CustomSelect";
 
-export default function EditarFacturaModal({ abierto, factura, guardando, onClose, onSubmit }) {
+export default function EditarSoportePagoModal({ abierto, soporte, guardando, onClose, onSubmit }) {
   const [formData, setFormData] = useState({
-    facNumero: "",
-    facTotal: "",
-    facConcepto: "",
-    facCondiciones: "",
+    sopNumero: "",
+    sopTotal: "",
+    sopConcepto: "",
+    sopCondiciones: "",
   });
 
   useEffect(() => {
-    if (factura) {
+    if (soporte) {
       setFormData({
-        facNumero: factura.facNumero || "",
-        facTotal: factura.facTotal || "",
-        facConcepto: factura.facConcepto || "",
-        facCondiciones: factura.facCondiciones || "Efectivo",
+        sopNumero: soporte.sopNumero || "",
+        sopTotal: soporte.sopTotal || "",
+        sopConcepto: soporte.sopConcepto || "",
+        sopCondiciones: soporte.sopCondiciones || "Efectivo",
       });
     }
-  }, [factura]);
+  }, [soporte]);
 
-  if (!abierto || !factura) return null;
+  if (!abierto || !soporte) return null;
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -30,18 +30,15 @@ export default function EditarFacturaModal({ abierto, factura, guardando, onClos
 
   const handleFormSubmit = (e) => {
     e.preventDefault();
-    const total = parseFloat(formData.facTotal);
-    const subtotal = total / 1.19;
-    const iva = total - subtotal;
+    const total = parseFloat(formData.sopTotal);
 
     const payload = {
-      facTotal: total,
-      facSubtotal: subtotal,
-      facIva: iva,
-      facConcepto: formData.facConcepto,
-      facCondiciones: formData.facCondiciones,
+      sopTotal: total,
+      sopSubtotal: total, // Sin IVA
+      sopConcepto: formData.sopConcepto,
+      sopCondiciones: formData.sopCondiciones,
     };
-    onSubmit(factura.idFactura, payload);
+    onSubmit(soporte.idSoporte, payload);
   };
 
   return (
@@ -50,7 +47,7 @@ export default function EditarFacturaModal({ abierto, factura, guardando, onClos
         <div className="flex justify-between items-center px-8 py-6 border-b border-slate-100">
           <div className="flex items-center gap-3 text-amber-600">
             <FaEdit className="text-xl" />
-            <h2 className="font-extrabold text-slate-800 tracking-tight">Editar Factura</h2>
+            <h2 className="font-extrabold text-slate-800 tracking-tight">Editar Soporte de Pago</h2>
           </div>
           <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-full transition cursor-pointer">
             <FaTimes className="text-slate-400" />
@@ -60,19 +57,19 @@ export default function EditarFacturaModal({ abierto, factura, guardando, onClos
         <form onSubmit={handleFormSubmit} className="p-8 space-y-5">
           <div className="bg-amber-50 rounded-2xl p-4 flex gap-3 text-amber-800 text-xs font-medium border border-amber-100">
             <div className="shrink-0 mt-0.5 underline font-black">AVISO:</div>
-            <p>Al editar el monto total, el subtotal y el IVA serán recalculados automáticamente para mantener la consistencia contable.</p>
+            <p>Al editar el monto total, el subtotal será actualizado automáticamente para mantener la consistencia contable.</p>
           </div>
 
           <div>
             <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-1 flex justify-between">
-              <span>N° de Factura</span>
+              <span>N° de Soporte</span>
               <span className="text-amber-500 font-black tracking-normal lowercase">(no editable)</span>
             </label>
             <input
               readOnly
-              name="facNumero"
+              name="sopNumero"
               className="w-full px-4 py-3 bg-slate-100 border border-slate-200 rounded-2xl outline-none transition text-sm font-bold text-slate-500 cursor-not-allowed"
-              value={formData.facNumero}
+              value={formData.sopNumero}
             />
           </div>
 
@@ -81,9 +78,9 @@ export default function EditarFacturaModal({ abierto, factura, guardando, onClos
             <input
               required
               type="number"
-              name="facTotal"
+              name="sopTotal"
               className="w-full px-4 py-4 bg-amber-50/30 border border-amber-100 rounded-2xl focus:ring-2 focus:ring-amber-500 outline-none transition text-lg font-black text-amber-700"
-              value={formData.facTotal}
+              value={formData.sopTotal}
               onChange={handleChange}
             />
           </div>
@@ -92,10 +89,10 @@ export default function EditarFacturaModal({ abierto, factura, guardando, onClos
             <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Concepto / Descripción</label>
             <textarea
               required
-              name="facConcepto"
+              name="sopConcepto"
               rows={3}
               className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-amber-500 outline-none transition text-sm font-medium"
-              value={formData.facConcepto}
+              value={formData.sopConcepto}
               onChange={handleChange}
             />
           </div>
@@ -103,8 +100,8 @@ export default function EditarFacturaModal({ abierto, factura, guardando, onClos
           <div>
             <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Método de Pago</label>
             <CustomSelect
-              value={formData.facCondiciones}
-              onChange={(val) => handleChange({ target: { name: "facCondiciones", value: val } })}
+              value={formData.sopCondiciones}
+              onChange={(val) => handleChange({ target: { name: "sopCondiciones", value: val } })}
               options={[
                 { value: "Efectivo", label: "Efectivo" },
                 { value: "PSE", label: "PSE / Transferencia" },

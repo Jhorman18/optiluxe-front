@@ -114,10 +114,7 @@ export default function CartPanel() {
                 <span>Subtotal</span>
                 <span className="font-medium text-gray-900">${carrito.subtotal.toLocaleString()}</span>
               </div>
-              <div className="flex justify-between">
-                <span>IVA (19%)</span>
-                <span className="font-medium text-gray-900">${Math.round(carrito.iva).toLocaleString()}</span>
-              </div>
+
               <div className="flex justify-between text-base font-bold text-gray-900 pt-2 border-t border-gray-100">
                 <span>Total</span>
                 <span className="text-blue-700">${Math.round(carrito.total).toLocaleString()}</span>
