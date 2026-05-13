@@ -1,7 +1,30 @@
 import { FaTimes, FaFileInvoiceDollar, FaCalendarAlt, FaUser, FaInfoCircle, FaBan, FaIdCard, FaEnvelope, FaPhone, FaMapMarkerAlt } from "react-icons/fa";
 
-export default function SoportePagoDetalleModal({ soporte, onClose }) {
+// Fallback para registros anteriores a carrito_servicio que guardaban servicios como JSON en sopConcepto
+const parseLegacyConcepto = (raw) => {
+  try {
+    const parsed = JSON.parse(raw);
+    if (parsed && typeof parsed === "object" && "servicios" in parsed)
+      return Array.isArray(parsed.servicios) ? parsed.servicios : [];
+  } catch { /* texto plano, sin servicios */ }
+  return [];
+};
+
+export default function SoportePagoDetalleModal({ soporte, loading = false, onClose }) {
   if (!soporte) return null;
+
+  // Fuente primaria: tabla carrito_servicio (registros nuevos)
+  // Fuente secundaria: JSON legacy en sopConcepto (registros anteriores a la migración)
+  const serviciosDetalle = soporte.carrito?.carrito_servicio?.length > 0
+    ? soporte.carrito.carrito_servicio.map(cs => ({
+        nombre: cs.csNombre,
+        precio: Number(cs.csPrecio),
+        fecha: cs.csFecha,
+        hora: cs.csHora,
+      }))
+    : parseLegacyConcepto(soporte.sopConcepto);
+
+  const conceptoTexto = soporte.sopConcepto || "";
 
   const cliente = soporte.cliente || {
     nombreCompleto: soporte.usuario ? `${soporte.usuario.usuNombre} ${soporte.usuario.usuApellido}` : "Consumidor Final",
@@ -117,12 +140,140 @@ export default function SoportePagoDetalleModal({ soporte, onClose }) {
             </div>
           </div>
 
-          {/* Concepto */}
+          {/* Recibo itemizado */}
           <div className="space-y-4">
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] px-2 ml-1">Concepto o Descripción de Cobro</p>
-            <div className="bg-slate-50 rounded-[2rem] p-4 sm:p-8 border border-slate-100 text-base sm:text-lg text-slate-800 shadow-inner font-black leading-relaxed tracking-tight">
-              {soporte.sopConcepto || "—"}
-            </div>
+            {loading && (
+              <div className="bg-slate-100 rounded-2xl p-3 animate-pulse">
+                <div className="bg-white rounded-xl overflow-hidden">
+                  <div className="bg-slate-800 px-6 py-5 space-y-2">
+                    <div className="h-3 w-48 bg-slate-700 rounded mx-auto" />
+                    <div className="h-4 w-40 bg-slate-600 rounded mx-auto" />
+                    <div className="flex justify-between mt-2">
+                      <div className="h-3 w-16 bg-slate-700 rounded" />
+                      <div className="h-3 w-24 bg-slate-700 rounded" />
+                    </div>
+                  </div>
+                  <div className="px-6 py-4 space-y-4">
+                    {[1, 2, 3].map(i => (
+                      <div key={i} className="flex justify-between items-center pb-3 border-b border-slate-100">
+                        <div className="h-3 w-32 bg-slate-100 rounded" />
+                        <div className="h-3 w-16 bg-slate-100 rounded" />
+                      </div>
+                    ))}
+                    <div className="flex justify-between items-center pt-1">
+                      <div className="h-4 w-12 bg-slate-100 rounded" />
+                      <div className="h-6 w-24 bg-blue-100 rounded" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] px-2 ml-1">Detalle de Compra</p>
+
+            {!loading && <div className="bg-slate-100 rounded-2xl p-3">
+              <div className="bg-white rounded-xl overflow-hidden shadow-sm">
+
+                {/* Cabecera recibo */}
+                <div className="bg-slate-900 text-white text-center px-6 py-5">
+                  <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">OptiLuxe — Sistema de Gestión Óptica</p>
+                  <p className="font-black text-sm tracking-[0.2em] mb-2">COMPROBANTE DE VENTA</p>
+                  <div className="flex justify-between text-[10px] text-slate-400">
+                    <span>{new Date(soporte.sopFecha).toLocaleDateString("es-CO")}</span>
+                    <span className="font-bold text-slate-300 font-mono">{soporte.sopNumero}</span>
+                  </div>
+                </div>
+
+                {/* Perforación */}
+                <div className="flex items-center px-5 py-2 border-b border-dashed border-slate-200">
+                  <div className="flex-1 border-t border-dotted border-slate-300" />
+                </div>
+
+                {/* Cuerpo */}
+                <div className="px-6 py-4 font-mono text-xs space-y-4">
+
+                  {/* Cliente */}
+                  <div className="pb-3 border-b border-dashed border-slate-200">
+                    <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1">Cliente</p>
+                    <p className="font-bold text-slate-800">{cliente.nombreCompleto}</p>
+                    <p className="text-slate-500">Doc: {cliente.documento}</p>
+                  </div>
+
+                  {/* Productos del carrito */}
+                  {soporte.carrito?.carrito_producto?.length > 0 && (
+                    <div className="pb-3 border-b border-dashed border-slate-200">
+                      <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-2">Productos</p>
+                      {/* Cabecera columnas */}
+                      <div className="flex justify-between text-[9px] text-slate-400 font-black uppercase mb-1.5 border-b border-dotted border-slate-100 pb-1">
+                        <span className="flex-1">Descripción</span>
+                        <span className="w-8 text-center">Cant.</span>
+                        <span className="w-20 text-right">Precio</span>
+                        <span className="w-20 text-right">Total</span>
+                      </div>
+                      <div className="space-y-1.5">
+                        {soporte.carrito.carrito_producto.map((cp, i) => {
+                          const precio = Number(cp.producto?.proPrecio || 0);
+                          const subtotal = precio * cp.cantidad;
+                          return (
+                            <div key={i} className="flex justify-between items-center">
+                              <span className="flex-1 text-slate-700 truncate pr-2">{cp.producto?.proNombre || "Producto"}</span>
+                              <span className="w-8 text-center text-slate-500">×{cp.cantidad}</span>
+                              <span className="w-20 text-right text-slate-600">${precio.toLocaleString()}</span>
+                              <span className="w-20 text-right font-bold text-slate-800">${subtotal.toLocaleString()}</span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Servicios del catálogo */}
+                  {serviciosDetalle.length > 0 && (
+                    <div className="pb-3 border-b border-dashed border-slate-200">
+                      <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-2">Servicios</p>
+                      <div className="flex justify-between text-[9px] text-slate-400 font-black uppercase mb-1.5 border-b border-dotted border-slate-100 pb-1">
+                        <span className="flex-1">Descripción</span>
+                        <span className="w-24 text-right">Fecha / Hora</span>
+                        <span className="w-20 text-right">Total</span>
+                      </div>
+                      <div className="space-y-1.5">
+                        {serviciosDetalle.map((s, i) => (
+                          <div key={i} className="flex justify-between items-start">
+                            <span className="flex-1 text-slate-700 truncate pr-2">{s.nombre}</span>
+                            <span className="w-24 text-right text-slate-500 text-[10px]">{s.fecha} {s.hora}</span>
+                            <span className="w-20 text-right font-bold text-slate-800">{s.precio > 0 ? `$${Number(s.precio).toLocaleString()}` : "Gratuito"}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Concepto texto plano (fallback para registros sin productos ni servicios estructurados) */}
+                  {!soporte.carrito?.carrito_producto?.length && serviciosDetalle.length === 0 && conceptoTexto && (
+                    <div className="pb-3 border-b border-dashed border-slate-200">
+                      <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1">Concepto</p>
+                      <p className="text-slate-700 font-semibold">{conceptoTexto}</p>
+                    </div>
+                  )}
+
+                  {/* Método de pago */}
+                  <div className="pb-3 border-b border-dashed border-slate-200">
+                    <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1">Método de pago</p>
+                    <p className="font-bold text-slate-700">{soporte.sopCondiciones || "EFECTIVO"}</p>
+                  </div>
+
+                  {/* Total */}
+                  <div className="flex justify-between items-center pt-1">
+                    <p className="font-black text-slate-700 uppercase tracking-widest text-[11px]">Total</p>
+                    <p className="font-black text-2xl text-blue-700">${Math.round(soporte.sopTotal).toLocaleString("es-CO")}</p>
+                  </div>
+                </div>
+
+                {/* Footer recibo */}
+                <div className="bg-slate-50 border-t border-slate-100 text-center py-3">
+                  <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest">¡Gracias por su compra!</p>
+                </div>
+              </div>
+            </div>}
           </div>
 
           {/* Totales Profesional - Sin IVA */}

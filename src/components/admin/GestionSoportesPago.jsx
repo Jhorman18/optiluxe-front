@@ -21,7 +21,35 @@ export default function GestionSoportesPago() {
   const [fechaFin, setFechaFin] = useState("");
 
   const [detalleSoporte, setDetalleSoporte] = useState(null);
+  const [loadingDetalle, setLoadingDetalle] = useState(false);
+
+  const handleVerDetalle = async (soporte) => {
+    setLoadingDetalle(true);
+    setDetalleSoporte(soporte); // abre el modal de inmediato con datos básicos
+    try {
+      const full = await soportePagoService.getSoportePagoPorId(soporte.idSoporte);
+      setDetalleSoporte(full);
+    } catch {
+      // queda con los datos básicos si falla el fetch
+    } finally {
+      setLoadingDetalle(false);
+    }
+  };
   const [editando, setEditando] = useState(null);
+  const [loadingEditar, setLoadingEditar] = useState(false);
+
+  const handleEditar = async (soporte) => {
+    setEditando(soporte); // abre el modal de inmediato
+    setLoadingEditar(true);
+    try {
+      const full = await soportePagoService.getSoportePagoPorId(soporte.idSoporte);
+      setEditando(full);
+    } catch {
+      // queda con datos básicos si falla
+    } finally {
+      setLoadingEditar(false);
+    }
+  };
   const [modalCrear, setModalCrear] = useState(false);
   const [anulando, setAnulando] = useState(null);
   const [guardando, setGuardando] = useState(false);
@@ -109,7 +137,7 @@ export default function GestionSoportesPago() {
               onClick={() => setModalCrear(true)}
               className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white font-bold rounded-2xl hover:bg-blue-700 transition shadow-lg shadow-blue-600/20 cursor-pointer text-sm"
             >
-              <FaPlus /> Nuevo Soporte de Pago
+              <FaPlus /> Nueva Venta
             </button>
             <div className="bg-white border border-slate-200 rounded-2xl px-5 py-3 text-center shadow-sm">
               <p className="text-2xl font-extrabold text-blue-600">{soportes.length}</p>
@@ -157,14 +185,15 @@ export default function GestionSoportesPago() {
       <SoportesPagoTabla
         soportes={soportes}
         loading={loading}
-        onVerDetalle={(f) => setDetalleSoporte(f)}
-        onEditar={(f) => setEditando(f)}
+        onVerDetalle={handleVerDetalle}
+        onEditar={handleEditar}
         onAnular={(f) => setAnulando(f)}
         esEmpleado={esEmpleado}
       />
 
       <SoportePagoDetalleModal
         soporte={detalleSoporte}
+        loading={loadingDetalle}
         onClose={() => setDetalleSoporte(null)}
       />
 
@@ -178,6 +207,7 @@ export default function GestionSoportesPago() {
       <EditarSoportePagoModal
         abierto={!!editando}
         soporte={editando}
+        loading={loadingEditar}
         guardando={guardando}
         onClose={() => setEditando(null)}
         onSubmit={handleActualizar}
