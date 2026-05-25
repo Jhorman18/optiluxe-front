@@ -6,16 +6,16 @@ import Footer from "../../components/layout/Footer.jsx";
 import { useCart } from "../../context/cart/CartContext.jsx";
 import PagoModal from "../../components/cart/PagoModal.jsx";
 
-export default function Carrito() {
+export default function Carrito({ isView }) {
   const { carrito, cargando, updateItem, removeItem } = useCart();
   const navigate = useNavigate();
   const [pagoOpen, setPagoOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      <HeaderHome />
+    <div className={isView ? "flex-1 w-full flex flex-col bg-gray-50" : "min-h-screen bg-gray-50 flex flex-col"}>
+      {!isView && <HeaderHome />}
 
-      <main className="flex-1 max-w-7xl mx-auto w-full px-4 py-8">
+      <main className={isView ? "flex-1 w-full px-4 py-6" : "flex-1 max-w-7xl mx-auto w-full px-4 py-8"}>
         {/* Header Standardizado */}
         <header className="mb-8">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -221,7 +221,7 @@ export default function Carrito() {
         )}
       </main>
 
-      <Footer />
+      {!isView && <Footer />}
 
       {pagoOpen && (
         <PagoModal onClose={() => setPagoOpen(false)} />

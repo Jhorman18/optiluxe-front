@@ -12,6 +12,7 @@ const formatFecha = (iso) =>
 function DetalleModal({ soporte, onClose }) {
     if (!soporte) return null;
     const productos = soporte.carrito?.carrito_producto ?? [];
+    const servicios = soporte.carrito?.carrito_servicio ?? [];
 
     return (
         <div
@@ -46,12 +47,30 @@ function DetalleModal({ soporte, onClose }) {
                     {/* Productos del carrito */}
                     {productos.length > 0 && (
                         <div>
-                            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Productos</p>
+                            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 mt-4">Productos</p>
                             <div className="space-y-2">
                                 {productos.map((cp, i) => (
                                     <div key={i} className="flex items-center justify-between text-sm py-2 border-b border-slate-50 last:border-0">
-                                        <span className="text-slate-700 font-medium">{cp.producto?.nombre ?? "Producto"}</span>
-                                        <span className="text-slate-500">x{cp.cantidad} — <span className="font-bold text-slate-800">${(Number(cp.precio) * cp.cantidad).toLocaleString()}</span></span>
+                                        <span className="text-slate-700 font-medium">{cp.producto?.proNombre ?? "Producto"}</span>
+                                        <span className="text-slate-500">x{cp.cantidad} — <span className="font-bold text-slate-800">${(Number(cp.producto?.proPrecio || 0) * cp.cantidad).toLocaleString()}</span></span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Servicios del carrito */}
+                    {servicios.length > 0 && (
+                        <div>
+                            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 mt-4">Servicios</p>
+                            <div className="space-y-2">
+                                {servicios.map((cs, i) => (
+                                    <div key={i} className="flex items-center justify-between text-sm py-2 border-b border-slate-50 last:border-0">
+                                        <div className="flex flex-col">
+                                            <span className="text-slate-700 font-medium">{cs.csNombre}</span>
+                                            <span className="text-slate-500 text-[10px]">{cs.csFecha} {cs.csHora}</span>
+                                        </div>
+                                        <span className="font-bold text-slate-800">${Number(cs.csPrecio || 0).toLocaleString()}</span>
                                     </div>
                                 ))}
                             </div>
@@ -82,7 +101,7 @@ function DetalleModal({ soporte, onClose }) {
     );
 }
 
-export default function PedidosPage() {
+export default function PedidosPage({ isView }) {
     const [soportes, setSoportes] = useState([]);
     const [loading, setLoading]   = useState(true);
     const [detalle, setDetalle]   = useState(null);
@@ -113,9 +132,9 @@ export default function PedidosPage() {
     const hayFiltros = fechaDesde || fechaHasta;
 
     return (
-        <>
-            <HeaderHome />
-            <main className="min-h-screen bg-slate-50 py-12 px-4">
+        <div className={isView ? "flex-1 w-full flex flex-col bg-slate-50" : "min-h-screen bg-slate-50 flex flex-col"}>
+            {!isView && <HeaderHome />}
+            <main className={isView ? "flex-1 w-full py-6 px-4" : "flex-1 w-full py-12 px-4"}>
                 <div className="max-w-3xl mx-auto">
                     <header className="mb-6">
                         <div className="flex items-center gap-3 mb-2">
@@ -218,8 +237,8 @@ export default function PedidosPage() {
                     )}
                 </div>
             </main>
-            <Footer />
+            {!isView && <Footer />}
             <DetalleModal soporte={detalle} onClose={() => setDetalle(null)} />
-        </>
+        </div>
     );
 }

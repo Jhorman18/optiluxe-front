@@ -5,15 +5,15 @@ import Footer from "../../components/layout/Footer";
 import AgendarCita from "../../components/servicios/AgendarCita";
 import MisCitas from "../../components/servicios/MisCitas";
 
-const CitasPage = () => {
+const CitasPage = ({ isView }) => {
   const [refreshKey, setRefreshKey] = useState(0);
   const triggerRefresh = () => setRefreshKey((k) => k + 1);
 
   return (
-    <>
-      <HeaderHome />
+    <div className={isView ? "flex-1 w-full flex flex-col bg-slate-50" : "min-h-screen bg-slate-50 flex flex-col"}>
+      {!isView && <HeaderHome />}
 
-      <main className="bg-slate-50 min-h-screen">
+      <main className={isView ? "flex-1 bg-slate-50 w-full" : "flex-1 bg-slate-50 w-full"}>
         <div className="bg-white border-b border-slate-100">
           <div className="mx-auto max-w-7xl px-4 py-8">
             <header>
@@ -42,8 +42,8 @@ const CitasPage = () => {
         </div>
       </main>
 
-      <Footer />
-    </>
+      {!isView && <Footer />}
+    </div>
   );
 };
 

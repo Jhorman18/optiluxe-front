@@ -25,11 +25,11 @@ const ROL_LABELS = {
 };
 
 const MENU_BASE = [
-  { label: "Mis citas", icon: FaCalendarAlt, to: "/citas" },
-  { label: "Historia clínica", icon: FaFileMedical, to: "/historia" },
-  { label: "Mis notificaciones", icon: FaBell, to: "/mis-notificaciones" },
-  { label: "Mis pedidos", icon: FaShoppingBag, to: "/pedidos" },
-  { label: "Configuración", icon: FaCog, to: "/configuracion" },
+  { label: "Mis citas", icon: FaCalendarAlt, to: "/", state: { view: "citas" } },
+  { label: "Historia clínica", icon: FaFileMedical, to: "/", state: { view: "historia" } },
+  { label: "Mis notificaciones", icon: FaBell, to: "/", state: { view: "notificaciones" } },
+  { label: "Mis pedidos", icon: FaShoppingBag, to: "/", state: { view: "pedidos" } },
+  { label: "Configuración", icon: FaCog, to: "/", state: { view: "configuracion" } },
 ];
 
 const MENU_STAFF = { label: "Soportes de Pago", icon: FaFileInvoice, to: "/facturas" };
@@ -171,18 +171,21 @@ export default function HeaderHome() {
                     <p className="text-xs text-blue-600 mt-0.5">{rolLabel}</p>
                   </div>
 
-                  {/* Opciones */}
+                   {/* Opciones */}
                   <div className="py-1">
-                    {menuItems.map(({ label, icon: Icon, to }) => (
-                      <button
-                        key={to}
-                        onClick={() => { setMenuOpen(false); navigate(to); }}
-                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition"
-                      >
-                        <Icon className="text-gray-400 shrink-0" />
-                        {label}
-                      </button>
-                    ))}
+                    {menuItems.map((item) => {
+                      const IconComponent = item.icon;
+                      return (
+                        <button
+                          key={item.label}
+                          onClick={() => { setMenuOpen(false); navigate(item.to, { state: item.state }); }}
+                          className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition"
+                        >
+                          <IconComponent className="text-gray-400 shrink-0" />
+                          {item.label}
+                        </button>
+                      );
+                    })}
                   </div>
 
                   {/* Cerrar sesión */}

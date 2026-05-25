@@ -12,7 +12,7 @@ const formatFecha = (iso) =>
     hour: "2-digit", minute: "2-digit",
   });
 
-export default function MisNotificacionesPage() {
+export default function MisNotificacionesPage({ isView }) {
   const [notificaciones, setNotificaciones] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedNotif, setSelectedNotif] = useState(null);
@@ -103,10 +103,11 @@ export default function MisNotificacionesPage() {
   const noLeidas = notificaciones.filter(n => !n.notLeida).length;
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col">
-      <HeaderHome />
+    <div className={isView ? "flex-1 w-full flex flex-col bg-slate-50" : "min-h-screen bg-slate-50 flex flex-col"}>
+      {!isView && <HeaderHome />}
 
-      <main className="flex-1 max-w-5xl mx-auto w-full p-4 md:p-10">
+      <main className={isView ? "flex-1 w-full py-6 px-4" : "flex-1 w-full py-12 px-4"}>
+        <div className="max-w-3xl mx-auto">
 
         {/* Header */}
         <header className="mb-6 md:mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -342,36 +343,45 @@ export default function MisNotificacionesPage() {
             )}
           </>
         )}
+        </div>
       </main>
 
       {/* Modal Detalle */}
       {selectedNotif && (
         <div
-          className="fixed inset-0 bg-slate-900/40 z-100 flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in duration-300"
+          className="fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in duration-300"
           onClick={() => setSelectedNotif(null)}
         >
           <div
             className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200"
             onClick={e => e.stopPropagation()}
           >
-            <div className="p-8 text-center border-b border-slate-50 relative">
-              <div className="w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4 rotate-3">
-                <FaBell className="text-2xl" />
+            <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between">
+              <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+                <FaBell className="text-blue-500" /> {selectedNotif.notTitulo}
+              </h2>
+              <button onClick={() => setSelectedNotif(null)} className="text-slate-400 hover:text-slate-600 transition text-xl cursor-pointer">×</button>
+            </div>
+            
+            <div className="p-6 bg-white space-y-4">
+              <div className="flex items-center gap-2 text-sm text-slate-500 bg-blue-50 border border-blue-100 rounded-xl px-4 py-2.5">
+                <FaClock className="text-blue-400 shrink-0" />
+                <span className="font-medium text-blue-700">Fecha</span>
+                <span className="ml-auto">{formatFecha(selectedNotif.notFechaProgramada)}</span>
               </div>
-              <h2 className="text-2xl font-black text-slate-900 leading-tight">{selectedNotif.notTitulo}</h2>
-              <div className="mt-2 flex items-center justify-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-wider">
-                <FaClock /> {formatFecha(selectedNotif.notFechaProgramada)}
+              
+              <div className="space-y-1.5">
+                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Detalle</p>
+                <p className="text-sm text-slate-800 bg-slate-50 border border-slate-100 rounded-xl p-4 leading-relaxed whitespace-pre-wrap">
+                  {selectedNotif.notMensaje}
+                </p>
               </div>
             </div>
-            <div className="p-8 bg-white">
-              <p className="text-slate-600 leading-relaxed text-center text-lg whitespace-pre-wrap">
-                {selectedNotif.notMensaje}
-              </p>
-            </div>
-            <div className="p-6 bg-slate-50">
+
+            <div className="p-5 border-t border-slate-100 bg-slate-50">
               <button
                 onClick={() => setSelectedNotif(null)}
-                className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-4 rounded-2xl transition cursor-pointer shadow-xl shadow-slate-200"
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition cursor-pointer shadow-lg shadow-blue-200"
               >
                 Entendido
               </button>
@@ -380,7 +390,7 @@ export default function MisNotificacionesPage() {
         </div>
       )}
 
-      <Footer />
+      {!isView && <Footer />}
     </div>
   );
 }

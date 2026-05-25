@@ -46,8 +46,18 @@ export default function NotificacionBell() {
   const preview = notificaciones.slice(0, PREVIEW_COUNT);
   const hasMore = notificaciones.length > PREVIEW_COUNT;
 
+  const fetchNotificaciones = async () => {
+    try {
+      const data = await obtenerMisNotificaciones();
+      setNotificaciones(data);
+    } catch {
+      console.error("Error al cargar notificaciones");
+    }
+  };
+
   useEffect(() => {
     if (!isAuthenticated) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchNotificaciones();
     const interval = setInterval(fetchNotificaciones, 120000);
     return () => clearInterval(interval);
@@ -60,15 +70,6 @@ export default function NotificacionBell() {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-
-  const fetchNotificaciones = async () => {
-    try {
-      const data = await obtenerMisNotificaciones();
-      setNotificaciones(data);
-    } catch {
-      console.error("Error al cargar notificaciones");
-    }
-  };
 
   const handleMarkAllRead = async () => {
     const unread = notificaciones.filter(n => !n.notLeida);
@@ -152,7 +153,7 @@ export default function NotificacionBell() {
                 {hasMore && (
                   <div className="p-3 text-center border-t border-slate-100">
                     <button
-                      onClick={() => { navigate("/mis-notificaciones"); setIsOpen(false); }}
+                      onClick={() => { navigate("/", { state: { view: "notificaciones" } }); setIsOpen(false); }}
                       className="text-sm text-blue-600 hover:text-blue-800 font-semibold cursor-pointer transition"
                     >
                       Ver más ({notificaciones.length - PREVIEW_COUNT} más)

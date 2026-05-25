@@ -69,91 +69,14 @@ export default function SoportePagoDetalleModal({ soporte, loading = false, onCl
             </div>
           )}
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-10 items-start">
-            {/* Info Cliente Profesional */}
-            <div className="space-y-5">
-              <div className="flex items-center gap-2 text-slate-400 font-black uppercase tracking-[0.2em] text-[10px] ml-1">
-                <FaUser className="text-blue-500" /> Datos del Titular
-                <div className="h-[1px] flex-1 bg-slate-100 ml-2"></div>
-              </div>
-              <div className="bg-blue-50/20 rounded-[2rem] p-4 sm:p-8 border border-blue-100/50 shadow-sm relative overflow-hidden">
-                <h3 className="font-black text-slate-900 text-2xl mb-8 border-b border-blue-100/50 pb-4 tracking-tight">
-                  {cliente.nombreCompleto}
-                </h3>
-
-                <div className="space-y-5">
-                  <div className="flex items-center gap-5">
-                    <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center text-blue-600 shadow-sm border border-blue-50 shrink-0">
-                      <FaIdCard className="text-lg" />
-                    </div>
-                    <div>
-                      <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-1 opacity-70">Número de Identificación</p>
-                      <p className="text-base text-slate-800 font-black tracking-wide">{cliente.documento}</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-5">
-                    <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center text-blue-600 shadow-sm border border-blue-50 shrink-0">
-                      <FaEnvelope className="text-lg" />
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-1 opacity-70">Correo Electrónico</p>
-                      <p className="text-base text-slate-800 font-black break-all leading-tight">
-                        {cliente.correo}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Info Soporte */}
-            <div className="space-y-5">
-              <div className="flex items-center gap-2 text-slate-400 font-black uppercase tracking-[0.2em] text-[10px] ml-1">
-                <FaInfoCircle className="text-blue-500" /> Información General
-                <div className="h-[1px] flex-1 bg-slate-100 ml-2"></div>
-              </div>
-              <div className="bg-slate-50 rounded-[2rem] p-4 sm:p-8 border border-slate-100 space-y-4 sm:space-y-6 shadow-inner">
-                <div className="flex justify-between items-center">
-                  <span className="text-slate-500 font-black uppercase tracking-widest text-[10px]">Fecha de Emisión</span>
-                  <span className="text-slate-900 font-black flex items-center gap-3 bg-white px-5 py-2.5 rounded-2xl border border-slate-200 shadow-sm text-sm">
-                    <FaCalendarAlt className="text-blue-500" />
-                    {new Date(soporte.sopFecha).toLocaleString()}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-slate-500 font-black uppercase tracking-widest text-[10px]">Estado Actual</span>
-                  <span className={`font-black px-6 py-2.5 rounded-2xl text-[11px] uppercase tracking-[0.15em] shadow-sm border ${soporte.sopEstado === "ANULADA"
-                      ? "bg-red-50 border-red-200 text-red-600"
-                      : "bg-green-50 border-green-200 text-green-600"
-                    }`}>
-                    {soporte.sopEstado}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-slate-500 font-black uppercase tracking-widest text-[10px]">Método de Pago</span>
-                  <span className="text-slate-900 font-black bg-white px-5 py-2.5 rounded-2xl border border-slate-200 uppercase tracking-tighter text-sm shadow-sm">
-                    {soporte.sopCondiciones || "EFECTIVO"}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-
           {/* Recibo itemizado */}
-          <div className="space-y-4">
+          <div className="space-y-4 max-w-3xl mx-auto">
             {loading && (
               <div className="bg-slate-100 rounded-2xl p-3 animate-pulse">
                 <div className="bg-white rounded-xl overflow-hidden">
-                  <div className="bg-slate-800 px-6 py-5 space-y-2">
-                    <div className="h-3 w-48 bg-slate-700 rounded mx-auto" />
-                    <div className="h-4 w-40 bg-slate-600 rounded mx-auto" />
-                    <div className="flex justify-between mt-2">
-                      <div className="h-3 w-16 bg-slate-700 rounded" />
-                      <div className="h-3 w-24 bg-slate-700 rounded" />
-                    </div>
-                  </div>
                   <div className="px-6 py-4 space-y-4">
+                    <div className="h-3 w-48 bg-slate-200 rounded mx-auto mb-6" />
+                    <div className="h-4 w-40 bg-slate-300 rounded mx-auto mb-6" />
                     {[1, 2, 3].map(i => (
                       <div key={i} className="flex justify-between items-center pb-3 border-b border-slate-100">
                         <div className="h-3 w-32 bg-slate-100 rounded" />
@@ -168,25 +91,9 @@ export default function SoportePagoDetalleModal({ soporte, loading = false, onCl
                 </div>
               </div>
             )}
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] px-2 ml-1">Detalle de Compra</p>
 
             {!loading && <div className="bg-slate-100 rounded-2xl p-3">
               <div className="bg-white rounded-xl overflow-hidden shadow-sm">
-
-                {/* Cabecera recibo */}
-                <div className="bg-slate-900 text-white text-center px-6 py-5">
-                  <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">OptiLuxe — Sistema de Gestión Óptica</p>
-                  <p className="font-black text-sm tracking-[0.2em] mb-2">COMPROBANTE DE VENTA</p>
-                  <div className="flex justify-between text-[10px] text-slate-400">
-                    <span>{new Date(soporte.sopFecha).toLocaleDateString("es-CO")}</span>
-                    <span className="font-bold text-slate-300 font-mono">{soporte.sopNumero}</span>
-                  </div>
-                </div>
-
-                {/* Perforación */}
-                <div className="flex items-center px-5 py-2 border-b border-dashed border-slate-200">
-                  <div className="flex-1 border-t border-dotted border-slate-300" />
-                </div>
 
                 {/* Cuerpo */}
                 <div className="px-6 py-4 font-mono text-xs space-y-4">
@@ -274,29 +181,6 @@ export default function SoportePagoDetalleModal({ soporte, loading = false, onCl
                 </div>
               </div>
             </div>}
-          </div>
-
-          {/* Totales Profesional - Sin IVA */}
-          <div className="bg-blue-700 rounded-[2rem] sm:rounded-[3rem] p-5 sm:p-10 space-y-4 sm:space-y-6 relative overflow-hidden group border border-white/5">
-            <div className="absolute top-0 right-0 w-80 h-80 bg-blue-500/5 blur-3xl rounded-full -mr-20 -mt-20 group-hover:bg-blue-500/10 transition-colors duration-500"></div>
-            <div className="flex justify-between text-lg text-slate-400">
-              <span className="font-black border-l-4 border-blue-500/40 pl-6 uppercase tracking-[0.2em] text-[11px] h-fit">Subtotal Liquidado</span>
-              <span className="text-white font-mono font-black tracking-widest text-xl">${Math.round(soporte.sopSubtotal).toLocaleString("es-CO")}</span>
-            </div>
-            <div className="pt-10 mt-8 border-t border-blue-600 flex justify-between items-end">
-              <div>
-                <p className="text-[11px] text-blue-400 font-black uppercase tracking-[0.4em] mb-3 px-1">Importe Total Neto</p>
-                <div className="flex items-baseline gap-2">
-                  <span className="text-white text-3xl font-black tracking-tighter underline underline-offset-[8px] decoration-blue-500 decoration-4">SOPORTE DE PAGO</span>
-                </div>
-              </div>
-              <div className="text-right">
-                <span className="text-blue-500 text-lg font-black mr-2 opacity-50">$</span>
-                <span className="text-white text-3xl sm:text-5xl font-black font-mono tracking-tighter drop-shadow-2xl shadow-blue-500/40">
-                  {Math.round(soporte.sopTotal).toLocaleString("es-CO")}
-                </span>
-              </div>
-            </div>
           </div>
         </div>
 

@@ -8,7 +8,7 @@ export default function CartPanel() {
 
   const handleCheckout = () => {
     closePanel();
-    navigate("/carrito");
+    navigate("/", { state: { view: "carrito" } });
   };
 
   return (
